@@ -1,0 +1,13 @@
+{% extends "auth_base.html" %}
+{% block title %}Ro‘yxatdan o‘tish — BioTeacher{% endblock %}
+{% block auth_content %}
+  <h1 class="font-semibold text-2xl text-slateg-900">Ro‘yxatdan o‘tish</h1>
+  <p class="mt-1 text-sm text-slateg-500">Bir necha daqiqada boshlang‘ich diagnostikadan o‘tasiz.</p>
+  <form method="post" class="mt-6">{% csrf_token %}
+    {% include "partials/form.html" %}
+    <button class="btn btn-primary btn-wide transition">Hisob yaratish</button>
+  </form>
+  <p class="mt-4 text-center text-sm text-slateg-500">
+    Hisobingiz bormi? <a href="{% url 'accounts:login' %}" class="text-brand-700 font-medium">Kirish</a>
+  </p>
+{% endblock %}

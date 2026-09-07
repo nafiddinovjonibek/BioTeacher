@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}BioTeacher — o'z-o'zini rivojlantirish platformasi{% endblock %}
+
+{% block public %}
+<div class="min-h-full bg-slateg-50">
+  <header class="border-b border-slateg-200 bg-white/80 backdrop-blur sticky top-0 z-30">
+    <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-3">
+        <span class="grid place-items-center w-10 h-10 rounded-xl bg-brand-700 text-white text-xl"></span>
+        <span class="font-semibold text-slateg-900">BioTeacher</span>
+      </a>
+      <nav class="flex items-center gap-2 text-sm">
+        <a href="{% url 'home:about' %}" class="hidden sm:block px-4 py-2 text-slateg-600 hover:text-slateg-900">Loyiha haqida</a>
+        <a href="{% url 'accounts:login' %}" class="px-4 py-2 text-slateg-700 hover:text-slateg-900">Kirish</a>
+        <a href="{% url 'accounts:register' %}" class="btn btn-primary">Ro‘yxatdan o‘tish</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="max-w-6xl mx-auto px-6 py-16 sm:py-24">
+    <div class="max-w-3xl mx-auto">
+      <p class="inline-flex items-center gap-2 rounded-full bg-brand-50 border border-brand-200 px-3 py-1 text-xs text-brand-700">
+        PhD tadqiqoti · tajriba-sinov vositasi
+      </p>
+      <h1 class="mt-6 font-semibold text-4xl sm:text-5xl leading-tight text-slateg-900">
+        Bo‘lajak biologiya o‘qituvchisining<br class="hidden sm:block">
+        <span class="text-brand-700">o‘zini rivojlantirish tizimi</span>
+      </h1>
+      <p class="mt-6 text-lg text-slateg-600 leading-relaxed">
+        Bu test sayti emas. Bu — <strong>diagnostika → maqsad → faoliyat → baholash → refleksiya →
+        monitoring</strong> siklini yopadigan va sizning o‘sishingizni raqamlarda ko‘rsatadigan tizim.
+      </p>
+      <div class="mt-8 flex flex-wrap gap-3">
+        <a href="{% url 'accounts:register' %}" class="btn btn-primary">Boshlash</a>
+        <a href="{% url 'home:about' %}" class="rounded-xl border border-slateg-300 bg-white px-6 py-3 text-slateg-800 hover:border-slateg-400">Qanday ishlaydi?</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="max-w-6xl mx-auto px-6 pb-16">
+    <h2 class="font-semibold text-2xl text-slateg-900">Nima o‘lchanadi</h2>
+    <p class="mt-2 text-slateg-600">Beshta komponent, bitta integral indeks — SDI.</p>
+    <div class="mt-8 grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      {% for c in components %}
+        <div class="section p-5">
+          <p class="font-mono text-xs text-brand-700">{{ c.code }}</p>
+          <p class="mt-2 font-medium text-slateg-900">{{ c.label }}</p>
+          <p class="mt-2 text-sm text-slateg-600 leading-relaxed">{{ c.description }}</p>
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="on-dark bg-slateg-900 text-slateg-400">
+    <div class="max-w-6xl mx-auto px-6 py-16">
+      <h2 class="font-semibold text-2xl text-white">Rivojlanish sikli</h2>
+      <div class="mt-8 grid sm:grid-cols-3 lg:grid-cols-6 gap-4 text-sm">
+        {% for step in "Diagnostika,Maqsad,Faoliyat,Baholash,Refleksiya,Monitoring"|slice:":200" %}{% endfor %}
+        <div class="rounded-xl bg-white/5 p-4"><span class="block text-2xl mb-2"></span>Diagnostika</div>
+        <div class="rounded-xl bg-white/5 p-4"><span class="block text-2xl mb-2"></span>Maqsad</div>
+        <div class="rounded-xl bg-white/5 p-4"><span class="block text-2xl mb-2"></span>Faoliyat</div>
+        <div class="rounded-xl bg-white/5 p-4"><span class="block text-2xl mb-2"></span>Baholash</div>
+        <div class="rounded-xl bg-white/5 p-4"><span class="block text-2xl mb-2"></span>Refleksiya</div>
+        <div class="rounded-xl bg-white/5 p-4"><span class="block text-2xl mb-2"></span>Monitoring</div>
+      </div>
+      <p class="mt-8 text-sm text-slateg-500 max-w-2xl leading-relaxed">
+        Har bir siklda tizim sizning eng zaif komponentingizni aniqlaydi va keyingi topshiriqlarni
+        aynan shunga yo‘naltiradi. Reyting jadvali yo‘q — siz faqat o‘zingizning kechagi natijangiz
+        bilan taqqoslanasiz.
+      </p>
+    </div>
+  </section>
+
+  <footer class="max-w-6xl mx-auto px-6 py-10 text-sm text-slateg-500">
+    BioTeacher — Self-Development Platform · Ma’lumotlar anonim tahlil qilinadi.
+  </footer>
+</div>
+{% endblock %}

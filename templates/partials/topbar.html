@@ -1,0 +1,38 @@
+<header class="no-print sticky top-0 z-30 lg:static bg-slateg-50/90 backdrop-blur px-4 sm:px-6 lg:px-7 pt-4 pb-3">
+  <div class="flex items-center gap-3">
+    <button id="menu-trigger" onclick="toggleMenu()" aria-expanded="false" aria-controls="mobile-menu"
+            class="lg:hidden grid place-items-center w-10 h-10 rounded-xl bg-white border border-slateg-200 text-slateg-700">
+      <span class="sr-only">Menyuni ochish</span>
+      <span class="w-5 h-5">{% include "partials/icon.html" with name="menu" %}</span>
+    </button>
+
+    <form action="{% url 'content:index' %}" method="get" class="flex-1 max-w-2xl relative">
+      <label for="site-search" class="sr-only">Qidirish</label>
+      <span class="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-slateg-400 pointer-events-none">
+        {% include "partials/icon.html" with name="search" %}
+      </span>
+      <input id="site-search" type="search" name="q" value="{{ request.GET.q|default:'' }}"
+             placeholder="Mavzu, test yoki bo‘limni qidirish…"
+             class="field pl-11 rounded-full bg-white">
+    </form>
+
+    <div class="flex items-center gap-2 ml-auto">
+      <a href="{% url 'notifications:inbox' %}"
+         class="relative grid place-items-center w-10 h-10 rounded-xl bg-white border border-slateg-200 text-slateg-700 hover:border-brand-200">
+        <span class="sr-only">Bildirishnomalar{% if unread_notifications %} — {{ unread_notifications }} ta yangi{% endif %}</span>
+        <span class="w-5 h-5">{% include "partials/icon.html" with name="bell" %}</span>
+        {% if unread_notifications %}
+          <span aria-hidden="true" class="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-rosex-600 ring-2 ring-white"></span>
+        {% endif %}
+      </a>
+
+      {% if not user.email_verified %}
+        <a href="{% url 'accounts:resend_verification' %}" class="btn btn-quiet btn-sm hidden sm:inline-flex">
+          Emailni tasdiqlang
+        </a>
+      {% endif %}
+    </div>
+  </div>
+
+  {% block page_title %}{% endblock %}
+</header>

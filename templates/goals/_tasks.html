@@ -1,0 +1,31 @@
+{% load static %}
+<div id="goal-tasks">
+  <div class="flex items-baseline justify-between">
+    <h3 class="font-semibold text-lg text-slateg-900">Vazifalar</h3>
+    <span class="text-sm font-medium text-slateg-700">{{ goal.progress_percent }}%</span>
+  </div>
+  <div class="mt-2 h-2 rounded-full bg-slateg-100 overflow-hidden">
+    <div class="h-full rounded-full bg-brand-700 transition-all duration-500" style="width: {{ goal.progress_percent }}%"></div>
+  </div>
+
+  <ul class="mt-4 space-y-2">
+    {% for task in goal.tasks.all %}
+      <li>
+        <button hx-post="{% url 'goals:toggle_task' task.pk %}"
+                hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                hx-target="#goal-tasks" hx-swap="outerHTML"
+                class="w-full flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition
+                  {% if task.is_done %}border-brand-200 bg-brand-50{% else %}border-slateg-200 bg-white hover:border-brand-300{% endif %}">
+          <span class="grid place-items-center w-5 h-5 rounded-md border shrink-0
+            {% if task.is_done %}border-brand-700 bg-brand-700 text-white{% else %}border-slateg-300{% endif %}">
+            {% if task.is_done %}✓{% endif %}
+          </span>
+          <span class="flex-1 text-sm {% if task.is_done %}text-brand-700 line-through{% else %}text-slateg-800{% endif %}">{{ task.title }}</span>
+          <span class="text-[11px] text-slateg-500 shrink-0">{{ task.week }}-hafta</span>
+        </button>
+      </li>
+    {% empty %}
+      <li class="text-sm text-slateg-500">Vazifalar qo‘shilmagan.</li>
+    {% endfor %}
+  </ul>
+</div>

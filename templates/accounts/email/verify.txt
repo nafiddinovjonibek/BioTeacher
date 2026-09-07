@@ -1,0 +1,11 @@
+Assalomu alaykum, {{ user.get_short_name }}!
+
+BioTeacher platformasida ro'yxatdan o'tganingiz uchun rahmat.
+Email manzilingizni tasdiqlash uchun quyidagi havolaga o'ting:
+
+{{ link }}
+
+Havola 3 kun davomida amal qiladi.
+Agar siz ro'yxatdan o'tmagan bo'lsangiz, bu xatni e'tiborsiz qoldiring.
+
+— BioTeacher

@@ -1,0 +1,9 @@
+<div id="progress-box">
+  <div class="flex items-baseline justify-between text-sm">
+    <span class="text-slateg-600">Javob berildi</span>
+    <span class="font-semibold text-slateg-900">{{ attempt.answered_count }} / {{ total }}</span>
+  </div>
+  <div class="mt-2 h-2 rounded-full bg-slateg-200 overflow-hidden">
+    <div class="h-full rounded-full bg-brand-700 transition-all duration-300" style="width: {{ attempt.progress_percent }}%"></div>
+  </div>
+</div>

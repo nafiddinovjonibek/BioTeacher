@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}{{ group.name }} — analitika{% endblock %}
+{% block page_title %}{{ group.name }} — guruh analitikasi{% endblock %}
+{% block content %}
+<div class="">
+  <a href="{% url 'teacher:group_detail' group.pk %}" class="text-sm text-slateg-500 hover:text-slateg-800">← Guruhga qaytish</a>
+
+  {% if sdi %}
+    <div class="grid sm:grid-cols-4 gap-4">
+      <div class="section">
+        <p class="text-sm text-slateg-600">Talabalar</p>
+        <p class="mt-2 font-semibold text-3xl text-slateg-900">{{ sdi.n }}</p>
+      </div>
+      <div class="section">
+        <p class="text-sm text-slateg-600">O‘rtacha SDI</p>
+        <p class="mt-2 font-semibold text-3xl text-slateg-900">{{ sdi.mean }}%</p>
+      </div>
+      <div class="section">
+        <p class="text-sm text-slateg-600">Mediana</p>
+        <p class="mt-2 font-semibold text-3xl text-slateg-900">{{ sdi.median }}%</p>
+      </div>
+      <div class="section">
+        <p class="text-sm text-slateg-600">Diapazon</p>
+        <p class="mt-2 font-semibold text-2xl text-slateg-900">{{ sdi.min }}–{{ sdi.max }}</p>
+      </div>
+    </div>
+  {% else %}
+    <div class="rounded-2xl border border-amberx-200 bg-amberx-50 p-5 text-sm text-amberx-700">
+      Hali hech bir talaba diagnostikadan o‘tmagan — analitika bo‘sh.
+    </div>
+  {% endif %}
+
+  {% if weakest %}
+    <div class="rounded-2xl border border-amberx-200 bg-amberx-50 p-5">
+      <p class="text-xs text-amberx-600">Guruhning eng zaif komponenti</p>
+      <p class="mt-1 font-semibold text-xl text-amberx-700">{{ weakest.label }} — {{ weakest.mean }}%</p>
+      <p class="mt-1 text-sm text-amberx-700">Guruh darsini shu yo‘nalishga qaratish samarali bo‘ladi.</p>
+    </div>
+  {% endif %}
+
+  {% if components %}
+    <section class="section">
+      <h3 class="font-semibold text-lg text-slateg-900 mb-4">Komponentlar bo‘yicha</h3>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead><tr class="text-left text-sm text-slateg-600 border-b border-slateg-200">
+            <th class="py-2 pr-4">Komponent</th><th class="py-2 px-3 text-center">n</th>
+            <th class="py-2 px-3 text-center">O‘rtacha</th><th class="py-2 px-3 text-center">Mediana</th>
+            <th class="py-2 px-3 text-center">Min</th><th class="py-2 px-3 text-center">Max</th>
+          </tr></thead>
+          <tbody class="divide-y divide-slateg-100">
+            {% for c in components %}
+              <tr>
+                <td class="py-2.5 pr-4 text-slateg-800">{{ c.label }}</td>
+                <td class="py-2.5 px-3 text-center text-slateg-500">{{ c.n }}</td>
+                <td class="py-2.5 px-3 text-center font-semibold text-slateg-900">{{ c.mean }}</td>
+                <td class="py-2.5 px-3 text-center">{{ c.median }}</td>
+                <td class="py-2.5 px-3 text-center text-slateg-500">{{ c.min }}</td>
+                <td class="py-2.5 px-3 text-center text-slateg-500">{{ c.max }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="relative mt-6 h-[220px] sm:h-[260px]">
+        <canvas id="bars"></canvas>
+      </div>
+    </section>
+  {% endif %}
+
+  {% if at_risk %}
+    <section class="rounded-2xl border border-rosex-200 bg-rosex-50 p-6">
+      <h3 class="font-semibold text-lg text-rosex-700">Xavf guruhi (SDI &lt; {{ risk_threshold }}%)</h3>
+      <p class="mt-1 text-sm text-rosex-700">Bu talabalarga individual e'tibor kerak.</p>
+      <div class="mt-4 space-y-2">
+        {% for row in at_risk %}
+          <a href="{% url 'progress:student' row.student.pk %}" class="flex items-center justify-between rounded-xl bg-white border border-rosex-200 px-4 py-3 hover:border-rosex-200">
+            <span class="text-sm text-slateg-800">{{ row.student.get_full_name|default:row.student.email }}</span>
+            <span class="text-sm font-semibold text-rosex-700">{{ row.sdi|floatformat:0 }}%</span>
+          </a>
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if components %}
+<script>
+  new Chart(document.getElementById('bars'), {
+    type: 'bar',
+    data: {
+      labels: [{% for c in components %}"{{ c.label|escapejs }}"{% if not forloop.last %},{% endif %}{% endfor %}],
+      datasets: [{
+        label: 'Guruh o‘rtachasi',
+        data: [{% for c in components %}{{ c.mean }}{% if not forloop.last %},{% endif %}{% endfor %}],
+        backgroundColor: '#16a34a', borderRadius: 6, barThickness: 36,
+      }]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: { y: { min: 0, max: 100, grid: { color: '#e2e8f0' }, ticks: { color: '#94a3b8' } },
+                x: { grid: { display: false }, ticks: { color: '#475569', font: { size: 11 } } } },
+      responsive: true, maintainAspectRatio: false,
+    }
+  });
+</script>
+{% endif %}
+{% endblock %}

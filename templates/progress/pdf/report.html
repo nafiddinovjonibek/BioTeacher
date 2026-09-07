@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="uz"><head><meta charset="utf-8">
+<style>
+  @page { size: A4; margin: 1.8cm; }
+  body { font-family: "DejaVu Sans", Arial, sans-serif; font-size: 10pt; color: #1e293b; line-height: 1.45; }
+  h1 { font-size: 16pt; margin: 0 0 2px; }
+  h2 { font-size: 12pt; margin: 18px 0 6px; border-bottom: 1px solid #e2e8f0; padding-bottom: 3px; }
+  .meta { color: #64748b; font-size: 9pt; margin-bottom: 14px; }
+  .sdi { background: #f0fdf4; border: 1px solid #bbf7d0; padding: 10px 14px; margin-bottom: 12px; }
+  .sdi b { font-size: 20pt; }
+  table { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 9pt; }
+  th, td { border: 1px solid #e2e8f0; padding: 5px 7px; text-align: center; }
+  th { background: #f8fafc; font-weight: 600; }
+  td.name { text-align: left; }
+  .note { background: #f8fafc; padding: 8px 10px; margin-top: 10px; font-size: 9pt; }
+  .footer { margin-top: 20px; border-top: 1px solid #e2e8f0; padding-top: 6px; font-size: 8pt; color: #94a3b8; }
+</style></head>
+<body>
+  <h1>Shaxsiy rivojlanish hisoboti</h1>
+  <p class="meta">
+    {{ student.get_full_name|default:student.email }}
+    {% if student.profile.group %} &middot; {{ student.profile.group.name }}{% endif %}
+    {% if student.profile.otm %} &middot; {{ student.profile.otm }}{% endif %}
+  </p>
+
+  <div class="sdi">
+    Umumiy SDI: <b>{% if sdi is not None %}{{ sdi|floatformat:1 }}%{% else %}—{% endif %}</b>
+    &mdash; {{ level.1 }} daraja
+  </div>
+
+  {% if summary %}<div class="note">{{ summary }}</div>{% endif %}
+
+  <h2>Komponentlar kesimlar bo‘yicha</h2>
+  <table>
+    <tr>
+      <th style="text-align:left">Komponent</th>
+      {% for cut in cuts %}<th>{{ cut.label }}</th>{% endfor %}
+      <th>Joriy</th><th>&Delta;</th>
+    </tr>
+    {% for row in table %}
+      <tr>
+        <td class="name">{{ row.label }}</td>
+        {% for cell in row.cells %}<td>{% if cell is None %}&mdash;{% else %}{{ cell|floatformat:0 }}{% endif %}</td>{% endfor %}
+        <td><b>{{ row.current|floatformat:0 }}</b></td>
+        <td>{% if row.delta is None %}&mdash;{% else %}{% if row.delta > 0 %}+{% endif %}{{ row.delta|floatformat:1 }}{% endif %}</td>
+      </tr>
+    {% endfor %}
+    <tr>
+      <td class="name"><b>{{ sdi_row.label }}</b></td>
+      {% for cell in sdi_row.cells %}<td>{% if cell is None %}&mdash;{% else %}{{ cell|floatformat:1 }}{% endif %}</td>{% endfor %}
+      <td><b>{% if sdi_row.current is not None %}{{ sdi_row.current|floatformat:1 }}{% else %}&mdash;{% endif %}</b></td>
+      <td>{% if sdi_row.delta is None %}&mdash;{% else %}{% if sdi_row.delta > 0 %}+{% endif %}{{ sdi_row.delta|floatformat:1 }}{% endif %}</td>
+    </tr>
+  </table>
+
+  <h2>Faollik</h2>
+  <table>
+    <tr><th>Bajarilgan ishlar</th><th>Refleksiyalar</th><th>O‘zlashtirilgan darslar</th><th>Muntazamlik</th></tr>
+    <tr>
+      <td>{{ activity.SUBMISSION|default:0 }}</td>
+      <td>{{ activity.REFLECTION|default:0 }}</td>
+      <td>{{ activity.LESSON|default:0 }}</td>
+      <td>{% if streak %}{{ streak.current }} kun{% else %}0{% endif %}</td>
+    </tr>
+  </table>
+
+  {% if gap %}
+    <h2>Baholash adekvatligi</h2>
+    <div class="note">
+      O‘rtacha farq: {% if gap.average > 0 %}+{% endif %}{{ gap.average }} punkt ({{ gap.count }} ta ish).<br>
+      {{ gap.verdict }}
+    </div>
+  {% endif %}
+
+  <div class="footer">
+    BioTeacher &mdash; Self-Development Platform. Hisobot avtomatik shakllantirildi.
+  </div>
+</body></html>

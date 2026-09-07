@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="uz"><head><meta charset="utf-8">
+<style>
+  @page { size: A4; margin: 2cm; }
+  body { font-family: "DejaVu Sans", Arial, sans-serif; font-size: 11pt; color: #1e293b; line-height: 1.5; }
+  h1 { font-size: 16pt; margin: 0 0 4px; }
+  .meta { color: #64748b; font-size: 9pt; margin-bottom: 18px; }
+  .block { margin-bottom: 14px; padding: 10px 12px; background: #f8fafc; border-left: 3px solid #16a34a; }
+  .label { font-size: 8pt; text-transform: uppercase; letter-spacing: .06em; color: #64748b; margin-bottom: 4px; }
+  .footer { margin-top: 24px; border-top: 1px solid #e2e8f0; padding-top: 8px; font-size: 8pt; color: #94a3b8; }
+</style></head>
+<body>
+  <h1>{{ submission.assignment.title }}</h1>
+  <p class="meta">
+    {{ submission.student.get_full_name|default:submission.student.email }}
+    {% if submission.student.profile.group %} &middot; {{ submission.student.profile.group.name }}{% endif %}
+    {% if submission.submitted_at %} &middot; {{ submission.submitted_at|date:"d.m.Y" }}{% endif %}
+  </p>
+
+  {% for row in submission.answer_rows %}
+    <div class="block">
+      <div class="label">{{ row.label }}</div>
+      <div>{{ row.text|linebreaksbr }}</div>
+    </div>
+  {% endfor %}
+
+  {% if submission.mentor_feedback %}
+    <div class="block" style="border-left-color:#0284c7">
+      <div class="label">Mentor fikri</div>
+      <div>{{ submission.mentor_feedback|linebreaksbr }}</div>
+    </div>
+  {% endif %}
+
+  <div class="footer">BioTeacher — Self-Development Platform</div>
+</body></html>

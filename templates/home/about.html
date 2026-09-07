@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Loyiha haqida — BioTeacher{% endblock %}
+{% block page_title %}Loyiha haqida{% endblock %}
+{% block public %}
+<div class="min-h-full bg-slateg-50">
+  <header class="border-b border-slateg-200 bg-white">
+    <div class="max-w-3xl mx-auto px-6 h-16 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-3"><span class="grid place-items-center w-9 h-9 rounded-xl bg-brand-700 text-white"></span><span class="font-semibold text-slateg-900">BioTeacher</span></a>
+      <a href="{% url 'accounts:login' %}" class="text-sm text-slateg-600 hover:text-slateg-900">Kirish</a>
+    </div>
+  </header>
+  <div class="max-w-3xl mx-auto px-6 py-12">{% include "home/_about_body.html" %}</div>
+</div>
+{% endblock %}
+{% block content %}<div class="max-w-3xl mx-auto">{% include "home/_about_body.html" %}</div>{% endblock %}

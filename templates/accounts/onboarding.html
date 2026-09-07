@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Boshlash — BioTeacher{% endblock %}
+{% block page_title %}Platformaga kirish{% endblock %}
+{% block content %}
+<div class="max-w-3xl mx-auto">
+  <div class="rounded-2xl border border-brand-200 bg-brand-50 p-6">
+    <h2 class="font-semibold text-xl text-brand-900">Xush kelibsiz, {{ user.get_short_name }}!</h2>
+    <p class="mt-2 text-sm text-brand-700 leading-relaxed">
+      Platformadan foydalanishni boshlash uchun <strong>boshlang‘ich diagnostikadan</strong> o‘tishingiz kerak.
+      U sizning 5 komponent bo‘yicha joriy darajangizni aniqlaydi va shu asosda individual
+      rivojlanish traektoriyangizni tuzadi. Bu qadam bir marta bajariladi.
+    </p>
+  </div>
+
+  <ol class="mt-6 space-y-3">
+    {% for step in steps %}
+      <li class="flex items-center gap-4 section p-4">
+        <span class="grid place-items-center w-9 h-9 rounded-full shrink-0 {% if step.done %}bg-brand-100 text-brand-700{% else %}bg-slateg-100 text-slateg-500{% endif %} font-semibold">
+          {% if step.done %}✓{% else %}{{ forloop.counter }}{% endif %}
+        </span>
+        <span class="flex-1">
+          <span class="block font-medium text-slateg-900">{{ step.title }}</span>
+          {% if step.optional %}<span class="text-xs text-slateg-500">Ixtiyoriy — mentoringiz kod bergan bo‘lsa</span>{% endif %}
+        </span>
+        <a href="{% url step.url %}" class="btn btn-quiet">{{ step.cta }}</a>
+      </li>
+    {% endfor %}
+
+    {% for q in questionnaires %}
+      <li class="flex items-center gap-4 rounded-2xl border {% if q.slug in done_slugs %}border-brand-200 bg-brand-50{% else %}border-slateg-200 bg-white{% endif %} p-4">
+        <span class="grid place-items-center w-9 h-9 rounded-full shrink-0 {% if q.slug in done_slugs %}bg-brand-100 text-brand-700{% else %}bg-slateg-100 text-slateg-500{% endif %} font-semibold">
+          {% if q.slug in done_slugs %}✓{% else %}{{ forloop.counter|add:steps|length }}{% endif %}
+        </span>
+        <span class="flex-1">
+          <span class="block font-medium text-slateg-900">{{ q.title }}</span>
+          <span class="text-xs text-slateg-500">
+            {{ q.get_kind_display }}{% if q.time_limit_minutes %} · {{ q.time_limit_minutes }} daqiqa{% endif %}
+          </span>
+        </span>
+        {% if q.slug in done_slugs %}
+          <span class="text-sm text-brand-700 font-medium">Bajarildi</span>
+        {% else %}
+          <a href="{% url 'diagnostics:start' q.slug %}" class="rounded-xl bg-brand-600 px-4 py-2 text-sm text-white hover:bg-brand-700">Boshlash</a>
+        {% endif %}
+      </li>
+    {% empty %}
+      <li class="rounded-2xl border border-amberx-200 bg-amberx-50 p-4 text-sm text-amberx-700">
+        Diagnostik so‘rovnomalar hali yuklanmagan. Administrator <code>python manage.py seed_demo</code> buyrug‘ini bajarishi kerak.
+      </li>
+    {% endfor %}
+  </ol>
+
+  {% if not user.email_verified %}
+    <p class="mt-6 text-sm text-slateg-500">
+      Email tasdiqlanmagan.
+      <a href="{% url 'accounts:resend_verification' %}" class="text-brand-700 font-medium">Havolani qayta yuborish</a>
+    </p>
+  {% endif %}
+</div>
+{% endblock %}

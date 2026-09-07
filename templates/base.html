@@ -1,0 +1,401 @@
+{% load static %}<!DOCTYPE html>
+<html lang="uz" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}BioTeacher{% endblock %}</title>
+  <meta name="description" content="Bo'lajak biologiya o'qituvchilarining o'z-o'zini rivojlantirish platformasi">
+  <meta name="theme-color" content="#0B2B18">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            /* Brend yashili — jonli, iliq. Tugma, faol holat, ikonka. */
+            brand: {
+              50:'#EAF6EE', 100:'#D3ECDC', 200:'#A9DBBB', 300:'#71C492',
+              400:'#3FAA6C', 500:'#22914F', 600:'#17843F', 700:'#116A33',
+              800:'#0E5228', 900:'#0B3A1D',
+            },
+            /* Yon panel va to'q yuzalar */
+            forest: { 700:'#123A22', 800:'#0E301C', 900:'#0B2B18', 950:'#071E11' },
+            /* Neytral — sovuq emas, biroz yashilga moyil */
+            slateg: {
+              50:'#F5F8F6', 100:'#EDF2EF', 200:'#E1E9E4', 300:'#C7D3CB',
+              400:'#9AAAA0', 500:'#7E8F85', 600:'#5E6F65', 700:'#42544A',
+              800:'#2A3B31', 900:'#12261A',
+            },
+            amberx: { 50:'#FFF6E8', 200:'#F6DFB4', 600:'#B7791F', 700:'#8F5E14' },
+            rosex:  { 50:'#FDEEEC', 200:'#F4C7C0', 600:'#C0392B', 700:'#96291D' },
+            skyx:   { 50:'#EAF2FB', 200:'#BFD8F1', 600:'#2A6FB5', 700:'#1E5488' },
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"','Inter','system-ui','-apple-system','"Segoe UI"','sans-serif'],
+            serif: ['"Source Serif 4"','Georgia','serif'],
+          },
+          borderRadius: { lg:'10px', xl:'12px', '2xl':'16px', '3xl':'22px' },
+          boxShadow: {
+            card: '0 1px 2px rgba(11,43,24,.04), 0 8px 24px -12px rgba(11,43,24,.10)',
+            lift: '0 2px 6px rgba(11,43,24,.06), 0 18px 36px -16px rgba(11,43,24,.18)',
+            ring: '0 0 0 1px rgba(11,43,24,.06)',
+          },
+          spacing: { rail: '17rem', side: '20rem' },
+        }
+      }
+    }
+  </script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/htmx/1.9.12/htmx.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (!window.Chart) return;
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      Chart.defaults.font.family = '"Plus Jakarta Sans", Inter, system-ui, sans-serif';
+      Chart.defaults.font.size = 12;
+      Chart.defaults.color = '#5E6F65';
+      Chart.defaults.borderColor = '#E1E9E4';
+      Chart.defaults.animation = reduce ? false : { duration: 500 };
+      Chart.defaults.plugins.tooltip.backgroundColor = '#0B2B18';
+      Chart.defaults.plugins.tooltip.padding = 10;
+      Chart.defaults.plugins.tooltip.cornerRadius = 8;
+      Chart.defaults.plugins.tooltip.displayColors = false;
+      Chart.defaults.plugins.legend.labels.usePointStyle = true;
+      Chart.defaults.plugins.legend.labels.boxWidth = 8;
+      Chart.defaults.plugins.legend.labels.padding = 14;
+    });
+    window.BT_CHANNEL = {
+      MOT:'#116A33', COG:'#17843F', ACT:'#3FAA6C', REF:'#2A6FB5', CRE:'#B7791F',
+    };
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --brand: #17843F;
+      --brand-dark: #116A33;
+      --page: #F5F8F6;
+      --line: #E1E9E4;
+    }
+
+    html { -webkit-text-size-adjust: 100%; }
+    /* Gorizontal siljish bo'lmasligi uchun: media va oldindan formatlangan
+       bloklar konteynerdan chiqmaydi. */
+    img, svg, video, canvas, table { max-width: 100%; }
+    pre { overflow-x: auto; }
+    /* Chart.js canvas'ni ota-elementdan kengaytirmasin. */
+    canvas { display:block; width:100% !important; }
+    textarea { max-width: 100%; resize: vertical; }
+    body { -webkit-font-smoothing: antialiased; }
+    .tnum, .metric { font-variant-numeric: tabular-nums; }
+
+    /* ---------- Fokus ---------- */
+    :focus { outline: none; }
+    :focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; border-radius: 6px; }
+    .on-dark :focus-visible { outline-color: #A9DBBB; }
+    .skip-link {
+      position: absolute; left: .75rem; top: -3rem; z-index: 60;
+      background: var(--brand); color: #fff; padding: .55rem 1rem;
+      border-radius: 8px; transition: top .15s;
+    }
+    .skip-link:focus { top: .75rem; }
+
+    /* ---------- Kartalar ---------- */
+    .card {
+      background: #fff; border: 1px solid var(--line); border-radius: 16px;
+      box-shadow: 0 1px 2px rgba(11,43,24,.04), 0 8px 24px -12px rgba(11,43,24,.10);
+    }
+    .card-p { padding: 1.25rem 1.35rem; }
+    a.card, button.card { display: block; text-align: left; transition: box-shadow .18s, transform .18s, border-color .18s; }
+    a.card:hover, button.card:hover {
+      border-color: #A9DBBB;
+      box-shadow: 0 2px 6px rgba(11,43,24,.06), 0 18px 36px -16px rgba(11,43,24,.18);
+    }
+
+    /* Ikonka cho'ntagi */
+    .chip {
+      display: inline-grid; place-items: center; flex: none;
+      width: 2.5rem; height: 2.5rem; border-radius: 12px;
+      background: #EAF6EE; color: var(--brand);
+    }
+    .chip-sm { width: 2rem; height: 2rem; border-radius: 9px; }
+    .chip-lg { width: 3rem; height: 3rem; border-radius: 14px; }
+    .chip svg { width: 1.15rem; height: 1.15rem; }
+    .chip-lg svg { width: 1.4rem; height: 1.4rem; }
+    .chip-amber { background:#FFF6E8; color:#B7791F; }
+    .chip-sky   { background:#EAF2FB; color:#2A6FB5; }
+    .chip-rose  { background:#FDEEEC; color:#C0392B; }
+    .chip-white { background:rgba(255,255,255,.16); color:#fff; }
+
+    /* ---------- Tugmalar ---------- */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+      border-radius: 10px; padding: .62rem 1.1rem; font-weight: 600; font-size: .95rem;
+      border: 1px solid transparent; cursor: pointer; transition: background .15s, border-color .15s;
+    }
+    .btn svg { width: 1.05rem; height: 1.05rem; }
+    .btn-primary { background: linear-gradient(180deg,#1E8F48,#136C35); color:#fff; box-shadow: 0 1px 2px rgba(11,43,24,.18); }
+    .btn-primary:hover { background: linear-gradient(180deg,#17843F,#0E5228); }
+    .btn-quiet { background:#fff; color:#2A3B31; border-color:#D7E2DA; }
+    .btn-quiet:hover { border-color:#A9DBBB; background:#F7FBF8; }
+    .btn-ghost { background:transparent; color:var(--brand-dark); }
+    .btn-ghost:hover { background:#EAF6EE; }
+    .btn-wide { width:100%; }
+    .btn-sm { padding:.42rem .8rem; font-size:.875rem; border-radius:9px; }
+
+    /* ---------- Formalar ---------- */
+    .field {
+      width:100%; background:#fff; border:1px solid #D7E2DA; border-radius:10px;
+      padding:.62rem .85rem; font:inherit; color:#12261A;
+    }
+    .field::placeholder { color:#9AAAA0; }
+    .field:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(23,132,63,.12); }
+
+    /* ---------- Nishonlar (pill) ---------- */
+    .pill {
+      display:inline-flex; align-items:center; gap:.35rem; border-radius:999px;
+      padding:.2rem .65rem; font-size:.8125rem; font-weight:600;
+    }
+    .pill-ok    { background:#EAF6EE; color:#116A33; }
+    .pill-go    { background:#FFF6E8; color:#8F5E14; }
+    .pill-info  { background:#EAF2FB; color:#1E5488; }
+    .pill-stop  { background:#FDEEEC; color:#96291D; }
+    .pill-mute  { background:#EDF2EF; color:#5E6F65; }
+
+    /* ---------- O'lchov chizig'i ---------- */
+    .bar { height:9px; border-radius:999px; background:#E7EEE9; overflow:hidden; }
+    .bar > span {
+      display:block; height:100%; border-radius:999px;
+      background: linear-gradient(90deg,#3FAA6C,#17843F);
+      transition: width .6s cubic-bezier(.2,.7,.3,1);
+    }
+    .on-dark .bar { background: rgba(255,255,255,.14); }
+    .on-dark .bar > span { background: linear-gradient(90deg,#71C492,#3FAA6C); }
+
+    /* ---------- Daraja metri ---------- */
+    .meter { display:inline-flex; gap:3px; vertical-align:middle; }
+    .meter i { display:block; width:7px; height:13px; border-radius:2px; background:#DCE6E0; }
+    .meter i.on { background: var(--brand); }
+    .on-dark .meter i { background: rgba(255,255,255,.18); }
+    .on-dark .meter i.on { background:#71C492; }
+
+    /* ---------- Hero ----------
+       Fotosurat o'rniga botanik gradient + naqsh: litsenziya muammosi yo'q,
+       istalgan vaqtda `--hero-image` bilan haqiqiy rasmga almashtiriladi. */
+    /* ---------- Fotoli yuzalar ----------
+       Rasm FAQAT fon: matn HTML'da qoladi, ya'ni tahrirlanadi, tarjima qilinadi
+       va ekran o'qigich uni o'qiy oladi. Ustidagi qoraytirish gradient bilan —
+       shunda matn kontrasti rasmdan qat'i nazar saqlanadi. */
+    .photo { position:relative; overflow:hidden; color:#fff; isolation:isolate; }
+    .photo > .photo-bg {
+      position:absolute; inset:0; z-index:-2;
+      background-size:cover; background-position:center;
+    }
+    .photo::before {
+      content:""; position:absolute; inset:0; z-index:-1;
+      background: linear-gradient(105deg, rgba(6,26,14,.94) 0%, rgba(9,42,22,.86) 42%, rgba(11,58,29,.55) 100%);
+    }
+    .photo-soft::before {
+      background: linear-gradient(180deg, rgba(6,26,14,.35) 0%, rgba(6,26,14,.88) 78%);
+    }
+
+    /* Kichik foto karta: matn to'q chap tomonda, obyekt o'ngda ochiq qoladi. */
+    .photo-card > .photo-bg { background-position: right center; }
+    .photo-card::before {
+      background: linear-gradient(100deg,
+        rgba(4,20,11,.93) 0%, rgba(5,23,13,.88) 38%,
+        rgba(6,26,14,.58) 66%, rgba(6,26,14,.34) 100%);
+    }
+
+    /* Keng banner uchun: chapda matn o'qiladigan darajada to'q, o'ngda rasm ochiq. */
+    .photo-banner > .photo-bg { background-position: right center; }
+    /* Qoraytirish 60% dan boshlanadi: oq matn kontrasti 10.99:1 (AAA),
+       shu bilan birga rasmning o'zi ham ko'rinib turadi. */
+    .photo-banner::before {
+      background: linear-gradient(90deg,
+        rgba(6,26,14,.62) 0%, rgba(7,30,17,.52) 34%,
+        rgba(7,30,17,.22) 64%, rgba(7,30,17,0) 100%);
+    }
+    @media (max-width: 640px) {
+      /* Tor ekranda rasm qattiq kesiladi — matn ustuvor bo'lsin. */
+      .photo-banner::before {
+        background: linear-gradient(180deg, rgba(6,26,14,.86) 0%, rgba(7,30,17,.80) 100%);
+      }
+    }
+
+    /* ---------- Hero statistika kartasi ----------
+       To'q shaffof fon + yorqin chegara, ikonka DOIRA ichida gradient bilan. */
+    .statcard {
+      display:flex; align-items:center; gap:.8rem;
+      padding:.75rem .85rem; border-radius:14px;
+      background: rgba(8,38,20,.52);
+      border: 1px solid rgba(163,220,180,.30);
+      backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    }
+    .statcard-icon {
+      display:grid; place-items:center; flex:none;
+      width:2.85rem; height:2.85rem; border-radius:50%;
+      background: linear-gradient(145deg,#46B475 0%,#17843F 62%,#0E5228 100%);
+      color:#fff;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.28),
+                  0 6px 14px -6px rgba(0,0,0,.55);
+    }
+    .statcard-icon svg { width:1.6rem; height:1.6rem; stroke-width:1.8; }
+    .statcard-icon--flame { color:#FF9A3C; }
+    .statcard-value {
+      display:block; font-size:1.55rem; font-weight:800; color:#fff;
+      line-height:1.05; font-variant-numeric:tabular-nums;
+    }
+    .statcard-label {
+      display:block; margin-top:.1rem; font-size:.8rem; line-height:1.25;
+      color: rgba(211,236,220,.88);
+    }
+
+    /* Kartadagi bezak barg — o'ng yuqori burchakda, juda och. */
+    .leafmark { position:absolute; right:-1.2rem; top:-1.2rem; width:8.5rem; opacity:.5; pointer-events:none; }
+
+    /* Pastki iqtibos lentasi */
+    .quote {
+      position:relative; overflow:hidden; border-radius:14px; color:#fff;
+      background: linear-gradient(120deg,#0B2B18 0%,#123A22 55%,#0E5228 100%);
+    }
+    .quote::after {
+      content:""; position:absolute; right:-1.5rem; bottom:-2rem; width:8rem; height:8rem;
+      border-radius:50%; background:rgba(63,170,108,.18);
+    }
+    .quote > * { position:relative; z-index:1; }
+
+    .hero { border-radius:20px; }
+    .hero > * { position:relative; z-index:1; }
+
+    /* Reklama/iqtibos kartasi */
+    .promo {
+      position:relative; overflow:hidden; border-radius:16px; color:#fff;
+      background: linear-gradient(140deg,#123A22 0%,#0B2B18 60%,#0E5228 100%);
+    }
+    .promo::after {
+      content:""; position:absolute; right:-3rem; bottom:-3rem; width:12rem; height:12rem;
+      border-radius:50%; background:rgba(63,170,108,.20);
+    }
+    .promo > * { position:relative; z-index:1; }
+
+    /* ---------- O'qish yuzasi ---------- */
+    .reading { font-family:"Source Serif 4",Georgia,serif; font-size:1.0625rem; line-height:1.7; color:#2A3B31; max-width:70ch; }
+    .reading p + p { margin-top:1.05em; }
+    .reading strong { font-weight:600; color:#12261A; }
+
+    /* ---------- Jadval ---------- */
+    .datatable { width:100%; border-collapse:collapse; font-size:.9375rem; }
+    .datatable th, .datatable td { padding:.7rem .8rem; border-bottom:1px solid var(--line); }
+    .datatable thead th { text-align:left; font-weight:600; color:#5E6F65; font-size:.8125rem; }
+    .datatable td.num, .datatable th.num { text-align:right; font-variant-numeric:tabular-nums; }
+    .datatable tbody tr:last-child td { border-bottom:0; }
+    .datatable tbody tr:hover { background:#F7FBF8; }
+
+    /* ---------- Bo'lim = karta ----------
+       Sahifalarning barcha bo'limi dashboard'dagi kartalar bilan bir xil
+       ko'rinishda bo'lsin: oq yuza, yumshoq soya, 16px radius. */
+    .section {
+      background:#fff; border:1px solid var(--line); border-radius:16px;
+      padding:1.25rem 1.35rem; margin-top:1.25rem;
+      box-shadow: 0 1px 2px rgba(11,43,24,.04), 0 8px 24px -12px rgba(11,43,24,.10);
+    }
+    .section:first-child { margin-top: 0; }
+    .grid > .section, .flex > .section { margin-top: 0; }
+    [class*="space-y-"] > .section { margin-top: 0; }
+
+    .section-head { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:.9rem; }
+    .section-head h2 { font-size:1.125rem; font-weight:700; color:#12261A; }
+    .section > h2, .section > h3 { font-size:1.125rem; font-weight:700; color:#12261A; margin-bottom:.9rem; }
+    .section-head .aside, .aside { font-size:.875rem; color:#5E6F65; }
+
+    /* Karta ustidagi karta bo'lmasin. */
+    .card .section, .section .section { background:transparent; border:0; box-shadow:none; padding:0; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration:.001ms !important; animation-iteration-count:1 !important;
+        transition-duration:.001ms !important; scroll-behavior:auto !important;
+      }
+    }
+    .htmx-indicator { opacity:0; transition:opacity .2s; }
+    .htmx-request .htmx-indicator { opacity:1; }
+    @media print { .no-print { display:none !important; } body { background:#fff; } }
+  </style>
+  {% block head %}{% endblock %}
+</head>
+
+<body class="h-full bg-slateg-50 font-sans text-slateg-800 lg:overflow-hidden">
+
+<a href="#main" class="skip-link">Asosiy kontentga o‘tish</a>
+
+{% if user.is_authenticated %}
+<div class="min-h-full lg:flex">
+
+  <aside class="on-dark no-print hidden lg:flex lg:w-rail lg:flex-col lg:fixed lg:inset-y-0 bg-forest-900 text-slateg-300">
+    {% include "partials/rail.html" %}
+  </aside>
+
+  <div class="lg:pl-rail flex flex-col min-h-full lg:h-screen">
+    <div class="shrink-0">{% include "partials/topbar.html" %}</div>
+
+    {% comment %}
+    Sukut bo'yicha scroll shu yerda: sahifa emas, <main> siljiydi.
+    Dashboard uni o'zgartiradi — u ikki ustunni alohida siljitadi.
+    {% endcomment %}
+    <main id="main" class="{% block main_class %}flex-1 min-h-0 lg:overflow-y-auto px-4 sm:px-6 lg:px-7 pb-10{% endblock %}">
+      <div class="w-full max-w-[1500px] mx-auto">
+        {% include "partials/messages.html" %}
+        {% block content %}{% endblock %}
+      </div>
+    </main>
+  </div>
+</div>
+
+<div id="mobile-menu" class="no-print fixed inset-0 z-40 hidden lg:hidden" role="dialog" aria-modal="true" aria-label="Menyu">
+  <div class="absolute inset-0 bg-forest-950/60" data-close-menu></div>
+  <div class="on-dark relative w-[17rem] h-full bg-forest-900 text-slateg-300 overflow-y-auto">
+    {% include "partials/rail.html" %}
+  </div>
+</div>
+
+<script>
+  (function () {
+    const menu = document.getElementById('mobile-menu');
+    const trigger = () => document.getElementById('menu-trigger');
+    let last = null;
+    function open() {
+      last = document.activeElement; menu.classList.remove('hidden');
+      trigger()?.setAttribute('aria-expanded','true');
+      menu.querySelector('a,button')?.focus(); document.body.style.overflow='hidden';
+    }
+    function close() {
+      menu.classList.add('hidden'); trigger()?.setAttribute('aria-expanded','false');
+      document.body.style.overflow=''; last?.focus();
+    }
+    window.toggleMenu = () => menu.classList.contains('hidden') ? open() : close();
+    menu.addEventListener('click', e => { if (e.target.hasAttribute('data-close-menu')) close(); });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && !menu.classList.contains('hidden')) close();
+      if (e.key !== 'Tab' || menu.classList.contains('hidden')) return;
+      const items = menu.querySelectorAll('a[href],button:not([disabled])');
+      if (!items.length) return;
+      const first = items[0], lastEl = items[items.length-1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); lastEl.focus(); }
+      else if (!e.shiftKey && document.activeElement === lastEl) { e.preventDefault(); first.focus(); }
+    });
+  })();
+</script>
+
+{% else %}
+  {% block public %}{% endblock %}
+{% endif %}
+
+{% block scripts %}{% endblock %}
+</body>
+</html>

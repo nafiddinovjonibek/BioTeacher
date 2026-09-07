@@ -1,0 +1,366 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Bosh sahifa — BioTeacher{% endblock %}
+
+{% block main_class %}flex-1 min-h-0 px-4 sm:px-6 lg:px-7 pb-10 lg:overflow-y-auto xl:overflow-hidden xl:pb-4{% endblock %}
+
+{% block content %}
+<div class="grid gap-5 items-start xl:grid-cols-3 xl:h-full xl:items-stretch xl:min-h-0">
+
+  {# ================= CHAP USTUN ================= #}
+  <div class="min-w-0 space-y-5 xl:col-span-2 xl:overflow-y-auto xl:min-h-0 xl:pr-1 xl:pb-6">
+
+    {# ---- Hero ---- #}
+    <section class="photo photo-banner hero p-6 sm:p-8">
+      <span class="photo-bg" style="background-image:url('{% static "img/hero-banner.jpg" %}')" role="img"
+            aria-label="Yomg'ir tomchili yashil barglar va DNK spirali"></span>
+
+      <p class="text-brand-200 font-medium">Xush kelibsiz, {{ user.first_name|default:user.get_short_name }}!</p>
+      <h1 class="mt-2 text-2xl sm:text-3xl font-extrabold leading-tight max-w-xl">
+        Biologiyani o‘rganish — kelajakni o‘rganish demakdir
+      </h1>
+      <p class="mt-3 text-brand-100/90 italic">“Tabiat — eng buyuk o‘qituvchi.”</p>
+
+      <div class="mt-6 grid sm:grid-cols-3 gap-3">
+        {% if sdi %}
+          {% include "partials/stat.html" with icon="book" value=sdi|floatformat:0|add:"%" label="Umumiy o‘zlashtirish" %}
+        {% else %}
+          {% include "partials/stat.html" with icon="book" value="—" label="Umumiy o‘zlashtirish" %}
+        {% endif %}
+        {% include "partials/stat.html" with icon="target" value=lessons_passed label="Bajarilgan mavzular" %}
+        {% include "partials/stat.html" with icon="flame" tone="flame" value=streak.current|default:"0" label="Ketma-ket kunlar" %}
+      </div>
+    </section>
+
+
+    {# ---- Kuzatuv varaqasi ---- #}
+    <section class="card card-p">
+      <div class="flex items-center justify-between gap-3 mb-5">
+        <div class="flex items-center gap-3">
+          <span class="chip">{% include "partials/icon.html" with name="clipboard" %}</span>
+          <h2 class="text-lg font-bold text-slateg-900">Kuzatuv varaqasi</h2>
+        </div>
+        <a href="{% url 'progress:monitoring' %}" class="btn btn-quiet btn-sm">
+          {% include "partials/icon.html" with name="chart" %} Batafsil statistika
+        </a>
+      </div>
+
+      {% if series and series.points > 1 %}
+        <div class="h-[260px]"><canvas id="growth"></canvas></div>
+      {% elif scores_list %}
+        <table class="w-full">
+          <caption class="sr-only">Kanal o‘qishlari</caption>
+          <tbody>
+            {% for row in scores_list %}
+              <tr>
+                <td class="py-2.5 pr-3 w-px">
+                  <span class="chip chip-sm">{% include "partials/icon.html" with name=row.icon %}</span>
+                </td>
+                <th scope="row" class="py-2.5 pr-4 text-left whitespace-nowrap">
+                  <span class="font-bold text-brand-700 metric text-sm">{{ row.code }}</span>
+                  <span class="ml-2 text-slateg-700 font-medium">{{ row.label }}</span>
+                </th>
+                <td class="py-2.5 w-full min-w-[80px]">
+                  <div class="bar"><span style="width: {{ row.value }}%"></span></div>
+                </td>
+                <td class="py-2.5 pl-4 text-right whitespace-nowrap">
+                  <span class="text-lg font-bold text-slateg-900 metric">{{ row.value|floatformat:0 }}</span><span class="text-sm text-slateg-500">%</span>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <div class="mt-4 flex items-start gap-2.5 rounded-xl bg-slateg-50 px-4 py-3">
+          <span class="chip chip-sm shrink-0">{% include "partials/icon.html" with name="spark" %}</span>
+          <p class="text-sm text-slateg-600 self-center">Ikkinchi o‘lchovdan keyin shu joyda o‘sish chizig‘i paydo bo‘ladi.</p>
+        </div>
+      {% else %}
+        <div class="py-8 text-center">
+          <span class="chip chip-lg mx-auto">{% include "partials/icon.html" with name="clipboard" %}</span>
+          <p class="mt-3 font-semibold text-slateg-900">Kuzatuv hali boshlanmagan</p>
+          <p class="mt-1 text-sm text-slateg-600 max-w-sm mx-auto">
+            Boshlang‘ich testdan o‘ting — beshta yo‘nalish bo‘yicha birinchi natijangiz shu yerda chiziladi.
+          </p>
+          <a href="{% url 'diagnostics:index' %}" class="btn btn-primary mt-5">Testni boshlash</a>
+        </div>
+      {% endif %}
+
+      {% if weakest %}
+        <div class="mt-3 flex items-start gap-2.5 rounded-xl bg-brand-50 px-4 py-3">
+          <span class="chip chip-sm shrink-0">{% include "partials/icon.html" with name="leaf" %}</span>
+          <p class="text-sm text-brand-800 self-center">
+            Eng past yo‘nalish — <strong>{{ weakest.label }} {{ weakest.value }}</strong>.
+            Bugungi topshiriq va tavsiyalar shunga qaratilgan.
+          </p>
+        </div>
+      {% elif movers %}
+        <div class="mt-3 flex items-start gap-2.5 rounded-xl bg-brand-50 px-4 py-3">
+          <span class="chip chip-sm shrink-0">{% include "partials/icon.html" with name="chart" %}</span>
+          <p class="text-sm text-brand-800 self-center">
+            Kuzatuv boshidan beri:
+            {% for m in movers %}<strong>{{ m.label }} {% if m.delta > 0 %}+{% endif %}{{ m.delta }}</strong>{% if not forloop.last %}, {% endif %}{% endfor %}.
+          </p>
+        </div>
+      {% endif %}
+    </section>
+
+
+    {# ---- So'nggi faoliyat ---- #}
+    {% if recent_activity %}
+      <section class="card card-p">
+        <div class="flex items-center justify-between gap-3 mb-4">
+          <div class="flex items-center gap-3">
+            <span class="chip">{% include "partials/icon.html" with name="pen" %}</span>
+            <h2 class="text-lg font-bold text-slateg-900">So‘nggi faoliyat</h2>
+          </div>
+          <a href="{% url 'progress:monitoring' %}" class="btn btn-ghost btn-sm">Barchasini ko‘rish</a>
+        </div>
+        <div class="grid sm:grid-cols-2 gap-3">
+          {% for item in recent_activity %}
+            <div class="flex items-center gap-3 rounded-xl border border-slateg-200 px-3.5 py-3">
+              <span class="chip chip-sm shrink-0">{% include "partials/icon.html" with name=item.icon %}</span>
+              <span class="min-w-0 flex-1">
+                <span class="block text-sm font-semibold text-slateg-900 truncate">{{ item.object_ref|default:item.get_action_display }}</span>
+                <span class="block text-xs text-slateg-500">{{ item.created_at|date:"d.m.Y, H:i" }}</span>
+              </span>
+              <span class="pill pill-ok shrink-0">{{ item.short_label }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}
+
+
+    {# ---- Keyingi qadam ---- #}
+    <section class="card card-p">
+      <div class="flex items-center justify-between gap-3 mb-4">
+        <div class="flex items-center gap-3">
+          <span class="chip">{% include "partials/icon.html" with name="target" %}</span>
+          <h2 class="text-lg font-bold text-slateg-900">Sizga tavsiya etiladi</h2>
+        </div>
+        <span class="aside hidden sm:block">Eng zaif yo‘nalishlaringizga mos</span>
+      </div>
+      <div class="space-y-2.5">
+        {% for assignment in recommended %}
+          <a href="{% url 'assignments:detail' assignment.slug %}"
+             class="flex items-center gap-3 rounded-xl border border-slateg-200 px-4 py-3 hover:border-brand-200 hover:bg-brand-50/40 transition">
+            <span class="chip shrink-0">{% include "partials/icon.html" with name="flask" %}</span>
+            <span class="min-w-0 flex-1">
+              <span class="block font-semibold text-slateg-900 truncate">{{ assignment.title }}</span>
+              <span class="block text-sm text-slateg-500 truncate">
+                {{ assignment.get_module_display }} · {{ assignment.get_bloom_level_display }}
+              </span>
+            </span>
+            <span class="pill pill-mute shrink-0 metric">{{ assignment.estimated_minutes }} daq.</span>
+          </a>
+        {% empty %}
+          <p class="text-slateg-600">Barcha topshiriq bajarilgan. Yangi testdan o‘ting.</p>
+        {% endfor %}
+      </div>
+    </section>
+
+
+    {% if pending_reflection %}
+      <section class="card card-p border-amberx-200 bg-amberx-50/50">
+        <div class="flex items-center gap-3 mb-3">
+          <span class="chip chip-amber">{% include "partials/icon.html" with name="pen" %}</span>
+          <h2 class="text-lg font-bold text-slateg-900">Refleksiya kutmoqda</h2>
+        </div>
+        <div class="space-y-2">
+          {% for submission in pending_reflection %}
+            <a href="{% url 'reflection:create_for_submission' submission.pk %}"
+               class="flex items-center justify-between gap-3 rounded-xl bg-white border border-amberx-200 px-4 py-3 hover:border-amberx-600/40">
+              <span class="font-medium text-slateg-900 truncate">{{ submission.assignment.title }}</span>
+              <span class="pill pill-go shrink-0">Yozish</span>
+            </a>
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}
+
+    {# Maqsad — o'ng ustundan chapga ko'chdi #}
+    <section class="card card-p">
+      <div class="flex items-center justify-between gap-3 mb-3">
+        <div class="flex items-center gap-3">
+          <span class="chip">{% include "partials/icon.html" with name="target" %}</span>
+          <h2 class="text-lg font-bold text-slateg-900">Maqsadim</h2>
+        </div>
+        <a href="{% url 'goals:list' %}" class="btn btn-ghost btn-sm">Hammasi</a>
+      </div>
+      {% if active_goal %}
+        <a href="{% url 'goals:detail' active_goal.pk %}" class="block group">
+          <p class="font-medium text-slateg-900 group-hover:text-brand-700">{{ active_goal.title }}</p>
+          <div class="bar mt-3"><span style="width: {{ active_goal.progress_percent }}%"></span></div>
+          <p class="mt-2 text-sm text-slateg-500 metric">
+            {{ active_goal.progress_percent }}% bajarildi · {{ active_goal.deadline|date:"d.m.Y" }} gacha
+          </p>
+        </a>
+      {% else %}
+        <p class="text-slateg-600">Faol maqsad yo‘q. Maqsadsiz rivojlanish tasodifiy bo‘ladi.</p>
+        <a href="{% url 'goals:create' %}" class="btn btn-quiet mt-3">Maqsad belgilash</a>
+      {% endif %}
+    </section>
+
+
+    {% if recent_badges %}
+      <section class="card card-p">
+        <div class="flex items-center justify-between gap-3 mb-3">
+          <div class="flex items-center gap-3">
+            <span class="chip">{% include "partials/icon.html" with name="trophy" %}</span>
+            <h2 class="text-lg font-bold text-slateg-900">Yutuqlarim</h2>
+          </div>
+          <a href="{% url 'gamification:achievements' %}" class="btn btn-ghost btn-sm">Hammasi</a>
+        </div>
+        <ul class="flex flex-wrap gap-2">
+          {% for ub in recent_badges %}
+            <li class="pill pill-ok">{{ ub.badge.emoji }} {{ ub.badge.title }}</li>
+          {% endfor %}
+        </ul>
+      </section>
+    {% endif %}
+  </div>
+
+
+  {% comment %}
+  O'NG USTUN — tartib referensdagidek:
+  Umumiy natija -> Bilim kartasi -> Bugun -> iqtibos lentasi.
+  "Maqsadim" chap ustunga ko'chdi, aks holda balandlik ekranga sig'maydi.
+  {% endcomment %}
+  <div class="min-w-0 space-y-4 xl:overflow-y-auto xl:min-h-0 xl:pb-4">
+
+    {# Umumiy natija #}
+    <section class="card p-5 bg-brand-50/70 border-brand-100 relative overflow-hidden">
+      <svg class="leafmark" viewBox="0 0 120 120" fill="none" aria-hidden="true">
+        <path d="M10 110C70 116 116 74 118 8 58 2 12 44 10 110Z" fill="#C9E7D4"/>
+        <path d="M26 96C46 66 68 48 98 30" stroke="#A9DBBB" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+
+      <div class="flex items-center gap-4">
+        <div class="relative w-[84px] h-[84px] shrink-0">
+          <svg viewBox="0 0 100 100" class="w-full h-full -rotate-90" aria-hidden="true">
+            <circle cx="50" cy="50" r="42" fill="none" stroke="#D3ECDC" stroke-width="13"/>
+            <circle cx="50" cy="50" r="42" fill="none" stroke="#17843F" stroke-width="13"
+                    stroke-linecap="round" stroke-dasharray="264" stroke-dashoffset="{{ ring_offset }}"/>
+          </svg>
+          <span class="absolute inset-0 grid place-items-center">
+            <span class="text-xl font-extrabold text-slateg-900 metric">{% if sdi %}{{ sdi|floatformat:0 }}{% else %}0{% endif %}<span class="text-sm">%</span></span>
+          </span>
+        </div>
+        <div class="min-w-0">
+          <h2 class="text-lg font-bold text-slateg-900">Umumiy natija</h2>
+          <p class="mt-1 text-sm text-slateg-600">
+            {% if current_level %}{{ current_level.hint }}{% else %}Siz hali ko‘p narsaga erisha olasiz!{% endif %}
+          </p>
+        </div>
+      </div>
+
+      <a href="{% url 'progress:monitoring' %}" class="btn btn-primary btn-wide mt-4 justify-center gap-2">
+        {% include "partials/icon.html" with name="chart" %}
+        <span>Natijalarni ko‘rish</span>
+        <span class="w-4 h-4 opacity-80">{% include "partials/icon.html" with name="arrow" %}</span>
+      </a>
+    </section>
+
+
+    {# Bilim kartasi #}
+    <section class="photo photo-card p-5 rounded-2xl">
+      <span class="photo-bg" style="background-image:url('{% static "img/promo-micro.jpg" %}')" role="img"
+            aria-label="Mikroskop ostidagi yashil barglar"></span>
+      <span class="block w-8 h-8 text-brand-400" aria-hidden="true">
+        {% include "partials/icon.html" with name="leaf" %}
+      </span>
+      <h2 class="mt-4 text-xl font-extrabold leading-[1.15]">Bilim —<br>eng yaxshi investitsiya!</h2>
+      <p class="mt-2.5 text-sm leading-snug text-brand-100/80">
+        Har kuni kichik bir qadam<br>katta natijalarga olib keladi.
+      </p>
+    </section>
+
+
+    {# Bugungi topshiriq #}
+    <section class="card p-5">
+      <div class="flex items-center justify-between gap-2 mb-3">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <span class="chip chip-sm shrink-0">{% include "partials/icon.html" with name="calendar" %}</span>
+          <h2 class="font-bold text-slateg-900 truncate">Bugun</h2>
+        </div>
+        {% if streak and streak.current %}
+          <span class="pill pill-ok metric shrink-0">{{ streak.current }} kun ketma-ket</span>
+        {% endif %}
+      </div>
+
+      {% if daily_task.done %}
+        <div class="flex items-center gap-2.5 rounded-xl bg-brand-50 px-3.5 py-3">
+          <span class="chip chip-sm shrink-0">{% include "partials/icon.html" with name="check" %}</span>
+          <p class="text-sm text-brand-800">Bajarildi — ertaga yangi topshiriq keladi.</p>
+        </div>
+      {% else %}
+        <div class="flex items-start gap-3">
+          <span class="chip chip-sm shrink-0 mt-0.5">{% include "partials/icon.html" with name="book" %}</span>
+          <div class="min-w-0">
+            <p class="font-semibold text-slateg-900">{{ daily_task.title }}</p>
+            <p class="mt-1 text-sm text-slateg-600">{{ daily_task.description }}</p>
+          </div>
+        </div>
+        <form method="post" action="{% url 'progress:daily_done' %}" class="mt-3">{% csrf_token %}
+          <label for="daily-note" class="sr-only">Qisqacha izoh</label>
+          <textarea id="daily-note" name="note" rows="2" class="field text-sm"
+                    placeholder="Qisqacha yozib qo‘ying — bu refleksiya uchun asos bo‘ladi"></textarea>
+          <button class="btn btn-primary btn-sm mt-2.5 ml-auto flex">
+            {% include "partials/icon.html" with name="send" %} Yuborish
+          </button>
+        </form>
+      {% endif %}
+    </section>
+
+
+    {# Iqtibos lentasi #}
+    <section class="quote flex items-center gap-3 px-4 py-3.5">
+      <span class="inline-grid place-items-center w-9 h-9 rounded-xl bg-white/12 text-brand-200 shrink-0">
+        {% include "partials/icon.html" with name="dna" %}
+      </span>
+      <p class="text-sm leading-snug">
+        Kichik yutuqlar katta maqsadlar sari olib boradi.
+        <span class="block text-brand-200/80">— BioTeacher</span>
+      </p>
+    </section>
+  </div>
+</div>
+{% endblock %}
+
+
+{% block scripts %}
+{% if series and series.points > 1 %}
+<script>
+  const S = {{ series_json|safe }};
+  const order = ['MOT','COG','ACT','REF','CRE'];
+  new Chart(document.getElementById('growth'), {
+    type: 'line',
+    data: {
+      labels: S.labels,
+      datasets: [
+        ...order.map(code => ({
+          label: code, data: S.channels[code], borderColor: BT_CHANNEL[code],
+          backgroundColor: 'transparent', borderWidth: 2,
+          pointRadius: 2, pointHoverRadius: 5, tension: .35,
+        })),
+        { label:'Umumiy', data:S.sdi, borderColor:'#0B2B18',
+          backgroundColor:'rgba(23,132,63,.08)', borderWidth:3, fill:true,
+          pointRadius:3, pointHoverRadius:6, tension:.35 },
+      ],
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      interaction:{ mode:'index', intersect:false },
+      plugins:{
+        legend:{ position:'bottom' },
+        tooltip:{ callbacks:{ label: c => c.dataset.label + '  ' + c.parsed.y + '%' } },
+      },
+      scales:{
+        y:{ min:0, max:100, ticks:{ stepSize:25, padding:8 }, grid:{ color:'#EDF2EF' }, border:{ display:false } },
+        x:{ grid:{ display:false }, border:{ display:false }, ticks:{ maxRotation:0, autoSkipPadding:16 } },
+      },
+    },
+  });
+</script>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,8 @@
+{% comment %} Daraja koʻrsatkichi: pogʻonali metr + nom.
+   Rang yagona kanal emas — toʻldirilgan boʻlaklar soni ham darajani beradi. {% endcomment %}
+<span class="inline-flex items-center gap-2 text-sm text-slateg-700">
+  <span class="meter" role="img" aria-label="Daraja: {{ name }}, 5 dan {{ step }}">
+    {% for i in "12345" %}<i class="{% if forloop.counter <= step %}on{% endif %}"></i>{% endfor %}
+  </span>
+  {{ name }}
+</span>

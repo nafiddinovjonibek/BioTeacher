@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}{{ attempt.questionnaire.title }}{% endblock %}
+{% block page_title %}{{ attempt.questionnaire.title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+
+  <div class="sticky top-16 z-20 -mx-4 sm:-mx-6 lg:-mx-10 px-4 sm:px-6 lg:px-10 py-3 bg-slateg-50/95 backdrop-blur border-b border-slateg-200">
+    {% include "diagnostics/_progress.html" %}
+    {% if attempt.deadline %}
+      <p class="mt-2 text-xs text-slateg-500">Vaqt limiti: {{ attempt.questionnaire.time_limit_minutes }} daqiqa
+        (tugash vaqti {{ attempt.deadline|time:"H:i" }})</p>
+    {% endif %}
+  </div>
+
+  {% if attempt.questionnaire.instruction %}
+    <div class="mt-6 rounded-2xl border border-brand-200 bg-brand-50 p-5 text-sm text-brand-900 leading-relaxed">
+      {{ attempt.questionnaire.instruction|linebreaksbr }}
+    </div>
+  {% endif %}
+
+  <div class="mt-6 space-y-4">
+    {% for question in questions %}
+      <div class="section" id="q{{ question.pk }}">
+        <div class="flex items-start gap-3">
+          <span class="grid place-items-center w-7 h-7 rounded-lg bg-slateg-100 text-xs font-semibold text-slateg-600 shrink-0">{{ forloop.counter }}</span>
+          <p class="flex-1 text-slateg-900 leading-relaxed">{{ question.text }}</p>
+        </div>
+
+        {% if attempt.questionnaire.is_likert %}
+          <div class="mt-4 grid grid-cols-5 gap-2">
+            {% for value, label in likert_labels %}
+              <button type="button"
+                      hx-post="{% url 'diagnostics:answer' attempt.pk %}"
+                      hx-vals='{"question_id": "{{ question.pk }}", "value": "{{ value }}"}'
+                      hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                      hx-target="#progress-box" hx-swap="outerHTML"
+                      onclick="markChoice(this)"
+                      data-group="q{{ question.pk }}"
+                      class="choice rounded-xl border px-2 py-3 text-center text-xs transition
+                        border-slateg-200 hover:border-brand-300 hover:bg-brand-50">
+                <span class="block text-base font-semibold text-slateg-800">{{ value }}</span>
+                <span class="block mt-0.5 text-[11px] text-slateg-500 leading-tight">{{ label }}</span>
+              </button>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="mt-4 space-y-2">
+            {% for choice in question.choices.all %}
+              <button type="button"
+                      hx-post="{% url 'diagnostics:answer' attempt.pk %}"
+                      hx-vals='{"question_id": "{{ question.pk }}", "choice_id": "{{ choice.pk }}"}'
+                      hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                      hx-target="#progress-box" hx-swap="outerHTML"
+                      onclick="markChoice(this)"
+                      data-group="q{{ question.pk }}"
+                      class="choice w-full text-left rounded-xl border border-slateg-200 px-4 py-3 text-sm transition hover:border-brand-300 hover:bg-brand-50">
+                {{ choice.text }}
+              </button>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+
+  <form method="post" action="{% url 'diagnostics:finish' attempt.pk %}" class="mt-8">{% csrf_token %}
+    <button class="btn btn-primary btn-wide">
+      Yakunlash va natijani ko‘rish
+    </button>
+    <p class="mt-2 text-center text-xs text-slateg-500">Javoblaringiz avtomatik saqlanmoqda — sahifani yopsangiz ham yo‘qolmaydi.</p>
+  </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const ACTIVE = ['border-brand-700','bg-brand-50','ring-2','ring-brand-200'];
+  function markChoice(el){
+    document.querySelectorAll('[data-group="'+el.dataset.group+'"]').forEach(b => b.classList.remove(...ACTIVE));
+    el.classList.add(...ACTIVE);
+  }
+  // Oldin berilgan javoblarni sahifa yuklanganda belgilash
+  const answered = {{ answered_map|safe }};
+  document.querySelectorAll('.choice').forEach(btn => {
+    const qid = btn.dataset.group.slice(1);
+    if (!(qid in answered)) return;
+    const vals = JSON.parse(btn.getAttribute('hx-vals'));
+    const picked = vals.value ?? vals.choice_id;
+    if (String(picked) === String(answered[qid])) btn.classList.add(...ACTIVE);
+  });
+</script>
+{% endblock %}

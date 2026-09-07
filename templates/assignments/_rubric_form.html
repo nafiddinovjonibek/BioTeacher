@@ -1,0 +1,20 @@
+<div class="space-y-4">
+  {% for field in form %}
+    {% if field.name != 'feedback' %}
+      <fieldset class="section">
+        <legend class="sr-only">{{ field.label }}</legend>
+        <p class="font-medium text-slateg-900">{{ field.label }}</p>
+        {% if field.help_text %}<p class="mt-0.5 text-sm text-slateg-500">{{ field.help_text }}</p>{% endif %}
+        <div class="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+          {% for radio in field %}
+            <label class="flex items-start gap-2.5 rounded-xl border border-slateg-200 px-3 py-2.5 cursor-pointer text-sm hover:border-brand-300 hover:bg-brand-50 transition">
+              {{ radio.tag }}
+              <span class="text-slateg-700 leading-snug">{{ radio.choice_label }}</span>
+            </label>
+          {% endfor %}
+        </div>
+        {% for error in field.errors %}<p class="mt-1 text-xs text-rosex-600">{{ error }}</p>{% endfor %}
+      </fieldset>
+    {% endif %}
+  {% endfor %}
+</div>

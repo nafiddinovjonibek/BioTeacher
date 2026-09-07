@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% block title %}Shaxsiy kabinet{% endblock %}
+{% block page_title %}Shaxsiy kabinet{% endblock %}
+
+{% block content %}
+{% comment %}
+Kabinet — hisobga oid hamma narsa. O'lchov ko'rsatkichlari bu yerda YO'Q:
+ular dashboard va rivojlanish tarixida. Bu sahifa faqat "mening hisobim".
+{% endcomment %}
+
+<div class="">
+
+  <section class="section">
+    <div class="flex flex-col sm:flex-row sm:items-center gap-5">
+      {% if profile.avatar %}
+        <img src="{{ profile.avatar.url }}" alt="" class="w-16 h-16 rounded-full object-cover shrink-0">
+      {% else %}
+        <span aria-hidden="true" class="grid place-items-center w-16 h-16 rounded-full bg-slateg-900 text-slateg-100 text-lg shrink-0">
+          {{ user.first_name|slice:":1"|upper|default:"B" }}{{ user.last_name|slice:":1"|upper }}
+        </span>
+      {% endif %}
+      <div class="flex-1 min-w-0">
+        <h2 class="text-xl font-semibold text-slateg-900">{{ user.get_full_name|default:user.email }}</h2>
+        <p class="mt-1 text-slateg-700">{{ profile.get_role_display }}</p>
+      </div>
+      <a href="{% url 'accounts:profile_edit' %}" class="btn btn-quiet shrink-0">Profilni tahrirlash</a>
+    </div>
+  </section>
+
+
+  <section class="section">
+    <h2>Hisob ma’lumotlari</h2>
+    <table class="datatable">
+      <tbody>
+        <tr>
+          <th scope="row" class="font-normal text-slateg-600">Email</th>
+          <td class="text-slateg-900">
+            {{ user.email }}
+            {% if user.email_verified %}
+              <span class="text-slateg-600">— tasdiqlangan</span>
+            {% else %}
+              <a href="{% url 'accounts:resend_verification' %}" class="text-brand-700 underline underline-offset-2">tasdiqlanmagan, havolani qayta yuborish</a>
+            {% endif %}
+          </td>
+        </tr>
+        <tr>
+          <th scope="row" class="font-normal text-slateg-600">OTM</th>
+          <td class="text-slateg-900">{{ profile.otm|default:"—" }}</td>
+        </tr>
+        <tr>
+          <th scope="row" class="font-normal text-slateg-600">Fakultet</th>
+          <td class="text-slateg-900">{{ profile.faculty|default:"—" }}</td>
+        </tr>
+        <tr>
+          <th scope="row" class="font-normal text-slateg-600">Kurs</th>
+          <td class="text-slateg-900">{% if profile.course %}{{ profile.course }}-kurs{% else %}—{% endif %}</td>
+        </tr>
+        <tr>
+          <th scope="row" class="font-normal text-slateg-600">Telefon</th>
+          <td class="text-slateg-900">{{ profile.phone|default:"—" }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+
+  <section class="section">
+    <h2>Guruh va mentor</h2>
+    {% if profile.group %}
+      <table class="datatable">
+        <tbody>
+          <tr>
+            <th scope="row" class="font-normal text-slateg-600">Guruh</th>
+            <td class="text-slateg-900">{{ profile.group.name }}</td>
+          </tr>
+          <tr>
+            <th scope="row" class="font-normal text-slateg-600">Mentor</th>
+            <td class="text-slateg-900">
+              {% if profile.mentor %}{{ profile.mentor.get_full_name|default:profile.mentor.email }}{% else %}tayinlanmagan{% endif %}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="mt-3 text-sm text-slateg-600">
+        Guruhni almashtirish kerak bo‘lsa, mentoringizdan yangi kod so‘rang.
+      </p>
+      <a href="{% url 'accounts:join_group' %}" class="btn btn-quiet mt-3">Boshqa guruhga o‘tish</a>
+    {% else %}
+      <p class="text-slateg-700">
+        Siz hali guruhga qo‘shilmagansiz. Mentoringiz bergan 8 belgili kodni kiriting —
+        shundan keyin ishlaringiz tekshiriladi va guruh e’lonlari keladi.
+      </p>
+      <a href="{% url 'accounts:join_group' %}" class="btn btn-primary mt-4">Guruh kodini kiritish</a>
+    {% endif %}
+  </section>
+
+
+  <section class="section">
+    <h2>Bildirishnomalar</h2>
+    <table class="datatable">
+      <tbody>
+        <tr><th scope="row" class="font-normal text-slateg-700">Ishim baholanganda</th>
+            <td class="text-right text-slateg-900">{% if notification_setting.email_graded %}email keladi{% else %}faqat saytda{% endif %}</td></tr>
+        <tr><th scope="row" class="font-normal text-slateg-700">Muddat yaqinlashganda</th>
+            <td class="text-right text-slateg-900">{% if notification_setting.email_deadline %}email keladi{% else %}faqat saytda{% endif %}</td></tr>
+        <tr><th scope="row" class="font-normal text-slateg-700">Yangi topshiriq</th>
+            <td class="text-right text-slateg-900">{% if notification_setting.email_new_assignment %}email keladi{% else %}faqat saytda{% endif %}</td></tr>
+        <tr><th scope="row" class="font-normal text-slateg-700">Haftalik xulosa</th>
+            <td class="text-right text-slateg-900">{% if notification_setting.email_weekly %}email keladi{% else %}faqat saytda{% endif %}</td></tr>
+      </tbody>
+    </table>
+    <a href="{% url 'notifications:settings' %}" class="btn btn-quiet mt-4">Sozlamalarni o‘zgartirish</a>
+  </section>
+
+
+  <section class="section">
+    <h2>Ilmiy tadqiqotda ishtirok</h2>
+    {% if profile.research_consent %}
+      <p class="text-slateg-700">
+        Siz ishtirokka rozilik bergansiz. Natijalaringiz <strong>ismsiz</strong>, faqat anonim kod
+        ostida tahlil qilinadi.
+      </p>
+      <table class="datatable mt-3">
+        <tbody>
+          <tr><th scope="row" class="font-normal text-slateg-600">Anonim kod</th>
+              <td class="text-slateg-900 metric">{{ profile.short_code }}</td></tr>
+          <tr><th scope="row" class="font-normal text-slateg-600">Rozilik sanasi</th>
+              <td class="text-slateg-900">{{ profile.research_consent_at|date:"d.m.Y" }}</td></tr>
+        </tbody>
+      </table>
+    {% else %}
+      <p class="text-slateg-700">
+        Hozircha rozilik berilmagan. Ishtirok ixtiyoriy va platformadan foydalanishga ta’sir qilmaydi.
+      </p>
+    {% endif %}
+    <a href="{% url 'accounts:consent' %}" class="btn btn-quiet mt-4">
+      {% if profile.research_consent %}Rozilikni ko‘rib chiqish{% else %}Rozilik berish{% endif %}
+    </a>
+  </section>
+
+
+  <section class="section">
+    <h2>Xavfsizlik</h2>
+    <table class="datatable">
+      <tbody>
+        <tr><th scope="row" class="font-normal text-slateg-600">Oxirgi kirish</th>
+            <td class="text-slateg-900">{{ user.last_login|date:"d.m.Y H:i"|default:"—" }}</td></tr>
+        <tr><th scope="row" class="font-normal text-slateg-600">Oxirgi IP</th>
+            <td class="text-slateg-900 metric">{{ user.last_login_ip|default:"—" }}</td></tr>
+      </tbody>
+    </table>
+    <div class="mt-4 flex flex-wrap gap-2">
+      <a href="{% url 'accounts:password_reset' %}" class="btn btn-quiet">Parolni o‘zgartirish</a>
+      <a href="{% url 'accounts:logout' %}" class="btn btn-quiet">Tizimdan chiqish</a>
+    </div>
+  </section>
+
+</div>
+{% endblock %}

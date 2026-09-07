@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}{% if is_new %}Yangi maqsad{% else %}Maqsadni tahrirlash{% endif %}{% endblock %}
+{% block page_title %}{% if is_new %}Yangi maqsad{% else %}Maqsadni tahrirlash{% endif %}{% endblock %}
+{% block content %}
+<div class="max-w-3xl mx-auto space-y-5">
+
+  <div class="rounded-2xl border border-brand-200 bg-brand-50 p-5 text-sm text-brand-900 leading-relaxed">
+    <strong>SMART qoidasi:</strong> maqsad aniq (Specific), o‘lchanadigan (Measurable), erishsa bo‘ladigan
+    (Achievable), tegishli (Relevant) va muddatli (Time-bound) bo‘lsin.<br>
+    <span class="text-brand-700">Yomon: "Metodikani yaxshilash". Yaxshi: "4 hafta ichida muammoli ta'lim metodini o‘rganib, 'Hujayra' mavzusiga 2 ta dars fragmenti ishlab chiqish".</span>
+  </div>
+
+  <form method="post" class="space-y-5">{% csrf_token %}
+    <div class="section">
+      {% include "partials/form.html" %}
+    </div>
+
+    <div class="section">
+      <h3 class="font-semibold text-lg text-slateg-900">Haftalik vazifalar</h3>
+      <p class="mt-1 text-sm text-slateg-500">Maqsadni bajarish mumkin bo‘lgan kichik qadamlarga bo‘ling.</p>
+
+      {{ formset.management_form }}
+      <div class="mt-4 space-y-3">
+        {% for subform in formset %}
+          <div class="flex flex-wrap items-end gap-3 rounded-xl bg-slateg-50 p-3">
+            {% for hidden in subform.hidden_fields %}{{ hidden }}{% endfor %}
+            <div class="flex-1 min-w-[200px]">
+              <label class="block text-xs text-slateg-500 mb-1">Vazifa</label>
+              {{ subform.title }}
+            </div>
+            <div class="w-24">
+              <label class="block text-xs text-slateg-500 mb-1">Hafta</label>
+              {{ subform.week }}
+            </div>
+            {% if subform.instance.pk %}
+              <label class="flex items-center gap-2 text-xs text-slateg-500 pb-2.5">
+                {{ subform.DELETE }} o‘chirish
+              </label>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="flex gap-3">
+      <button class="btn btn-primary">Saqlash</button>
+      <a href="{% url 'goals:list' %}" class="btn btn-quiet">Bekor qilish</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

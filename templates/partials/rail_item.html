@@ -1,0 +1,14 @@
+{% if arg %}{% url url arg as target %}{% else %}{% url url as target %}{% endif %}
+<a href="{{ target }}"
+   {% if request.path == target %}aria-current="page"{% endif %}
+   class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium
+     {% if request.path == target %}bg-brand-600 text-white shadow-[0_6px_16px_-8px_rgba(23,132,63,.9)]{% else %}text-slateg-300 hover:bg-white/5 hover:text-white{% endif %}">
+  <span class="shrink-0 w-[19px] h-[19px] grid place-items-center {% if request.path != target %}text-brand-300{% endif %}">
+    {% include "partials/icon.html" with name=icon %}
+  </span>
+  <span class="flex-1 truncate">{{ label }}</span>
+  {% if badge %}
+    <span class="shrink-0 grid place-items-center min-w-[20px] h-5 px-1.5 rounded-full text-xs font-bold
+      {% if request.path == target %}bg-white/20 text-white{% else %}bg-brand-600 text-white{% endif %}">{{ badge }}</span>
+  {% endif %}
+</a>

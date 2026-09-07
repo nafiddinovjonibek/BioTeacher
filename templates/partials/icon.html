@@ -1,0 +1,36 @@
+{% comment %}
+Chiziqli ikonkalar to'plami. Ishlatish: {% include "partials/icon.html" with name="home" %}
+Barcha ikonka 24x24 grid, stroke 1.7, currentColor — chiziq qalinligi bir xil bo'lsin.
+{% endcomment %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+{% if name == "home" %}<path d="M3 10.5 12 4l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>
+{% elif name == "book" %}<path d="M12 7C10.4 5.4 8.3 4.6 5.2 4.6A1.2 1.2 0 0 0 4 5.8v11.4a1.2 1.2 0 0 0 1.2 1.2c3.1 0 5.2.8 6.8 2.4"/><path d="M12 7c1.6-1.6 3.7-2.4 6.8-2.4A1.2 1.2 0 0 1 20 5.8v11.4a1.2 1.2 0 0 1-1.2 1.2c-3.1 0-5.2.8-6.8 2.4"/><path d="M12 7v13.8"/>
+{% elif name == "clipboard" %}<path d="M9 4h6v3H9z"/><path d="M9 5.5H7a2 2 0 0 0-2 2V19a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7.5a2 2 0 0 0-2-2h-2"/><path d="M9 12h6M9 16h4"/>
+{% elif name == "chart" %}<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>
+{% elif name == "trophy" %}<path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 5H5v2a3 3 0 0 0 3 3M16 5h3v2a3 3 0 0 1-3 3"/><path d="M12 13v4M9 21h6M10 17h4"/>
+{% elif name == "bell" %}<path d="M18 8a6 6 0 1 0-12 0c0 4-1.5 5-2 6h16c-.5-1-2-2-2-6"/><path d="M10 20a2 2 0 0 0 4 0"/>
+{% elif name == "target" %}<circle cx="12" cy="12" r="8.6"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.7" fill="currentColor" stroke="none"/>
+{% elif name == "flame" %}<path fill="currentColor" stroke="none" d="M12.6 2.2c.4 2.7 1.9 3.9 3 5.5 1.2 1.8 1.7 3.3 1.7 4.8a5.3 5.3 0 0 1-10.6 0c0-1.9.7-3.5 2-4.8.2 1.2.8 2 1.6 2.4-.3-3 .8-5.7 2.3-7.9Z"/><path fill="#0E5228" stroke="none" opacity=".45" d="M12 20.6a2.7 2.7 0 0 1-2.7-2.7c0-1.4 1-2.3 1.6-3.3.5.7.9 1.1 1.6 1.4.6-.7 1-1.6 1.1-2.4.8.9 1.1 2.1 1.1 3.3a2.7 2.7 0 0 1-2.7 2.7Z"/>
+{% elif name == "leaf" %}<path d="M4 20c8 1 15-4 16-16-8-1-15 4-16 16z"/><path d="M6 18c3-4 6-6 10-8"/>
+{% elif name == "microscope" %}<path d="M6 20h12M9 20v-3M15 17H8a4 4 0 0 1 0-8"/><path d="m11 4 3 3-4 4-3-3z"/><path d="m13 9 3 3a5 5 0 0 1-5 5"/>
+{% elif name == "dna" %}<path d="M6 3c0 5 12 5 12 10S6 18 6 21"/><path d="M18 3c0 5-12 5-12 10s12 5 12 8"/><path d="M8 7h8M8 17h8"/>
+{% elif name == "flask" %}<path d="M10 3h4M11 3v6l-5 9a2 2 0 0 0 1.8 3h8.4a2 2 0 0 0 1.8-3l-5-9V3"/><path d="M8 16h8"/>
+{% elif name == "pen" %}<path d="M4 20h4l10-10a2.8 2.8 0 0 0-4-4L4 16z"/><path d="M13.5 6.5 17.5 10.5"/>
+{% elif name == "spark" %}<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M18 6l-2.5 2.5M8.5 15.5 6 18"/>
+{% elif name == "user" %}<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/>
+{% elif name == "users" %}<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 3-5.5 6.5-5.5s6.5 1.9 6.5 5.5"/><path d="M16 5.2A3.5 3.5 0 0 1 16 12M18 14.5c2.4.6 3.9 2.3 3.9 5"/>
+{% elif name == "inbox" %}<path d="M3 13h5l1.5 3h5L16 13h5"/><path d="M4.5 5h15l1.5 8v5a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-5z"/>
+{% elif name == "search" %}<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
+{% elif name == "menu" %}<path d="M4 6h16M4 12h16M4 18h16"/>
+{% elif name == "chevron" %}<path d="m9 5 7 7-7 7"/>
+{% elif name == "arrow" %}<path d="M5 12h14M13 6l6 6-6 6"/>
+{% elif name == "check" %}<path d="m5 13 4 4 10-10"/>
+{% elif name == "calendar" %}<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>
+{% elif name == "send" %}<path d="M21 3 3 10.5l7 3 3 7z"/><path d="M10 13.5 21 3"/>
+{% elif name == "download" %}<path d="M12 4v11M8 11l4 4 4-4"/><path d="M4 19h16"/>
+{% elif name == "globe" %}<circle cx="12" cy="12" r="8"/><path d="M4 12h16M12 4c2.5 2.6 2.5 12.4 0 16-2.5-3.6-2.5-13.4 0-16z"/>
+{% elif name == "paw" %}<circle cx="7" cy="9" r="2"/><circle cx="12" cy="7" r="2"/><circle cx="17" cy="9" r="2"/><path d="M12 12c-3 0-5 2-5 4.5S9 21 12 21s5-2 5-4.5S15 12 12 12z"/>
+{% elif name == "atom" %}<circle cx="12" cy="12" r="2"/><ellipse cx="12" cy="12" rx="9" ry="4"/><ellipse cx="12" cy="12" rx="9" ry="4" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="9" ry="4" transform="rotate(120 12 12)"/>
+{% elif name == "logout" %}<path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"/><path d="M10 12H3M6 8l-4 4 4 4"/>
+{% elif name == "shield" %}<path d="M12 3 5 6v6c0 4.4 3 8 7 9 4-1 7-4.6 7-9V6z"/><path d="m9 12 2 2 4-4"/>
+{% else %}<circle cx="12" cy="12" r="8"/>{% endif %}
+</svg>

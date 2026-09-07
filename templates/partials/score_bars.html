@@ -1,0 +1,15 @@
+{# Komponent oʻqishlari. Bar bitta siyohda — qiymatni UZUNLIK beradi, rang emas. #}
+<table class="w-full text-sm">
+  <caption class="sr-only">Komponentlar boʻyicha joriy koʻrsatkich</caption>
+  <tbody>
+    {% for row in scores_list %}
+      <tr>
+        <th scope="row" class="py-1.5 pr-3 text-left font-normal text-slateg-700 whitespace-nowrap">{{ row.label }}</th>
+        <td class="py-1.5 w-full">
+          <div class="bar"><span style="width: {{ row.value }}%"></span></div>
+        </td>
+        <td class="py-1.5 pl-3 text-right text-slateg-900 metric whitespace-nowrap">{{ row.value|floatformat:0 }}<span class="text-slateg-500">%</span></td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>

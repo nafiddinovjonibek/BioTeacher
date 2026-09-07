@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Yangi yozuv{% endblock %}
+{% block page_title %}Yangi kundalik yozuvi{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto">
+  <div class="section">
+    <p class="text-sm text-slateg-600">
+      Bugun kasbiy jihatdan nima bo‘ldi? Nimani sinab ko‘rdingiz, nima ish berdi va nima bermadi?
+    </p>
+    <form method="post" class="mt-5">{% csrf_token %}
+      {% include "partials/form.html" %}
+      <button class="btn btn-primary btn-wide">Saqlash</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Tekshirish navbati{% endblock %}
+{% block page_title %}Tekshirish navbati{% endblock %}
+{% block content %}
+<div class="">
+  <p class="text-sm text-slateg-600">Yuborilgan, lekin hali baholanmagan ishlar. Eng eskisi yuqorida.</p>
+  <div class="mt-5 space-y-2">
+    {% for s in submissions %}
+      <a href="{% url 'assignments:grade' s.pk %}" class="flex items-center gap-4 card card-p">
+        <span class="flex-1 min-w-0">
+          <span class="block font-medium text-slateg-900 truncate">{{ s.assignment.title }}</span>
+          <span class="block text-xs text-slateg-500">
+            {{ s.student.get_full_name|default:s.student.email }}
+            {% if s.student.profile.group %}· {{ s.student.profile.group.name }}{% endif %}
+            · {{ s.submitted_at|date:"d.m.Y H:i" }}
+          </span>
+        </span>
+        {% if s.self_percent is not None %}
+          <span class="hidden sm:block text-xs text-slateg-500 shrink-0">o‘z bahosi {{ s.self_percent|floatformat:0 }}%</span>
+        {% endif %}
+        <span class="text-slateg-500"></span>
+      </a>
+    {% empty %}
+      <div class="rounded-2xl border border-brand-200 bg-brand-50 p-8 text-center">
+        <p class="text-3xl"></p>
+        <p class="mt-2 text-brand-900">Navbat bo‘sh — barcha ishlar baholangan.</p>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

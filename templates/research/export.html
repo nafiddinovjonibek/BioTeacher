@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Eksport{% endblock %}
+{% block page_title %}Ma'lumot eksporti{% endblock %}
+{% block content %}
+<div class="">
+
+  <div class="rounded-2xl border border-brand-200 bg-brand-50 p-5">
+    <p class="text-sm text-brand-900 leading-relaxed">
+      Eksport fayllarida <strong>ism-familiya, email va telefon bo‘lmaydi</strong> — faqat barqaror
+      anonim <code>respondent_id</code>. Ustunlar tartibi qat'iy:
+      <code class="text-xs">respondent_id; group; cut; MOT; COG; ACT; REF; CRE; SDI; date</code>
+    </p>
+  </div>
+
+  <section class="section">
+    <h3 class="font-semibold text-lg text-slateg-900 mb-4">Eksport parametrlari</h3>
+    <form method="post" class="space-y-5">{% csrf_token %}
+      {% for field in form %}
+        <div>
+          <p class="text-sm font-medium text-slateg-700 mb-2">{{ field.label }}</p>
+          {% if field.name == 'fmt' %}
+            {{ field }}
+          {% else %}
+            <div class="flex flex-wrap gap-2">
+              {% for checkbox in field %}
+                <label class="flex items-center gap-2 rounded-xl border border-slateg-200 px-3 py-2 text-sm cursor-pointer hover:border-brand-300">
+                  {{ checkbox.tag }} <span class="text-slateg-700">{{ checkbox.choice_label }}</span>
+                </label>
+              {% endfor %}
+            </div>
+          {% endif %}
+          {% if field.help_text %}<p class="mt-1 text-xs text-slateg-500">{{ field.help_text }}</p>{% endif %}
+        </div>
+      {% endfor %}
+      <button class="btn btn-primary">Faylni yuklab olish</button>
+    </form>
+  </section>
+
+  {% if preview %}
+    <section class="section">
+      <h3 class="font-semibold text-lg text-slateg-900 mb-1">Namuna (dastlabki 10 qator)</h3>
+      <p class="text-xs text-slateg-500 mb-4">Faylda ham aynan shu ustunlar bo‘ladi.</p>
+      <div class="overflow-x-auto">
+        <table class="w-full text-xs font-mono">
+          <thead><tr class="border-b border-slateg-200 text-slateg-500">
+            <th class="py-2 pr-3 text-left">respondent_id</th><th class="py-2 px-2">group</th><th class="py-2 px-2">cut</th>
+            <th class="py-2 px-2">MOT</th><th class="py-2 px-2">COG</th><th class="py-2 px-2">ACT</th>
+            <th class="py-2 px-2">REF</th><th class="py-2 px-2">CRE</th><th class="py-2 px-2">SDI</th><th class="py-2 pl-2">date</th>
+          </tr></thead>
+          <tbody class="divide-y divide-slateg-100">
+            {% for row in preview %}
+              <tr class="text-slateg-700">
+                <td class="py-1.5 pr-3">{{ row.respondent_id }}</td>
+                <td class="py-1.5 px-2 text-center">{{ row.group }}</td>
+                <td class="py-1.5 px-2">{{ row.cut }}</td>
+                <td class="py-1.5 px-2 text-right">{{ row.MOT }}</td>
+                <td class="py-1.5 px-2 text-right">{{ row.COG }}</td>
+                <td class="py-1.5 px-2 text-right">{{ row.ACT }}</td>
+                <td class="py-1.5 px-2 text-right">{{ row.REF }}</td>
+                <td class="py-1.5 px-2 text-right">{{ row.CRE }}</td>
+                <td class="py-1.5 px-2 text-right font-semibold">{{ row.SDI }}</td>
+                <td class="py-1.5 pl-2">{{ row.date }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  {% endif %}
+
+  {% if jobs %}
+    <section class="section">
+      <h3 class="font-semibold text-lg text-slateg-900 mb-3">Eksport tarixi</h3>
+      <ul class="space-y-2 text-sm">
+        {% for job in jobs %}
+          <li class="flex items-center justify-between rounded-xl bg-slateg-50 px-4 py-2.5">
+            <span class="text-slateg-700">{{ job.filename }}</span>
+            <span class="text-xs text-slateg-500">{{ job.row_count }} qator · {{ job.created_at|date:"d.m.Y H:i" }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+    </section>
+  {% endif %}
+</div>
+{% endblock %}

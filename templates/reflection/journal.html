@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Refleksiya kundaligi{% endblock %}
+{% block page_title %}Refleksiya kundaligi{% endblock %}
+{% block content %}
+<div class="">
+
+  <div class="flex flex-wrap items-center gap-3">
+    <form method="get" class="flex-1 min-w-[240px] flex gap-2">
+      <input type="search" name="q" value="{{ query }}" placeholder="Yozuvlar ichidan qidirish…"
+             class="flex-1 btn btn-quiet focus:border-brand-500 focus:ring-2 focus:ring-brand-200 focus:outline-none">
+      <button class="btn btn-quiet">Qidirish</button>
+    </form>
+    <a href="{% url 'reflection:create_free' %}" class="btn btn-primary">Yangi yozuv</a>
+  </div>
+
+  {% if tags %}
+    <div class="flex flex-wrap gap-2">
+      {% for t in tags %}
+        <a href="?tag={{ t|urlencode }}"
+           class="rounded-full border px-3 py-1 text-xs {% if tag == t %}border-brand-300 bg-brand-50 text-brand-700{% else %}border-slateg-200 bg-white text-slateg-600 hover:border-slateg-300{% endif %}">#{{ t }}</a>
+      {% endfor %}
+      {% if tag %}<a href="{% url 'reflection:journal' %}" class="text-xs text-slateg-500 self-center">× tozalash</a>{% endif %}
+    </div>
+  {% endif %}
+
+  <div class="space-y-3">
+    {% for entry in entries %}
+      <a href="{% url 'reflection:detail' entry.pk %}" class="block card card-p">
+        <div class="flex items-center justify-between gap-3">
+          <p class="text-xs text-slateg-500">
+            {{ entry.created_at|date:"d.m.Y H:i" }} ·
+            {% if entry.kind == 'TASK' %}{{ entry.submission.assignment.title|truncatechars:40 }}
+            {% elif entry.kind == 'GOAL' %}Maqsad yakuni
+            {% else %}Erkin yozuv{% endif %}
+          </p>
+          {% if entry.quality_score is not None %}
+            <span class="rounded-full px-2 py-0.5 text-[11px] shrink-0
+              {% if entry.quality_score >= 75 %}bg-brand-50 text-brand-700 border border-brand-200
+              {% elif entry.quality_score >= 50 %}bg-amberx-50 text-amberx-600 border border-amberx-200
+              {% else %}bg-rosex-50 text-rosex-700 border border-rosex-200{% endif %}">
+              sifat {{ entry.quality_score|floatformat:0 }}%
+            </span>
+          {% endif %}
+        </div>
+        <p class="mt-2 text-sm text-slateg-700 leading-relaxed">{{ entry.preview }}</p>
+        {% if entry.tag_list %}
+          <div class="mt-2 flex flex-wrap gap-1.5">
+            {% for t in entry.tag_list %}<span class="rounded-full bg-slateg-100 px-2 py-0.5 text-[11px] text-slateg-600">#{{ t }}</span>{% endfor %}
+          </div>
+        {% endif %}
+      </a>
+    {% empty %}
+      <div class="section">
+        <p class="text-3xl"></p>
+        <p class="mt-3 font-medium text-slateg-900">Kundalik hali bo‘sh</p>
+        <p class="mt-1 text-sm text-slateg-500 max-w-md mx-auto">
+          Refleksiya — o‘z-o‘zini rivojlantirishning yadrosi. Har bir topshiriqdan keyin
+          4 ta savolga javob yozing, REF ko‘rsatkichingiz shundan hisoblanadi.
+        </p>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

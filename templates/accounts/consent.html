@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Tadqiqotda ishtirok{% endblock %}
+{% block page_title %}Ilmiy tadqiqotda ishtirok{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto bg-white rounded-2xl border border-slateg-200 p-6">
+  <h2 class="font-semibold text-xl text-slateg-900">Ma’lumotlaringiz qanday ishlatiladi</h2>
+  <ul class="mt-4 space-y-2 text-sm text-slateg-700 list-disc pl-5">
+    <li>Natijalaringiz <strong>ismsiz</strong>, faqat anonim kod ({{ profile.short_code }}) ostida tahlil qilinadi.</li>
+    <li>Eksport fayllarida F.I.Sh., email va telefon <strong>umuman bo‘lmaydi</strong>.</li>
+    <li>Ma’lumot faqat dissertatsiya tajriba-sinov ishida, umumlashtirilgan ko‘rinishda ishlatiladi.</li>
+    <li>Roziligingizni istalgan vaqtda bekor qilishingiz mumkin — bu platformadan foydalanishga ta’sir qilmaydi.</li>
+  </ul>
+  <form method="post" class="mt-6 flex gap-3">{% csrf_token %}
+    <button name="agree" value="1" class="btn btn-primary">Roziman</button>
+    <button name="agree" value="0" class="btn btn-quiet">Rozilikni bekor qilish</button>
+  </form>
+</div>
+{% endblock %}

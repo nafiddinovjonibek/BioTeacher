@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Guruhlarim{% endblock %}
+{% block page_title %}Guruhlarim{% endblock %}
+{% block content %}
+<div class="space-y-5">
+  <div class="flex items-center justify-between gap-3">
+    <p class="text-sm text-slateg-600">Talabalar guruh kodi orqali qo‘shiladi. Kodni ular bilan ulashing.</p>
+    <a href="{% url 'teacher:group_create' %}" class="shrink-0 btn btn-primary">Yangi guruh</a>
+  </div>
+
+  <div class="grid sm:grid-cols-2 gap-4">
+    {% for row in rows %}
+      <a href="{% url 'teacher:group_detail' row.group.pk %}" class="card card-p">
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <h3 class="font-medium text-slateg-900">{{ row.group.name }}</h3>
+            <p class="mt-0.5 text-sm text-slateg-500">{{ row.group.otm }}{% if row.group.course %} · {{ row.group.course }}-kurs{% endif %}</p>
+          </div>
+          {% if not row.group.is_active %}<span class="rounded-full bg-slateg-100 px-2 py-0.5 text-[11px] text-slateg-500">arxiv</span>{% endif %}
+        </div>
+        <div class="mt-4 flex items-center justify-between">
+          <span class="text-sm text-slateg-600">{{ row.count }} talaba</span>
+          <span class="font-mono rounded-lg bg-slateg-100 px-2.5 py-1 text-sm tracking-wider text-slateg-700">{{ row.group.invite_code }}</span>
+        </div>
+      </a>
+    {% empty %}
+      <div class="sm:col-span-2 section">
+        <p class="text-3xl"></p>
+        <p class="mt-3 font-medium text-slateg-900">Hali guruh yo‘q</p>
+        <p class="mt-1 text-sm text-slateg-500">Guruh yarating va kodni talabalarga bering.</p>
+        <a href="{% url 'teacher:group_create' %}" class="mt-5 inline-flex btn btn-primary">Guruh yaratish</a>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

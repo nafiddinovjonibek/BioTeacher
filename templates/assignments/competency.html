@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Kompetensiya checklisti{% endblock %}
+{% block page_title %}"Men buni bajara olaman"{% endblock %}
+{% block content %}
+<div class="">
+  <div class="section">
+    <div class="flex items-baseline justify-between gap-4">
+      <p class="text-sm text-slateg-600">
+        O‘zingizni halol baholang — bu ball boshqa talabalarga ko‘rsatilmaydi, faqat sizga yo‘nalish beradi.
+      </p>
+      <p class="font-semibold text-3xl text-slateg-900 shrink-0">{{ percent }}%</p>
+    </div>
+    <div class="mt-3 h-2 rounded-full bg-slateg-100 overflow-hidden">
+      <div class="h-full rounded-full bg-brand-700" style="width: {{ percent }}%"></div>
+    </div>
+  </div>
+
+  <form method="post" class="mt-5 space-y-3">{% csrf_token %}
+    {% for item in items %}
+      <fieldset class="section">
+        <legend class="sr-only">{{ item.title }}</legend>
+        <p class="font-medium text-slateg-900">{{ item.title }}</p>
+        {% if item.description %}<p class="mt-0.5 text-sm text-slateg-500">{{ item.description }}</p>{% endif %}
+        <div class="mt-3 grid sm:grid-cols-3 gap-2">
+          {% for value, label in levels %}
+            <label class="flex items-center gap-2 rounded-xl border border-slateg-200 px-3 py-2.5 cursor-pointer text-sm hover:border-brand-300 hover:bg-brand-50 transition">
+              <input type="radio" name="item{{ item.id }}" value="{{ value }}"
+                     class="w-4 h-4 border-slateg-300 text-brand-600 focus:ring-brand-700">
+              <span class="text-slateg-700">{{ label }}</span>
+            </label>
+          {% endfor %}
+        </div>
+      </fieldset>
+    {% empty %}
+      <p class="text-sm text-slateg-500">Checklist bandlari yuklanmagan.</p>
+    {% endfor %}
+    {% if items %}
+      <button class="btn btn-primary btn-wide">Saqlash</button>
+    {% endif %}
+  </form>
+</div>
+{% endblock %}

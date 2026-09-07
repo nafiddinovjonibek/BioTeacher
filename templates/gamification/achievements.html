@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Mening yutuqlarim{% endblock %}
+{% block page_title %}Mening yutuqlarim{% endblock %}
+{% block content %}
+<div class="">
+
+  <div class="grid sm:grid-cols-3 gap-4">
+    <div class="section">
+      <p class="text-sm text-slateg-600">Joriy SDI</p>
+      <p class="mt-2 font-semibold text-3xl text-slateg-900">{% if sdi is not None %}{{ sdi|floatformat:0 }}%{% else %}—{% endif %}</p>
+    </div>
+    <div class="section">
+      <p class="text-sm text-slateg-600">O‘z natijangizga nisbatan o‘sish</p>
+      <p class="mt-2 font-semibold text-3xl {% if growth > 0 %}text-brand-700{% elif growth < 0 %}text-rosex-600{% else %}text-slateg-900{% endif %}">
+        {% if growth > 0 %}+{% endif %}{{ growth }}
+      </p>
+    </div>
+    <div class="section">
+      <p class="text-sm text-slateg-600">Muntazamlik</p>
+      <p class="mt-2 font-semibold text-3xl text-slateg-900">{% if streak %}{{ streak.current }}{% else %}0{% endif %}<span class="text-base text-slateg-500"> kun</span></p>
+      {% if streak %}<p class="mt-1 text-xs text-slateg-500">Eng uzun: {{ streak.longest }} · jami {{ streak.total_active_days }} faol kun</p>{% endif %}
+    </div>
+  </div>
+
+  <div class="section">
+    <p class="text-sm text-slateg-600">
+      <strong>Bu yerda reyting jadvali yo‘q.</strong> Siz boshqa talabalar bilan emas, faqat
+      o‘zingizning kechagi natijangiz bilan taqqoslanasiz — chunki o‘z-o‘zini rivojlantirishning
+      mezoni tashqi raqobat emas, ichki o‘sishdir.
+    </p>
+  </div>
+
+  <div class="grid sm:grid-cols-2 gap-4">
+    {% for row in rows %}
+      <div class="rounded-2xl border p-5 {% if row.earned %}border-brand-200 bg-brand-50{% else %}border-slateg-200 bg-white{% endif %}">
+        <div class="flex items-start gap-4">
+          <span class="grid place-items-center w-12 h-12 rounded-xl text-2xl shrink-0
+            {% if row.earned %}bg-white{% else %}bg-slateg-100 grayscale opacity-50{% endif %}">{{ row.badge.emoji }}</span>
+          <div class="flex-1 min-w-0">
+            <p class="font-medium {% if row.earned %}text-brand-900{% else %}text-slateg-800{% endif %}">{{ row.badge.title }}</p>
+            <p class="mt-0.5 text-sm {% if row.earned %}text-brand-700{% else %}text-slateg-500{% endif %}">
+              {{ row.badge.description|default:row.badge.how_to_earn }}
+            </p>
+            {% if row.earned %}
+              <p class="mt-2 text-xs text-brand-700">{{ row.earned.created_at|date:"d.m.Y" }} da olingan</p>
+            {% elif row.progress is not None %}
+              <div class="mt-3 h-1.5 rounded-full bg-slateg-100 overflow-hidden">
+                <div class="h-full rounded-full bg-slateg-400" style="width: {{ row.progress }}%"></div>
+              </div>
+              <p class="mt-1 text-xs text-slateg-500">{{ row.progress }}% · {{ row.badge.how_to_earn }}</p>
+            {% else %}
+              <p class="mt-2 text-xs text-slateg-500">{{ row.badge.how_to_earn }}</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <p class="text-sm text-slateg-500">Nishonlar sozlanmagan.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Bildirishnoma sozlamalari{% endblock %}
+{% block page_title %}Bildirishnoma sozlamalari{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto">
+  <div class="section">
+    <p class="text-sm text-slateg-600">Qaysi hollarda email olishni o‘zingiz tanlaysiz. Ichki bildirishnomalar baribir keladi.</p>
+    <form method="post" class="mt-5">{% csrf_token %}
+      {% include "partials/form.html" %}
+      <button class="btn btn-primary">Saqlash</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+{% block title %}Rivojlanish tarixi{% endblock %}
+{% block page_title %}
+  {% if is_mentor_view %}{{ student.get_full_name|default:student.email }}{% else %}Rivojlanish tarixi{% endif %}
+{% endblock %}
+
+{% block content %}
+
+{% comment %}
+Kuzatuv varaqasi to'liq hajmda: besh kanal + SDI millimetrli qog'oz ustida.
+Bu sahifadagi yagona jasur element; qolgani chiziq va bo'shliq.
+{% endcomment %}
+<section class="section">
+  <div class="card">
+    <div class="flex items-start justify-between gap-4 px-5 pt-5">
+      <div>
+        <p class="text-slateg-700">Kanal o‘qishlari</p>
+        {% if series and series.points > 1 %}
+          <p class="mt-0.5 text-sm text-slateg-600 metric">
+            {{ series.labels|first }} — {{ series.labels|last }} · {{ series.points }} o‘lchov
+          </p>
+        {% endif %}
+      </div>
+      <div class="text-right">
+        <div class="text-2xl font-semibold text-slateg-900 metric leading-none">
+          {% if sdi is not None %}{{ sdi|floatformat:0 }}<span class="text-lg text-slateg-600 font-normal">%</span>{% else %}—{% endif %}
+        </div>
+        {% if series.sdi_delta %}
+          <p class="mt-1 text-sm metric {% if series.sdi_delta > 0 %}text-slateg-700{% else %}text-rosex-600{% endif %}">
+            {% if series.sdi_delta > 0 %}+{% endif %}{{ series.sdi_delta }} punkt
+          </p>
+        {% endif %}
+      </div>
+    </div>
+    <div class="px-5 pb-5 pt-3">
+      {% if series and series.points > 1 %}
+        <div class="h-[300px] sm:h-[380px]"><canvas id="growth"></canvas></div>
+      {% else %}
+        <div class="h-[200px] grid place-items-center text-center">
+          <p class="text-slateg-700 max-w-md">
+            Grafik chizilishi uchun kamida ikkita o‘lchov kerak.
+            Topshiriq bajaring yoki oraliq diagnostikadan o‘ting.
+          </p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if summary %}<p class="mt-3 text-slateg-700">{{ summary }}</p>{% endif %}
+</section>
+
+
+{% comment %}Kesimlar jadvali — laboratoriya daftaridagi o'lchov jadvali.{% endcomment %}
+<section class="section">
+  <div class="section-head">
+    <h2>Kesimlar bo‘yicha o‘lchov</h2>
+    <span class="aside">Muzlatilgan qiymatlar</span>
+  </div>
+  <div class="overflow-x-auto">
+    <table class="datatable">
+      <thead>
+        <tr>
+          <th scope="col">Kanal</th>
+          {% for cut in cuts %}<th scope="col" class="num">{{ cut.label }}</th>{% endfor %}
+          <th scope="col" class="num">Joriy</th>
+          <th scope="col" class="num">O‘zgarish</th>
+          <th scope="col">Daraja</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in table %}
+          <tr>
+            <th scope="row" class="font-normal text-slateg-800">
+              <span class="metric text-slateg-600">{{ row.code }}</span>
+              <span class="ml-2">{{ row.label }}</span>
+            </th>
+            {% for cell in row.cells %}
+              <td class="num {% if cell is None %}text-slateg-400{% else %}text-slateg-700{% endif %}">
+                {% if cell is None %}—{% else %}{{ cell|floatformat:0 }}{% endif %}
+              </td>
+            {% endfor %}
+            <td class="num font-semibold text-slateg-900">{{ row.current|floatformat:0 }}</td>
+            <td class="num">
+              {% if row.delta is None %}<span class="text-slateg-400">—</span>
+              {% elif row.delta > 0 %}<span class="text-slateg-800">+{{ row.delta|floatformat:1 }}</span>
+              {% elif row.delta < 0 %}<span class="text-rosex-600">{{ row.delta|floatformat:1 }}</span>
+              {% else %}<span class="text-slateg-500">0</span>{% endif %}
+            </td>
+            <td>{% include "partials/level_badge.html" with name=row.level.1 step=row.level.3 %}</td>
+          </tr>
+        {% endfor %}
+        <tr>
+          <th scope="row" class="font-semibold text-slateg-900">Umumiy SDI</th>
+          {% for cell in sdi_row.cells %}
+            <td class="num {% if cell is None %}text-slateg-400{% else %}text-slateg-800{% endif %}">
+              {% if cell is None %}—{% else %}{{ cell|floatformat:1 }}{% endif %}
+            </td>
+          {% endfor %}
+          <td class="num font-semibold text-slateg-900">
+            {% if sdi_row.current is not None %}{{ sdi_row.current|floatformat:1 }}{% else %}—{% endif %}
+          </td>
+          <td class="num">
+            {% if sdi_row.delta is None %}<span class="text-slateg-400">—</span>
+            {% elif sdi_row.delta > 0 %}<span class="text-slateg-800">+{{ sdi_row.delta|floatformat:1 }}</span>
+            {% else %}<span class="text-rosex-600">{{ sdi_row.delta|floatformat:1 }}</span>{% endif %}
+          </td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+
+{% comment %}Profil radari — kesimlarni ustma-ust solishtirish.{% endcomment %}
+<div class="grid lg:grid-cols-2 gap-x-12">
+  <section class="section min-w-0">
+    <div class="section-head">
+      <h2>Profil</h2>
+      <span class="aside">Kesimlar ustma-ust</span>
+    </div>
+    <div class="card p-4">
+      <div class="h-[300px]"><canvas id="radar"></canvas></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><h2>Faoliyat</h2></div>
+    <table class="datatable">
+      <tbody>
+        <tr><th scope="row" class="font-normal text-slateg-800">Bajarilgan ishlar</th>
+            <td class="num text-slateg-900">{{ activity.SUBMISSION|default:0 }}</td></tr>
+        <tr><th scope="row" class="font-normal text-slateg-800">Refleksiya yozuvlari</th>
+            <td class="num text-slateg-900">{{ activity.REFLECTION|default:0 }}</td></tr>
+        <tr><th scope="row" class="font-normal text-slateg-800">O‘zlashtirilgan darslar</th>
+            <td class="num text-slateg-900">{{ activity.LESSON|default:0 }}</td></tr>
+        <tr><th scope="row" class="font-normal text-slateg-800">Ketma-ket faol kunlar</th>
+            <td class="num text-slateg-900">{% if streak %}{{ streak.current }}{% else %}0{% endif %}</td></tr>
+        {% if streak %}
+          <tr><th scope="row" class="font-normal text-slateg-600">eng uzun zanjir</th>
+              <td class="num text-slateg-600">{{ streak.longest }}</td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+
+    {% if gap %}
+      <div class="mt-6">
+        <p class="text-slateg-900">Baholash adekvatligi</p>
+        <p class="mt-1 text-2xl font-semibold text-slateg-900 metric leading-none">
+          {% if gap.average > 0 %}+{% endif %}{{ gap.average }}<span class="text-base font-normal text-slateg-600"> punkt</span>
+        </p>
+        <p class="mt-1.5 text-slateg-700">{{ gap.verdict }}</p>
+        <p class="mt-1 text-sm text-slateg-600 metric">{{ gap.count }} ta baholangan ish bo‘yicha</p>
+      </div>
+    {% endif %}
+  </section>
+</div>
+
+
+{% if not is_mentor_view %}
+  <section class="section no-print">
+    <div class="section-head"><h2>Hisobot</h2></div>
+    <div class="flex flex-wrap gap-2">
+      <a href="{% url 'progress:report_pdf' %}" class="btn btn-primary">PDF yuklab olish</a>
+      <button onclick="window.print()" class="btn btn-quiet">Chop etish</button>
+      <button onclick="downloadChart('growth','osish-grafigi')" class="btn btn-quiet">Grafikni PNG qilib saqlash</button>
+      <button onclick="downloadChart('radar','profil-radari')" class="btn btn-quiet">Radarni PNG qilib saqlash</button>
+    </div>
+    <p class="mt-2 text-sm text-slateg-600">PNG fayllar dissertatsiyaga qo‘yish uchun tayyor o‘lchamda saqlanadi.</p>
+  </section>
+{% endif %}
+
+{% endblock %}
+
+
+{% block scripts %}
+<script>
+  const order = ['MOT','COG','ACT','REF','CRE'];
+
+  {% if series and series.points > 1 %}
+  const S = {{ series_json|safe }};
+  new Chart(document.getElementById('growth'), {
+    type: 'line',
+    data: {
+      labels: S.labels,
+      datasets: [
+        ...order.map(code => ({
+          label: code, data: S.channels[code],
+          borderColor: BT_CHANNEL[code], backgroundColor: 'transparent',
+          borderWidth: 1.5, pointRadius: 2, pointHoverRadius: 4, tension: .25,
+        })),
+        { label: 'SDI', data: S.sdi, borderColor: '#0E1F16',
+          backgroundColor: 'rgba(14,31,22,.06)', borderWidth: 2.5, fill: true,
+          pointRadius: 3, pointHoverRadius: 5, tension: .25 },
+      ],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { position: 'bottom', labels: { usePointStyle: true, pointStyle: 'line' } },
+        tooltip: { callbacks: { label: c => c.dataset.label + '  ' + c.parsed.y + '%' } },
+      },
+      scales: {
+        y: { min: 0, max: 100, ticks: { stepSize: 25, padding: 6 },
+             grid: { display: false }, border: { display: false } },
+        x: { grid: { display: false }, border: { display: false },
+             ticks: { maxRotation: 0, autoSkipPadding: 16 } },
+      },
+    },
+  });
+  {% endif %}
+
+  const R = {{ radar_json|safe }};
+  const CUT_TONE = ['#AFBAAB', '#BFDCB4', '#7FBA6B', '#4A9440'];
+  new Chart(document.getElementById('radar'), {
+    type: 'radar',
+    data: {
+      labels: order,
+      datasets: R.datasets.map((d, i) => ({
+        label: d.label,
+        data: d.data,
+        borderColor: d.current ? '#0E1F16' : CUT_TONE[i % CUT_TONE.length],
+        backgroundColor: d.current ? 'rgba(14,31,22,.07)' : 'transparent',
+        borderWidth: d.current ? 2 : 1.5,
+        borderDash: d.current ? [] : [3, 3],
+        pointRadius: 2.5,
+      })),
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, pointStyle: 'line' } } },
+      scales: {
+        r: { min: 0, max: 100,
+             ticks: { stepSize: 25, backdropColor: 'transparent', color: '#87947F', font: { size: 10 } },
+             grid: { color: '#D6DCD2' }, angleLines: { color: '#D6DCD2' },
+             pointLabels: { color: '#2F3D2C', font: { size: 12, weight: '500' } } },
+      },
+    },
+  });
+
+  function downloadChart(id, name) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const link = document.createElement('a');
+    link.href = el.toDataURL('image/png', 1.0);
+    link.download = name + '.png';
+    link.click();
+  }
+</script>
+{% endblock %}

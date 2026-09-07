@@ -1,0 +1,14 @@
+{% comment %}
+Hero statistika kartasi.
+Ishlatish: {% include "partials/stat.html" with icon="book" value="48%" label="Umumiy o'zlashtirish" %}
+Ixtiyoriy: tone="flame" — ikonkani to'q sariq qiladi.
+{% endcomment %}
+<div class="statcard">
+  <span class="statcard-icon {% if tone == 'flame' %}statcard-icon--flame{% endif %}">
+    {% include "partials/icon.html" with name=icon %}
+  </span>
+  <span class="min-w-0">
+    <span class="statcard-value">{{ value }}</span>
+    <span class="statcard-label">{{ label }}</span>
+  </span>
+</div>

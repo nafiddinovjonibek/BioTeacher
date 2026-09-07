@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Baholash{% endblock %}
+{% block page_title %}Ishni baholash{% endblock %}
+{% block content %}
+<div class="">
+  <a href="{% url 'assignments:queue' %}" class="text-sm text-slateg-500 hover:text-slateg-800">← Tekshirish navbati</a>
+
+  <div class="section">
+    <div class="flex flex-wrap items-baseline justify-between gap-2">
+      <h2 class="font-semibold text-xl text-slateg-900">{{ submission.assignment.title }}</h2>
+      <p class="text-sm text-slateg-500">{{ submission.student.get_full_name|default:submission.student.email }}
+        · {{ submission.submitted_at|date:"d.m.Y H:i" }}</p>
+    </div>
+    {% if submission.self_percent is not None %}
+      <p class="mt-2 text-sm text-slateg-600">Talabaning o‘z bahosi: <strong>{{ submission.self_percent|floatformat:0 }}%</strong></p>
+    {% endif %}
+  </div>
+
+  <div class="section space-y-5">
+    <h3 class="font-semibold text-lg text-slateg-900">Talaba javobi</h3>
+    {% for row in submission.answer_rows %}
+      <div class="rounded-xl bg-slateg-50 p-4">
+        <p class="text-sm text-slateg-600">{{ row.label }}</p>
+        <p class="mt-1 text-slateg-800 leading-relaxed whitespace-pre-line">{{ row.text|default:"— javob berilmagan —" }}</p>
+      </div>
+    {% endfor %}
+    {% if submission.files.all %}
+      <div class="pt-4 border-t border-slateg-200">
+        <p class="text-sm text-slateg-600 mb-2">Biriktirilgan fayllar</p>
+        {% for f in submission.files.all %}
+          <a href="{{ f.file.url }}" class="block text-sm text-brand-700 hover:underline">{{ f.original_name }}</a>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+
+  <form method="post">{% csrf_token %}
+    <h3 class="font-semibold text-lg text-slateg-900 mb-3">Mentor bahosi</h3>
+    {% include "assignments/_rubric_form.html" %}
+    <div class="mt-4 section">
+      <label class="block font-medium text-slateg-900">{{ form.feedback.label }}</label>
+      <p class="mt-0.5 text-sm text-slateg-500">{{ form.feedback.help_text }}</p>
+      <div class="mt-3">{{ form.feedback }}</div>
+      {% for error in form.feedback.errors %}<p class="mt-1 text-xs text-rosex-600">{{ error }}</p>{% endfor %}
+    </div>
+    <div class="mt-5 flex flex-wrap gap-3">
+      <button class="btn btn-primary">Bahoni saqlash</button>
+      <a href="{% url 'assignments:reopen' submission.pk %}" class="rounded-xl border border-amberx-200 bg-amberx-50 px-5 py-2.5 text-sm text-amberx-700">Qayta ishlashga qaytarish</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,16 @@
+# BioTeacher — Self-Development Platform
+# O'rnatish: pip install -r requirements.txt
+
+Django==6.1.1
+pillow==12.3.0            # profil avatarlari va rasm materiallar
+argon2-cffi==25.1.0       # NFR-09 — parol hashlash
+whitenoise==6.12.0        # NFR-18 — statik fayllarni prod'da uzatish
+openpyxl==3.1.5           # FR-59 — XLSX eksport
+xhtml2pdf==0.2.18         # FR-30, FR-48 — PDF hisobot va dars loyihasi
+
+# Prod (PostgreSQL bilan ishlaganda):
+# psycopg[binary]==3.2.3
+# gunicorn==23.0.0
+
+# Ishlab chiqish:
+# coverage==7.16.0

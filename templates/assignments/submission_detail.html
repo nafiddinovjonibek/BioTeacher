@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}{{ submission.assignment.title }}{% endblock %}
+{% block page_title %}Ish natijasi{% endblock %}
+{% block content %}
+<div class="">
+
+  <section class="section">
+    <div class="flex flex-wrap items-start justify-between gap-3">
+      <div>
+        <h2 class="font-semibold text-xl text-slateg-900">{{ submission.assignment.title }}</h2>
+        <p class="mt-1 text-sm text-slateg-500">
+          {{ submission.get_status_display }}
+          {% if submission.submitted_at %} · yuborilgan {{ submission.submitted_at|date:"d.m.Y H:i" }}{% endif %}
+        </p>
+      </div>
+      <div class="flex gap-4 text-center">
+        {% if submission.self_percent is not None %}
+          <div><p class="text-xs text-slateg-500">O‘z bahosi</p><p class="font-semibold text-2xl text-slateg-900">{{ submission.self_percent|floatformat:0 }}%</p></div>
+        {% endif %}
+        {% if submission.mentor_percent is not None %}
+          <div><p class="text-xs text-slateg-500">Mentor</p><p class="font-semibold text-2xl text-brand-700">{{ submission.mentor_percent|floatformat:0 }}%</p></div>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if submission.assessment_gap is not None %}
+      <div class="mt-4 rounded-xl bg-slateg-50 p-4 text-sm">
+        <p class="text-slateg-700">
+          <strong>Baholash adekvatligi:</strong>
+          {% if submission.assessment_gap > 5 %}
+            o‘zingizni {{ submission.assessment_gap|floatformat:0 }} punkt yuqori baholagansiz — rubrika mezonlarini diqqat bilan o‘qing.
+          {% elif submission.assessment_gap < -5 %}
+            o‘zingizni mentordan past baholagansiz — ishingizga ishonch bilan qarang.
+          {% else %}
+            o‘z bahoyingiz mentor bahosiga juda yaqin — kuchli refleksiv ko‘nikma belgisi.
+          {% endif %}
+        </p>
+      </div>
+    {% endif %}
+  </section>
+
+  <section class="section space-y-4">
+    <h3 class="font-semibold text-lg text-slateg-900">Sizning javobingiz</h3>
+    {% for row in submission.answer_rows %}
+      <div class="rounded-xl bg-slateg-50 p-4">
+        <p class="text-sm text-slateg-600">{{ row.label }}</p>
+        <p class="mt-1 text-slateg-800 leading-relaxed whitespace-pre-line">{{ row.text|default:"—" }}</p>
+      </div>
+    {% endfor %}
+    {% if submission.assignment.kind == 'LESSON_PLAN' %}
+      <a href="{% url 'assignments:submission_pdf' submission.pk %}" class="inline-flex btn btn-quiet">Dars loyihasini PDF qilib yuklash</a>
+    {% endif %}
+  </section>
+
+  {% if submission.can_see_reference and submission.assignment.reference_solution %}
+    <section class="rounded-2xl border border-brand-200 bg-brand-50 p-6">
+      <h3 class="font-semibold text-lg text-brand-900">Etalon yechim</h3>
+      <p class="mt-1 text-xs text-brand-700">O‘z javobingiz bilan solishtiring — farqlar o‘sish nuqtangiz.</p>
+      <div class="mt-3 text-brand-900 leading-relaxed space-y-3">{{ submission.assignment.reference_solution|linebreaks }}</div>
+    </section>
+  {% endif %}
+
+  <section class="section">
+    <h3 class="font-semibold text-lg text-slateg-900 mb-4">Rubrika bo‘yicha baholar</h3>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead><tr class="text-left text-sm text-slateg-600 border-b border-slateg-200">
+          <th class="py-2 pr-4">Mezon</th>
+          <th class="py-2 px-3 text-center">O‘zim</th>
+          <th class="py-2 px-3 text-center">Mentor</th>
+          <th class="py-2 pl-3">Izoh</th>
+        </tr></thead>
+        <tbody class="divide-y divide-slateg-100">
+        {% for row in rows %}
+          <tr>
+            <td class="py-2.5 pr-4 text-slateg-800">{{ row.criterion.name }}<span class="block text-xs text-slateg-500">maks. {{ row.criterion.max_score }}</span></td>
+            <td class="py-2.5 px-3 text-center">{% if row.self %}{{ row.self.value|floatformat:0 }}{% else %}—{% endif %}</td>
+            <td class="py-2.5 px-3 text-center font-medium text-brand-700">{% if row.mentor %}{{ row.mentor.value|floatformat:0 }}{% else %}—{% endif %}</td>
+            <td class="py-2.5 pl-3 text-xs text-slateg-600">{{ row.mentor.comment|default:"" }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  {% if submission.mentor_feedback %}
+    <section class="rounded-2xl border border-brand-200 bg-brand-50 p-6">
+      <h3 class="font-semibold text-lg text-brand-900">Mentor fikri</h3>
+      <p class="mt-2 text-brand-900 leading-relaxed whitespace-pre-line">{{ submission.mentor_feedback }}</p>
+    </section>
+  {% endif %}
+
+  {% if reflection %}
+    <a href="{% url 'reflection:detail' reflection.pk %}" class="block section hover:border-brand-300">
+      <p class="text-sm text-slateg-600">Refleksiyangiz · sifat {{ reflection.quality_score|floatformat:0 }}%</p>
+      <p class="mt-1.5 text-sm text-slateg-700">{{ reflection.preview }}</p>
+    </a>
+  {% else %}
+    <a href="{% url 'reflection:create_for_submission' submission.pk %}" class="block rounded-2xl border border-amberx-200 bg-amberx-50 p-5">
+      <p class="font-medium text-amberx-700">Refleksiya yozilmagan</p>
+      <p class="mt-1 text-sm text-amberx-700">Sikl refleksiyasiz yopilmaydi. Yozish uchun bosing</p>
+    </a>
+  {% endif %}
+
+  {% if consent_form %}
+    <form method="post" class="section">{% csrf_token %}
+      <label class="flex items-start gap-3 cursor-pointer">
+        <input type="checkbox" name="is_public" {% if submission.is_public %}checked{% endif %}
+               class="mt-1 w-4 h-4 rounded border-slateg-300 text-brand-600 focus:ring-brand-700">
+        <span class="text-sm text-slateg-700">Ishimni guruhdoshlarim ijodiy galereyada ko‘rishi mumkin
+          <span class="block text-xs text-slateg-500">Ixtiyoriy. Istalgan vaqtda bekor qilishingiz mumkin.</span></span>
+      </label>
+      <button name="action" value="gallery" class="mt-3 btn btn-quiet">Saqlash</button>
+    </form>
+  {% endif %}
+</div>
+{% endblock %}

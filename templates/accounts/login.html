@@ -1,0 +1,14 @@
+{% extends "auth_base.html" %}
+{% block title %}Kirish — BioTeacher{% endblock %}
+{% block auth_content %}
+  <h1 class="font-semibold text-2xl text-slateg-900">Tizimga kirish</h1>
+  <p class="mt-1 text-sm text-slateg-500">Rivojlanish siklini kechagi joyidan davom ettiring.</p>
+  <form method="post" class="mt-6">{% csrf_token %}
+    {% include "partials/form.html" %}
+    <button class="btn btn-primary btn-wide transition">Kirish</button>
+  </form>
+  <div class="mt-4 flex items-center justify-between text-sm">
+    <a href="{% url 'accounts:password_reset' %}" class="text-slateg-500 hover:text-slateg-800">Parolni unutdingizmi?</a>
+    <a href="{% url 'accounts:register' %}" class="text-brand-700 font-medium hover:text-brand-700">Ro‘yxatdan o‘tish</a>
+  </div>
+{% endblock %}

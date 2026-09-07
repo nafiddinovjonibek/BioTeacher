@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}O‘zini baholash{% endblock %}
+{% block page_title %}O‘zingizni baholang{% endblock %}
+{% block content %}
+<div class="max-w-3xl mx-auto">
+  <div class="rounded-2xl border border-brand-200 bg-brand-50 p-5">
+    <p class="text-sm text-brand-900 leading-relaxed">
+      Ishingizni <strong>{{ submission.assignment.rubric.title }}</strong> rubrikasi bo‘yicha o‘zingiz baholang.
+      Keyin mentor ham shu mezonlar bilan baholaydi. Ikki bahoning farqi sizning
+      <strong>baholash adekvatligingiz</strong> ko‘rsatkichini beradi — bu refleksiv ko‘nikmaning muhim qismi.
+    </p>
+  </div>
+
+  <p class="text-sm text-slateg-500">Topshiriq: <span class="text-slateg-800">{{ submission.assignment.title }}</span></p>
+
+  <form method="post">{% csrf_token %}
+    {% include "assignments/_rubric_form.html" %}
+    <button class="mt-6 w-full btn btn-primary">
+      Bahoni saqlash va ishni yuborish
+    </button>
+  </form>
+</div>
+{% endblock %}

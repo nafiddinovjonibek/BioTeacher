@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Refleksiya{% endblock %}
+{% block page_title %}Refleksiya{% endblock %}
+{% block content %}
+<div class="max-w-3xl mx-auto">
+  <a href="{% url 'reflection:journal' %}" class="text-sm text-slateg-500 hover:text-slateg-800">← Kundalikka qaytish</a>
+
+  <section class="section">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <p class="text-sm text-slateg-500">{{ entry.created_at|date:"d.m.Y H:i" }}</p>
+      {% if entry.quality_score is not None %}
+        <div class="text-right">
+          <p class="text-xs text-slateg-500">Sifat bahosi</p>
+          <p class="font-semibold text-2xl text-slateg-900">{{ entry.quality_score|floatformat:0 }}%</p>
+        </div>
+      {% endif %}
+    </div>
+
+    {% if entry.submission %}
+      <a href="{% url 'assignments:submission' entry.submission.pk %}" class="mt-3 inline-block text-sm text-brand-700 hover:underline">
+        {{ entry.submission.assignment.title }}
+      </a>
+    {% endif %}
+
+    <div class="mt-5 space-y-4">
+      {% if entry.q1 %}<div class="rounded-xl bg-slateg-50 p-4"><p class="text-sm text-slateg-600">Nimani o‘rgandim?</p><p class="reading mt-1 whitespace-pre-line">{{ entry.q1 }}</p></div>{% endif %}
+      {% if entry.q2 %}<div class="rounded-xl bg-slateg-50 p-4"><p class="text-sm text-slateg-600">Nimani yaxshi bajardim?</p><p class="reading mt-1 whitespace-pre-line">{{ entry.q2 }}</p></div>{% endif %}
+      {% if entry.q3 %}<div class="rounded-xl bg-slateg-50 p-4"><p class="text-sm text-slateg-600">Nimani rivojlantirishim kerak?</p><p class="reading mt-1 whitespace-pre-line">{{ entry.q3 }}</p></div>{% endif %}
+      {% if entry.q4 %}<div class="rounded-xl bg-slateg-50 p-4"><p class="text-sm text-slateg-600">Keyingi safar nimani boshqacha qilaman?</p><p class="reading mt-1 whitespace-pre-line">{{ entry.q4 }}</p></div>{% endif %}
+      {% if entry.free_text %}<div class="rounded-xl bg-slateg-50 p-4"><p class="reading mt-1 whitespace-pre-line">{{ entry.free_text }}</p></div>{% endif %}
+    </div>
+
+    {% if entry.tag_list %}
+      <div class="mt-4 flex flex-wrap gap-1.5">
+        {% for t in entry.tag_list %}<span class="rounded-full bg-slateg-100 px-2.5 py-1 text-xs text-slateg-600">#{{ t }}</span>{% endfor %}
+      </div>
+    {% endif %}
+  </section>
+
+  {% if entry.quality_detail %}
+    <section class="section">
+      <h3 class="font-semibold text-lg text-slateg-900">Sifat mezonlari</h3>
+      <p class="mt-1 text-xs text-slateg-500">Bu — shaffof heuristik baho, sun'iy intellekt emas. Mentor uni tuzatishi mumkin.</p>
+      <div class="mt-4 space-y-3">
+        {% for key, value in entry.quality_detail.items %}
+          {% if key != 'hints' %}
+            <div>
+              <div class="flex items-baseline justify-between text-sm">
+                <span class="text-slateg-700">
+                  {% if key == 'completeness' %}To‘liqlik{% elif key == 'specificity' %}Aniqlik
+                  {% elif key == 'analysis' %}Sabab-oqibat tahlili{% elif key == 'planning' %}Keyingi qadam aniqligi
+                  {% else %}{{ key }}{% endif %}
+                </span>
+                <span class="font-medium text-slateg-900">{{ value|floatformat:0 }}%</span>
+              </div>
+              <div class="mt-1 h-1.5 rounded-full bg-slateg-100 overflow-hidden">
+                <div class="h-full rounded-full {% if value >= 75 %}bg-brand-700{% elif value >= 50 %}bg-amberx-600{% else %}bg-rosex-200{% endif %}" style="width: {{ value }}%"></div>
+              </div>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+
+      {% if entry.quality_detail.hints %}
+        <div class="mt-5 rounded-xl bg-amberx-50 border border-amberx-200 p-4">
+          <p class="text-xs text-amberx-600">Keyingi safar</p>
+          <ul class="mt-2 space-y-1.5 text-sm text-amberx-700 list-disc pl-5">
+            {% for hint in entry.quality_detail.hints %}<li>{{ hint }}</li>{% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+    </section>
+  {% endif %}
+
+  {% if entry.mentor_comment %}
+    <section class="rounded-2xl border border-brand-200 bg-brand-50 p-6">
+      <h3 class="font-semibold text-lg text-brand-900">Mentor izohi</h3>
+      <p class="mt-2 text-brand-900 whitespace-pre-line">{{ entry.mentor_comment }}</p>
+    </section>
+  {% endif %}
+</div>
+{% endblock %}

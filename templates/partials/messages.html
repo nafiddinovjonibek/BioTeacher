@@ -1,0 +1,14 @@
+{% if messages %}
+<div class="no-print mb-6 space-y-2">
+  {% for message in messages %}
+    <div class="flex items-start gap-3 rounded-xl border px-4 py-3 text-sm
+      {% if message.tags == 'success' %}bg-brand-50 border-brand-200 text-brand-900
+      {% elif message.tags == 'error' %}bg-rosex-50 border-rosex-200 text-rosex-700
+      {% elif message.tags == 'warning' %}bg-amberx-50 border-amberx-200 text-amberx-700
+      {% else %}bg-brand-50 border-brand-200 text-brand-900{% endif %}">
+      <span>{% if message.tags == 'success' %}{% elif message.tags == 'error' %}{% elif message.tags == 'warning' %}{% else %}{% endif %}</span>
+      <p class="flex-1">{{ message }}</p>
+    </div>
+  {% endfor %}
+</div>
+{% endif %}

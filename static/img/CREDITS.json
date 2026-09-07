@@ -1,0 +1,65 @@
+[
+  {
+    "file": "hero-banner.jpg",
+    "title": "Yashil barglar va DNK spirali (banner)",
+    "license": "Loyiha egasining o'z fayli",
+    "artist": "Jonibek Nafiddinov",
+    "page": "media/bn.png"
+  },
+  {
+    "file": "promo-micro.jpg",
+    "title": "Mikroskop va yashil barglar",
+    "license": "Loyiha egasining o'z fayli",
+    "artist": "Jonibek Nafiddinov",
+    "page": "media/micro.jpg"
+  },
+  {
+    "file": "card-foliage.jpg",
+    "title": "Dense Tropical Green Foliage.jpg",
+    "license": "CC0",
+    "artist": "Paul The Writer",
+    "page": "https://commons.wikimedia.org/wiki/File:Dense%20Tropical%20Green%20Foliage.jpg"
+  },
+  {
+    "file": "cells-fluorescence.jpg",
+    "title": "Fluorescence microscopy of cells",
+    "license": "Unsplash License",
+    "artist": "Unsplash",
+    "page": "https://unsplash.com"
+  },
+  {
+    "file": "topic-cell.jpg",
+    "title": "AnimalCell.png",
+    "license": "Public domain",
+    "artist": "chatgpt",
+    "page": "https://commons.wikimedia.org/wiki/File:AnimalCell.png"
+  },
+  {
+    "file": "topic-photo.jpg",
+    "title": "Cross section of Arabidopsis thaliana, a C3 plant..jpg",
+    "license": "CC BY-SA 3.0",
+    "artist": "Ninghui Shi",
+    "page": "https://commons.wikimedia.org/wiki/File:Cross%20section%20of%20Arabidopsis%20thaliana%2C%20a%20C3%20plant..jpg"
+  },
+  {
+    "file": "topic-dna.jpg",
+    "title": "XBio illustration – DNA (Deoxyribonucleic Acid).png",
+    "license": "CC BY 4.0",
+    "artist": "explorebiology",
+    "page": "https://commons.wikimedia.org/wiki/File:XBio%20illustration%20%E2%80%93%20DNA%20%28Deoxyribonucleic%20Acid%29.png"
+  },
+  {
+    "file": "topic-ecosystem.jpg",
+    "title": "Ecological Pyramid with energy and biomass.png",
+    "license": "CC BY-SA 4.0",
+    "artist": "CK-12 Foundation",
+    "page": "https://commons.wikimedia.org/wiki/File:Ecological%20Pyramid%20with%20energy%20and%20biomass.png"
+  },
+  {
+    "file": "topic-teaching.jpg",
+    "title": "Tabletunterricht 06.jpg",
+    "license": "CC0",
+    "artist": "Aigner Ronja, Kohlmeier Michelle",
+    "page": "https://commons.wikimedia.org/wiki/File:Tabletunterricht%2006.jpg"
+  }
+]

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block public %}
+<div class="min-h-full lg:grid lg:grid-cols-2">
+  <div class="on-dark hidden lg:flex flex-col justify-between bg-slateg-900 text-slateg-400 p-12">
+    <a href="{% url 'home:landing' %}" class="flex items-center gap-3">
+      <span class="grid place-items-center w-11 h-11 rounded-xl bg-brand-700 text-white text-2xl"></span>
+      <span class="font-semibold text-white text-lg">BioTeacher</span>
+    </a>
+    <div class="max-w-md">
+      <h2 class="font-semibold text-3xl text-white leading-snug">
+        O‘qituvchi bo‘lish — bilim to‘plash emas,<br>o‘zini muntazam qurish jarayoni.
+      </h2>
+      <p class="mt-5 text-slateg-500 leading-relaxed">
+        Platforma sizning motivatsiya, bilim, faoliyat, refleksiya va kreativlik
+        ko‘rsatkichlaringizni o‘lchaydi hamda har bir qadamda nima qilish kerakligini aytadi.
+      </p>
+      <div class="mt-8 grid grid-cols-5 gap-2 text-center text-[11px]">
+        {% for c in "MOT COG ACT REF CRE"|slice:":19"|make_list %}{% endfor %}
+        <div class="rounded-lg bg-white/5 py-3"><span class="block text-lg"></span>MOT</div>
+        <div class="rounded-lg bg-white/5 py-3"><span class="block text-lg">🧠</span>COG</div>
+        <div class="rounded-lg bg-white/5 py-3"><span class="block text-lg">🛠</span>ACT</div>
+        <div class="rounded-lg bg-white/5 py-3"><span class="block text-lg">🔍</span>REF</div>
+        <div class="rounded-lg bg-white/5 py-3"><span class="block text-lg"></span>CRE</div>
+      </div>
+    </div>
+    <p class="text-xs text-slateg-600">PhD tadqiqoti doirasidagi tajriba-sinov vositasi</p>
+  </div>
+
+  <div class="flex items-center justify-center px-6 py-12 bg-slateg-50">
+    <div class="w-full max-w-md">
+      <a href="{% url 'home:landing' %}" class="lg:hidden mb-8 flex items-center gap-3">
+        <span class="grid place-items-center w-10 h-10 rounded-xl bg-brand-700 text-white text-xl"></span>
+        <span class="font-semibold text-slateg-900">BioTeacher</span>
+      </a>
+      {% include "partials/messages.html" %}
+      <div class="bg-white rounded-2xl border border-slateg-200 shadow-sm p-7">
+        {% block auth_content %}{% endblock %}
+      </div>
+      {% block auth_footer %}{% endblock %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}{{ goal.title }}{% endblock %}
+{% block page_title %}Maqsad{% endblock %}
+{% block content %}
+<div class="max-w-3xl mx-auto">
+  <a href="{% url 'goals:list' %}" class="text-sm text-slateg-500 hover:text-slateg-800">← Maqsadlarim</a>
+
+  <section class="section">
+    <div class="flex flex-wrap items-start justify-between gap-3">
+      <div>
+        <h2 class="font-semibold text-xl text-slateg-900">{{ goal.title }}</h2>
+        <p class="mt-1 text-sm text-slateg-500">
+          {{ goal.get_component_display }} · {{ goal.start_date|date:"d.m.Y" }} — {{ goal.deadline|date:"d.m.Y" }}
+        </p>
+      </div>
+      <span class="rounded-full px-3 py-1 text-xs
+        {% if goal.status == 'DONE' %}bg-brand-50 text-brand-700 border border-brand-200
+        {% elif goal.is_overdue %}bg-rosex-50 text-rosex-700 border border-rosex-200
+        {% else %}bg-slateg-100 text-slateg-600{% endif %}">
+        {{ goal.get_status_display }}{% if goal.is_overdue %} · muddat o‘tgan{% endif %}
+      </span>
+    </div>
+
+    <dl class="mt-5 space-y-3 text-sm">
+      {% if goal.why %}<div><dt class="text-sm text-slateg-600">Nima uchun muhim</dt><dd class="mt-1 text-slateg-800">{{ goal.why|linebreaksbr }}</dd></div>{% endif %}
+      {% if goal.resources %}<div><dt class="text-sm text-slateg-600">Resurslar</dt><dd class="mt-1 text-slateg-800">{{ goal.resources|linebreaksbr }}</dd></div>{% endif %}
+      {% if goal.expected_result %}<div><dt class="text-sm text-slateg-600">Kutilayotgan natija</dt><dd class="mt-1 text-slateg-800">{{ goal.expected_result|linebreaksbr }}</dd></div>{% endif %}
+    </dl>
+  </section>
+
+  <section class="section">
+    {% include "goals/_tasks.html" %}
+  </section>
+
+  {% if goal.mentor_comment %}
+    <section class="rounded-2xl border border-brand-200 bg-brand-50 p-6">
+      <h3 class="font-semibold text-lg text-brand-900">Mentor izohi</h3>
+      <p class="mt-2 text-brand-900 whitespace-pre-line">{{ goal.mentor_comment }}</p>
+    </section>
+  {% endif %}
+
+  {% if goal.reflections.all %}
+    <section class="section">
+      <h3 class="font-semibold text-lg text-slateg-900">Yakuniy refleksiya</h3>
+      {% for entry in goal.reflections.all %}
+        <a href="{% url 'reflection:detail' entry.pk %}" class="mt-3 block rounded-xl bg-slateg-50 p-4 hover:bg-slateg-100">
+          <p class="text-xs text-slateg-500">{{ entry.created_at|date:"d.m.Y" }}</p>
+          <p class="mt-1 text-sm text-slateg-700">{{ entry.preview }}</p>
+        </a>
+      {% endfor %}
+    </section>
+  {% endif %}
+
+  {% if not can_edit and profile.is_teacher %}
+    <a href="{% url 'goals:review' goal.pk %}" class="inline-flex btn btn-primary">
+      Izoh qoldirish / tasdiqlash
+    </a>
+  {% endif %}
+
+  {% if can_edit and goal.is_active %}
+    <div class="flex flex-wrap gap-3">
+      <a href="{% url 'goals:edit' goal.pk %}" class="btn btn-quiet">Tahrirlash</a>
+      {% if goal.can_close %}
+        <a href="{% url 'goals:close' goal.pk %}" class="btn btn-primary">Maqsadni yakunlash</a>
+      {% else %}
+        <a href="{% url 'goals:reflect' goal.pk %}" class="rounded-xl bg-amberx-600 px-5 py-2.5 text-white text-sm font-medium hover:bg-amberx-600">Yakuniy refleksiya yozish</a>
+      {% endif %}
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

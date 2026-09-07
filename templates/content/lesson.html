@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}{{ lesson.title }}{% endblock %}
+{% block page_title %}{{ lesson.title }}{% endblock %}
+{% block content %}
+<div class="max-w-3xl mx-auto">
+  <a href="{% url 'content:topic' lesson.topic.section.slug lesson.topic.slug %}" class="text-sm text-slateg-500 hover:text-slateg-800">← {{ lesson.topic.title }}</a>
+
+  <article class="mt-4 section sm:p-8">
+    <div class="flex items-center gap-2 flex-wrap">
+      {% if progress.status == 'PASSED' %}
+        <span class="rounded-full bg-brand-50 border border-brand-200 px-2.5 py-1 text-xs text-brand-700">O‘zlashtirildi — {{ progress.score|floatformat:0 }}%</span>
+      {% elif progress.status == 'FAILED' %}
+        <span class="rounded-full bg-amberx-50 border border-amberx-200 px-2.5 py-1 text-xs text-amberx-700">Qayta ko‘rish kerak — {{ progress.score|floatformat:0 }}%</span>
+      {% endif %}
+      <span class="text-xs text-slateg-500">~{{ lesson.duration_minutes }} daqiqa</span>
+    </div>
+
+    <h1 class="mt-4 font-semibold text-2xl text-slateg-900">{{ lesson.title }}</h1>
+    <div class="reading mt-6">
+      {{ lesson.body|linebreaks }}
+    </div>
+
+    {% if lesson.video_url %}
+      <a href="{{ lesson.video_url }}" target="_blank" rel="noopener"
+         class="mt-6 inline-flex items-center gap-2 btn btn-quiet">Videoni ko‘rish</a>
+    {% endif %}
+
+    {% if lesson.materials.all %}
+      <div class="mt-8 pt-6 border-t border-slateg-200">
+        <h2 class="font-semibold text-lg text-slateg-900">Qo‘shimcha materiallar</h2>
+        <ul class="mt-3 space-y-2">
+          {% for material in lesson.materials.all %}
+            <li class="rounded-xl bg-slateg-50 p-4">
+              <p class="text-sm font-medium text-slateg-900">{{ material.title }}</p>
+              {% if material.body %}<p class="mt-1 text-sm text-slateg-600">{{ material.body|linebreaksbr }}</p>{% endif %}
+              {% if material.url %}<a href="{{ material.url }}" target="_blank" rel="noopener" class="mt-1 inline-block text-sm text-brand-700">Havolaga o‘tish</a>{% endif %}
+              {% if material.file %}<a href="{{ material.file.url }}" class="mt-1 inline-block text-sm text-brand-700">Faylni yuklab olish</a>{% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+  </article>
+
+  <div class="mt-6 flex flex-wrap items-center gap-3">
+    {% if lesson.quiz %}
+      <a href="{% url 'content:lesson_quiz' lesson.pk %}" class="btn btn-primary">
+        {% if progress.attempts %}Testni qayta topshirish{% else %}Mustahkamlash testi{% endif %}
+      </a>
+    {% endif %}
+    {% if prev %}<a href="{% url 'content:lesson' lesson.topic.section.slug lesson.topic.slug prev.slug %}" class="btn btn-quiet">← Oldingi</a>{% endif %}
+    {% if next %}<a href="{% url 'content:lesson' lesson.topic.section.slug lesson.topic.slug next.slug %}" class="btn btn-quiet">Keyingi</a>{% endif %}
+  </div>
+</div>
+{% endblock %}

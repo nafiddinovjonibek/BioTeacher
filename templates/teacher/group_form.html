@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Yangi guruh{% endblock %}
+{% block page_title %}Yangi guruh{% endblock %}
+{% block content %}
+<div class="max-w-xl mx-auto">
+  <div class="section">
+    <p class="text-sm text-slateg-600">Guruh yaratilgach, tizim avtomatik 8 belgili kod beradi — uni talabalarga ulashasiz.</p>
+    <form method="post" class="mt-5">{% csrf_token %}
+      {% include "partials/form.html" %}
+      <button class="btn btn-primary">Yaratish</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

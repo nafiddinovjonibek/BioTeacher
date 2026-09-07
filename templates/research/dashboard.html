@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Tadqiqot paneli{% endblock %}
+{% block page_title %}Tadqiqot paneli{% endblock %}
+{% block content %}
+<div class="space-y-6">
+
+  <div class="section p-5">
+    <p class="text-sm text-slateg-600">
+      Bu bo‘limda talabalarning ism-familiyasi ko‘rsatilmaydi — faqat anonim identifikator.
+      Ma'lumot tajriba-sinov ishining statistik bazasi sifatida ishlatiladi.
+    </p>
+  </div>
+
+  <div class="grid sm:grid-cols-3 gap-4">
+    <div class="section p-5">
+      <p class="text-sm text-slateg-600">Jami o‘lchovlar</p>
+      <p class="mt-2 font-semibold text-3xl text-slateg-900">{{ total_measurements }}</p>
+    </div>
+    <div class="section p-5">
+      <p class="text-sm text-slateg-600">Ishtirokchilar</p>
+      <p class="mt-2 font-semibold text-3xl text-slateg-900">{{ participants }}</p>
+    </div>
+    <div class="section p-5">
+      <p class="text-sm text-slateg-600">Rozilik bergan</p>
+      <p class="mt-2 font-semibold text-3xl text-slateg-900">{{ consented }}</p>
+    </div>
+  </div>
+
+  <section class="section p-6">
+    <h3 class="font-semibold text-lg text-slateg-900 mb-4">Kesimlar qamrovi</h3>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead><tr class="text-left text-sm text-slateg-600 border-b border-slateg-200">
+          <th class="py-2 pr-4">Kesim</th><th class="py-2 px-3 text-center">Jami</th>
+          <th class="py-2 px-3 text-center">Tajriba (E)</th><th class="py-2 px-3 text-center">Nazorat (C)</th>
+        </tr></thead>
+        <tbody class="divide-y divide-slateg-100">
+          {% for row in coverage %}
+            <tr>
+              <td class="py-2.5 pr-4 text-slateg-800">{{ row.cut.label }}</td>
+              <td class="py-2.5 px-3 text-center font-semibold text-slateg-900">{{ row.total }}</td>
+              <td class="py-2.5 px-3 text-center text-brand-700">{{ row.experimental }}</td>
+              <td class="py-2.5 px-3 text-center text-brand-700">{{ row.control }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="px-6 py-4 border-b border-slateg-200 bg-slateg-50">
+      <h3 class="font-semibold text-lg text-slateg-900">Guruhlar va bo‘linmalar</h3>
+      <p class="text-xs text-slateg-500">E — tajriba, C — nazorat. Talabalar bu belgini ko‘rmaydi.</p>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead><tr class="text-left text-sm text-slateg-600 border-b border-slateg-200">
+          <th class="py-3 px-6">Guruh</th><th class="py-3 px-3">Mentor</th>
+          <th class="py-3 px-3 text-center">Talabalar</th><th class="py-3 px-3">Bo‘linma</th><th class="py-3 px-6"></th>
+        </tr></thead>
+        <tbody class="divide-y divide-slateg-100">
+          {% for group in groups %}
+            <tr>
+              <td class="py-3 px-6 text-slateg-900">{{ group.name }}</td>
+              <td class="py-3 px-3 text-slateg-600">{{ group.teacher.get_full_name|default:"—" }}</td>
+              <td class="py-3 px-3 text-center">{{ group.student_count }}</td>
+              <td class="py-3 px-3">
+                <span class="rounded-full px-2.5 py-1 text-xs
+                  {% if group.study_arm == 'E' %}bg-brand-50 text-brand-700 border border-brand-200
+                  {% elif group.study_arm == 'C' %}bg-brand-50 text-brand-700 border border-brand-200
+                  {% else %}bg-slateg-100 text-slateg-500{% endif %}">{{ group.get_study_arm_display }}</span>
+              </td>
+              <td class="py-3 px-6 text-right">
+                <a href="{% url 'research:set_arm' group.pk %}" class="text-sm text-brand-700 hover:underline">O‘zgartirish</a>
+              </td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="5" class="py-8 px-6 text-center text-slateg-500">Guruhlar yo‘q.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="flex flex-wrap gap-3">
+    <a href="{% url 'research:statistics' %}" class="btn btn-primary">Statistika</a>
+    <a href="{% url 'research:export' %}" class="btn btn-quiet">Ma'lumotni eksport qilish</a>
+  </div>
+</div>
+{% endblock %}

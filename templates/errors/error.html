@@ -1,0 +1,4 @@
+{% extends "base.html" %}
+{% block title %}{{ code }} — {{ title }}{% endblock %}
+{% block content %}{% include "errors/_body.html" %}{% endblock %}
+{% block public %}<div class="min-h-full grid place-items-center px-6">{% include "errors/_body.html" %}</div>{% endblock %}

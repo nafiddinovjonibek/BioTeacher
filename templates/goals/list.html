@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Mening maqsadlarim{% endblock %}
+{% block page_title %}Mening maqsadlarim{% endblock %}
+{% block content %}
+<div class="">
+
+  <div class="flex items-center justify-between gap-3">
+    <p class="text-sm text-slateg-600">Maqsadsiz rivojlanish tasodifiy bo‘ladi. SMART shablon bo‘yicha aniq maqsad qo‘ying.</p>
+    <a href="{% url 'goals:create' %}" class="shrink-0 btn btn-primary">Yangi maqsad</a>
+  </div>
+
+  {% if active %}
+    <section>
+      <h2 class="font-semibold text-lg text-slateg-900 mb-3">Faol maqsadlar</h2>
+      <div class="space-y-3">
+        {% for goal in active %}
+          <a href="{% url 'goals:detail' goal.pk %}" class="block card card-p">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <h3 class="font-medium text-slateg-900">{{ goal.title }}</h3>
+                <p class="mt-1 text-xs text-slateg-500">
+                  {{ goal.get_component_display }} · {{ goal.start_date|date:"d.m" }} — {{ goal.deadline|date:"d.m.Y" }}
+                  {% if goal.is_overdue %}<span class="text-rosex-600 font-medium">· muddat o‘tgan</span>
+                  {% else %}· {{ goal.days_left }} kun qoldi{% endif %}
+                </p>
+              </div>
+              {% if goal.mentor_approved %}
+                <span class="shrink-0 rounded-full bg-brand-50 border border-brand-200 px-2.5 py-1 text-[11px] text-brand-700">Mentor tasdiqladi</span>
+              {% endif %}
+            </div>
+            <div class="mt-3 h-2 rounded-full bg-slateg-100 overflow-hidden">
+              <div class="h-full rounded-full bg-brand-700" style="width: {{ goal.progress_percent }}%"></div>
+            </div>
+            <p class="mt-1.5 text-xs text-slateg-500">{{ goal.progress_percent }}% · {{ goal.tasks.count }} ta vazifa</p>
+          </a>
+        {% endfor %}
+      </div>
+    </section>
+  {% else %}
+    <div class="section">
+      <p class="text-3xl"></p>
+      <p class="mt-3 font-medium text-slateg-900">Faol maqsad yo‘q</p>
+      <p class="mt-1 text-sm text-slateg-500 max-w-md mx-auto">
+        Diagnostika natijangizdagi eng zaif komponentni tanlang va unga 3-4 haftalik aniq maqsad qo‘ying.
+      </p>
+      <a href="{% url 'goals:create' %}" class="mt-5 inline-flex btn btn-primary">Maqsad belgilash</a>
+    </div>
+  {% endif %}
+
+  {% if closed %}
+    <section>
+      <h2 class="font-semibold text-lg text-slateg-900 mb-3">Arxiv</h2>
+      <div class="space-y-2">
+        {% for goal in closed %}
+          <a href="{% url 'goals:detail' goal.pk %}" class="flex items-center justify-between gap-3 rounded-xl border border-slateg-200 bg-white px-4 py-3 hover:border-slateg-300">
+            <span class="text-sm text-slateg-700">{{ goal.title }}</span>
+            <span class="text-xs {% if goal.status == 'DONE' %}text-brand-700{% else %}text-slateg-500{% endif %}">{{ goal.get_status_display }}</span>
+          </a>
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+</div>
+{% endblock %}

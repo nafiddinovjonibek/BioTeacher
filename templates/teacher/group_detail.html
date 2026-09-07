@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}{{ group.name }}{% endblock %}
+{% block page_title %}{{ group.name }}{% endblock %}
+{% block content %}
+<div class="">
+  <a href="{% url 'teacher:groups' %}" class="text-sm text-slateg-500 hover:text-slateg-800">← Guruhlarim</a>
+
+  <section class="section">
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <h2 class="font-semibold text-xl text-slateg-900">{{ group.name }}</h2>
+        <p class="mt-1 text-sm text-slateg-500">{{ group.otm }}{% if group.faculty %} · {{ group.faculty }}{% endif %}{% if group.course %} · {{ group.course }}-kurs{% endif %}</p>
+      </div>
+      <div class="text-right">
+        <p class="text-sm text-slateg-600">Guruh kodi</p>
+        <p class="font-mono text-xl tracking-widest text-slateg-900">{{ group.invite_code }}</p>
+      </div>
+    </div>
+    <div class="mt-5 flex flex-wrap gap-3">
+      <a href="{% url 'teacher:analytics' group.pk %}" class="btn btn-primary">Guruh analitikasi</a>
+      <a href="{% url 'teacher:announce' group.pk %}" class="btn btn-quiet">E'lon / topshiriq</a>
+      <a href="{% url 'assignments:queue' %}" class="btn btn-quiet">Tekshirish navbati</a>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="px-6 py-4 border-b border-slateg-200 bg-slateg-50">
+      <h3 class="font-semibold text-lg text-slateg-900">Talabalar</h3>
+      <p class="text-xs text-slateg-500">Eng past SDI yuqorida — kimga birinchi yordam kerakligi ko‘rinadi.</p>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead><tr class="text-left text-sm text-slateg-600 border-b border-slateg-200">
+          <th class="py-3 px-6">Talaba</th>
+          <th class="py-3 px-3 text-center">SDI</th>
+          <th class="py-3 px-3">Daraja</th>
+          <th class="py-3 px-3 text-center">Tekshirilmagan</th>
+          <th class="py-3 px-3">Oxirgi faollik</th>
+          <th class="py-3 px-6"></th>
+        </tr></thead>
+        <tbody class="divide-y divide-slateg-100">
+          {% for row in rows %}
+            <tr class="{% if row.at_risk %}bg-rosex-50/50{% endif %}">
+              <td class="py-3 px-6">
+                <span class="block text-slateg-900">{{ row.student.get_full_name|default:row.student.email }}</span>
+                <span class="block text-xs text-slateg-500 font-mono">{{ row.profile.short_code }}</span>
+              </td>
+              <td class="py-3 px-3 text-center font-semibold text-slateg-900">
+                {% if row.sdi is not None %}{{ row.sdi|floatformat:0 }}%{% else %}<span class="text-slateg-400">—</span>{% endif %}
+              </td>
+              <td class="py-3 px-3">
+                {% include "partials/level_badge.html" with name=row.level.1 step=row.level.3 %}
+              </td>
+              <td class="py-3 px-3 text-center">
+                {% if row.pending %}<span class="rounded-full bg-amberx-50 px-2 py-0.5 text-xs text-amberx-700">{{ row.pending }}</span>{% else %}—{% endif %}
+              </td>
+              <td class="py-3 px-3 text-xs text-slateg-500">
+                {% if row.last_activity %}{{ row.last_activity|date:"d.m.Y" }}{% else %}faol emas{% endif %}
+              </td>
+              <td class="py-3 px-6 text-right">
+                <a href="{% url 'progress:student' row.student.pk %}" class="text-sm text-brand-700 hover:underline">Kartochka</a>
+              </td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="6" class="py-8 px-6 text-center text-slateg-500">
+              Guruhda hali talaba yo‘q. Kodni ulashing: <span class="font-mono">{{ group.invite_code }}</span>
+            </td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <p class="text-xs text-slateg-500">
+    Qizil fon — SDI {{ risk_threshold }}% dan past bo‘lgan talabalar (xavf guruhi).
+  </p>
+</div>
+{% endblock %}
