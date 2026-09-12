@@ -4,7 +4,6 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 
-from accounts.models import Enrollment, StudyGroup
 from core.enums import BloomLevel, Component, Module, Role
 
 from .models import Assignment, Criterion, Rubric, Score, Submission
@@ -129,16 +128,14 @@ class SubmissionPermissionTests(TestCase):
         self.owner = User.objects.create_user("ega3@test.uz", "parol12345")
         self.other = User.objects.create_user("begona3@test.uz", "parol12345")
         self.mentor = User.objects.create_user("mentor3@test.uz", "parol12345")
-        self.mentor.profile.role = Role.TEACHER
+        self.mentor.profile.role = Role.ADMIN
+        self.mentor.profile.onboarding_done = True
         self.mentor.profile.save()
 
-        self.group = StudyGroup.objects.create(name="G-1", teacher=self.mentor)
-        self.owner.profile.group = self.group
         self.owner.profile.onboarding_done = True
         self.owner.profile.save()
         self.other.profile.onboarding_done = True
         self.other.profile.save()
-        Enrollment.objects.create(student=self.owner, group=self.group)
 
         self.submission = Submission.objects.create(
             assignment=self.assignment, student=self.owner, status=Submission.Status.SUBMITTED
@@ -154,7 +151,7 @@ class SubmissionPermissionTests(TestCase):
         response = self.client.get(reverse("assignments:submission", args=[self.submission.pk]))
         self.assertEqual(response.status_code, 200)
 
-    def test_mentor_of_group_can_view_and_grade(self):
+    def test_admin_can_view_and_grade(self):
         self.client.force_login(self.mentor)
         self.assertEqual(
             self.client.get(reverse("assignments:submission", args=[self.submission.pk])).status_code,
@@ -165,11 +162,16 @@ class SubmissionPermissionTests(TestCase):
             200,
         )
 
-    def test_foreign_mentor_cannot_grade(self):
-        stranger = User.objects.create_user("boshqa-mentor@test.uz", "parol12345")
-        stranger.profile.role = Role.TEACHER
+    def test_other_teacher_cannot_grade(self):
+        stranger = User.objects.create_user("boshqa-oqituvchi@test.uz", "parol12345")
+        stranger.profile.onboarding_done = True
         stranger.profile.save()
         self.client.force_login(stranger)
+        response = self.client.get(reverse("assignments:grade", args=[self.submission.pk]))
+        self.assertEqual(response.status_code, 403)
+
+    def test_student_cannot_grade(self):
+        self.client.force_login(self.other)
         response = self.client.get(reverse("assignments:grade", args=[self.submission.pk]))
         self.assertEqual(response.status_code, 403)
 

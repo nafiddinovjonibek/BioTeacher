@@ -7,7 +7,6 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 
-from accounts.models import Enrollment, StudyGroup
 from core.enums import Cut, Role, StudyArm
 from diagnostics.models import Measurement
 
@@ -27,21 +26,16 @@ User = get_user_model()
 
 class ExportDataTests(TestCase):
     def setUp(self):
-        self.experimental = StudyGroup.objects.create(
-            name="E-guruh", study_arm=StudyArm.EXPERIMENTAL
-        )
-        self.control = StudyGroup.objects.create(name="C-guruh", study_arm=StudyArm.CONTROL)
 
         for index in range(4):
-            group = self.experimental if index % 2 == 0 else self.control
+            arm = StudyArm.EXPERIMENTAL if index % 2 == 0 else StudyArm.CONTROL
             user = User.objects.create_user(f"resp{index}@test.uz", "parol12345")
             user.first_name, user.last_name = "Ism", "Familiya"
             user.save()
-            user.profile.group = group
+            user.profile.study_arm = arm
             user.profile.save()
-            Enrollment.objects.create(student=user, group=group)
 
-            gain = 20 if group.study_arm == StudyArm.EXPERIMENTAL else 5
+            gain = 20 if arm == StudyArm.EXPERIMENTAL else 5
             Measurement.objects.create(user=user, cut=Cut.INITIAL,
                                        mot=50, cog=50, act=50, ref=50, cre=50)
             Measurement.objects.create(user=user, cut=Cut.FINAL,
@@ -130,15 +124,16 @@ class ExperimentComparisonTests(ExportDataTests):
 
 
 class ResearchAccessTests(TestCase):
-    """NFR-12 — tadqiqot paneli faqat tadqiqotchi/admin uchun."""
+    """NFR-12 — tadqiqot paneli faqat admin uchun."""
 
     def setUp(self):
-        self.student = User.objects.create_user("talaba-r@test.uz", "parol12345")
+        self.student = User.objects.create_user("oqituvchi-r@test.uz", "parol12345")
         self.student.profile.onboarding_done = True
         self.student.profile.save()
 
-        self.researcher = User.objects.create_user("tadqiqotchi-r@test.uz", "parol12345")
-        self.researcher.profile.role = Role.RESEARCHER
+        self.researcher = User.objects.create_user("admin-r@test.uz", "parol12345")
+        self.researcher.profile.role = Role.ADMIN
+        self.researcher.profile.onboarding_done = True
         self.researcher.profile.save()
 
     def test_student_cannot_open_research_dashboard(self):

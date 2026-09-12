@@ -24,7 +24,7 @@ def measurement_rows(cuts=None, arms=None, include_void=False):
     """Eksport uchun qatorlar (dict ro'yxati)."""
     from diagnostics.models import Measurement
 
-    queryset = Measurement.objects.select_related("user__profile__group")
+    queryset = Measurement.objects.select_related("user__profile")
     if not include_void:
         queryset = queryset.filter(is_void=False)
     if cuts:
@@ -115,7 +115,7 @@ def describe(values):
 
 def stats_table(rows=None):
     """
-    FR-61/FR-62 — kesim × guruh × komponent kesimidagi tavsifiy statistika.
+    FR-61/FR-62 — kesim × bo'linma × komponent kesimidagi tavsifiy statistika.
 
     Qaytadi: [{"cut": ..., "arm": ..., "component": ..., "n":..., "mean":..., ...}]
     """
@@ -150,9 +150,9 @@ def stats_table(rows=None):
 
 def comparison_table(rows=None):
     """
-    FR-62 — guruhlararo taqqoslash uchun tayyor jadval.
+    FR-62 — bo'linmalararo taqqoslash uchun tayyor jadval.
 
-    Har bir komponent uchun: E va C guruhlarining boshlang'ich va yakuniy
+    Har bir komponent uchun: E va C bo'linmalarining boshlang'ich va yakuniy
     o'rtachalari hamda o'sish (Δ). t-mezon hisoblash uchun n va SD ham beriladi.
     """
     rows = measurement_rows() if rows is None else rows

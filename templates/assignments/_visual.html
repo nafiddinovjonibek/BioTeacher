@@ -1,0 +1,20 @@
+{% comment %}
+Vizual keys tasviri (bo'lsa). Kontekst: a — Assignment; compact — ixcham balandlik (natija va baholash sahifalarida).
+{% endcomment %}
+{% if a.picture_url %}
+<figure class="section p-3 sm:p-4">
+  <a href="{{ a.picture_url }}" target="_blank" rel="noopener" title="To‘liq o‘lchamda ochish"
+     class="group relative block overflow-hidden rounded-xl border border-slateg-200 bg-white">
+    <img src="{{ a.picture_url }}" alt="{{ a.image_alt|default:a.title }}"
+         class="block w-full h-auto{% if compact %} max-h-80 object-contain{% endif %}">
+    <span class="absolute right-2 top-2 inline-flex items-center gap-1.5 rounded-lg bg-white/95 px-2 py-1 text-[11px] font-semibold text-slateg-700 shadow-sm
+                 opacity-0 transition group-hover:opacity-100 group-focus-visible:opacity-100">
+      <span class="w-3.5 h-3.5">{% include "partials/icon.html" with name="search" %}</span> Kattalashtirish
+    </span>
+  </a>
+  <figcaption class="mt-2 flex flex-wrap items-center justify-between gap-2 px-1 text-[12px] text-slateg-500">
+    <span>{% if compact %}Keys tasviri{% else %}Avval tasvirni diqqat bilan kuzating — tahlil shundan boshlanadi.{% endif %}</span>
+    <a href="{{ a.picture_url }}" target="_blank" rel="noopener" class="font-medium text-brand-700 hover:underline">To‘liq o‘lchamda ↗</a>
+  </figcaption>
+</figure>
+{% endif %}

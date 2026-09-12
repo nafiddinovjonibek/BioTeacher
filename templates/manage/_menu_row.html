@@ -1,0 +1,43 @@
+{% comment %}
+«Menyu tartibi»dagi band yoki ichki band qatori. Nom — shu yerning o'zida tahrirlanadi;
+qolgani (sahifa, havola, ikonka, izoh) — «Tahrirlash» oynasida.
+Kontekst: row, group, handle ("item-handle" | "child-handle"), child.
+{% endcomment %}
+<div class="flex items-center gap-2 px-3 py-1.5{% if child %} rounded-lg bg-slateg-50{% endif %}">
+  <span class="{{ handle }} cursor-grab text-slateg-300 hover:text-slateg-600 select-none" title="Tortib joyini o'zgartiring">⋮⋮</span>
+  {% if child %}<span class="w-3.5 h-3.5 shrink-0 text-slateg-300">{% include "partials/icon.html" with name="corner" %}</span>{% endif %}
+  <span class="w-[18px] h-[18px] text-brand-600 shrink-0">{% include "partials/icon.html" with name=row.icon %}</span>
+  <div class="flex-1 min-w-0">
+    <input type="text" value="{{ row.label }}" maxlength="60"
+           data-rename="item" data-rename-key="{{ row.key }}"
+           {% if row.default_label %}placeholder="{{ row.default_label }}" title="Standart nom: {{ row.default_label }}. Bo'sh qoldirilsa standart nomga qaytadi."{% else %}title="Menyudagi nomi"{% endif %}
+           class="w-full rounded-md border border-transparent bg-transparent px-1.5 py-0.5 text-sm font-medium text-slateg-900
+                  hover:border-slateg-200 focus:border-brand-500 focus:bg-white focus:outline-none">
+    {% if row.caption != row.label %}
+      <p class="px-1.5 text-[11px] leading-tight truncate {% if row.broken %}text-rosex-600{% else %}text-slateg-500{% endif %}">
+        {% if row.broken %}⚠{% elif row.external %}↗{% else %}→{% endif %} {{ row.caption }}
+      </p>
+    {% endif %}
+  </div>
+  {% if row.default_label and row.label != row.default_label %}
+    <span class="shrink-0 text-[11px] text-amberx-700" title="Standart nom: {{ row.default_label }}">o'zgartirilgan</span>
+  {% endif %}
+  <div class="shrink-0 flex items-center">
+    {% if row.can_have_children %}
+      <button type="button" class="icon-btn" data-item-add data-group="{{ group.code }}" data-parent="{{ row.key }}"
+              title="Ichki band qo‘shish" aria-label="«{{ row.label }}» ichiga band qo‘shish">{% include "partials/icon.html" with name="plus" %}</button>
+    {% endif %}
+    <button type="button" class="icon-btn" data-item-edit="{{ row.key }}"
+            title="Tahrirlash" aria-label="«{{ row.label }}» bandini tahrirlash">{% include "partials/icon.html" with name="pen" %}</button>
+    {% if row.locked %}
+      <span class="icon-btn cursor-help" title="Bu band o‘chirilmaydi — aks holda menyu sahifasiga yo‘l yo‘qoladi">{% include "partials/icon.html" with name="shield" %}</span>
+    {% else %}
+      <form method="post" action="{% url 'manage:menu_item_delete' row.key %}"
+            onsubmit="return confirm('«{{ row.label|escapejs }}» bandini{% if not child %} ichki bandlari bilan{% endif %} o‘chirasizmi?')">
+        {% csrf_token %}<input type="hidden" name="anchor" value="g-{{ group.code }}">
+        <button class="icon-btn icon-btn-danger" title="O‘chirish" aria-label="«{{ row.label }}» bandini o‘chirish">{% include "partials/icon.html" with name="trash" %}</button>
+      </form>
+    {% endif %}
+  </div>
+  {% if not child %}<span class="shrink-0 w-4 text-right text-xs text-slateg-400" data-pos>{{ position }}</span>{% endif %}
+</div>

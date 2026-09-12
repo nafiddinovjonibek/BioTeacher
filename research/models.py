@@ -23,7 +23,7 @@ class ExportJob(TimeStampedModel):
     )
     fmt = models.CharField("format", max_length=5, choices=Format.choices, default=Format.CSV)
     cuts = models.JSONField("kesimlar", default=list, blank=True)
-    arms = models.JSONField("guruhlar", default=list, blank=True)
+    arms = models.JSONField("bo'linmalar", default=list, blank=True)
     row_count = models.PositiveIntegerField("qatorlar soni", default=0)
     filename = models.CharField(max_length=250, blank=True)
 
@@ -38,7 +38,7 @@ class ExportJob(TimeStampedModel):
 
 class StatSummary(TimeStampedModel):
     """
-    FR-61 — kesim × guruh bo'yicha tavsifiy statistika keshi.
+    FR-61 — kesim × bo'linma bo'yicha tavsifiy statistika keshi.
 
     Har safar qayta hisoblanishi mumkin; dissertatsiya jadvallarini tez chiqarish uchun.
     """

@@ -42,7 +42,7 @@ class StepAnswerForm(forms.Form):
 
 
 class SelfAssessmentForm(forms.Form):
-    """FR-25 — talaba rubrika bo'yicha o'zini baholaydi."""
+    """FR-25 — foydalanuvchi rubrika bo'yicha o'zini baholaydi."""
 
     def __init__(self, *args, rubric=None, initial_scores=None, **kwargs):
         super().__init__(*args, **kwargs)
@@ -111,11 +111,11 @@ class GalleryConsentForm(forms.ModelForm):
     class Meta:
         model = Submission
         fields = ["is_public"]
-        labels = {"is_public": "Ishimni guruhdoshlarim ko'rishi mumkin"}
+        labels = {"is_public": "Ishimni boshqa o'qituvchilar ko'rishi mumkin"}
 
 
 class AssignTaskForm(StyledFormMixin, forms.Form):
-    """FR-57 — guruhga topshiriq tayinlash."""
+    """FR-57 — o'qituvchilarga topshiriq tayinlash."""
 
     assignment = forms.ModelChoiceField(
         label="Topshiriq", queryset=None, empty_label="— tanlang —"

@@ -68,13 +68,28 @@ class Assignment(SoftDeleteModel):
         CASE = "CASE", "Pedagogik keys"
         DIGITAL = "DIGITAL", "Raqamli mahsulot"
         CREATIVE = "CREATIVE", "Ijodiy topshiriq"
+        VISUAL = "VISUAL", "Muammoli vizual keys"
 
     module = models.CharField("modul", max_length=12, choices=Module.choices)
     kind = models.CharField("turi", max_length=12, choices=Kind.choices)
     title = models.CharField("sarlavha", max_length=250)
     slug = models.SlugField(max_length=140, unique=True)
+    section = models.ForeignKey(
+        "content.Section", on_delete=models.SET_NULL, null=True, blank=True,
+        related_name="assignments", verbose_name="fan",
+    )
     body = models.TextField("topshiriq matni")
     context_note = models.TextField("vaziyat / sharoit", blank=True)
+    # Vizual keys tasviri: yuklangan rasm yoki platformaning tayyor tasviri (static yo'li).
+    image = models.ImageField(
+        "tasvir", upload_to="assignments/visuals/%Y/%m/", blank=True,
+        help_text="JPG, PNG yoki WEBP. Vizual keysda tahlil shu tasvir asosida olib boriladi.",
+    )
+    visual = models.CharField("tayyor tasvir", max_length=200, blank=True, help_text="static/ ichidagi yo'l.")
+    image_alt = models.CharField(
+        "tasvir tavsifi", max_length=300, blank=True,
+        help_text="Tasvirni ko'ra olmaydigan foydalanuvchi uchun qisqa tavsif.",
+    )
     component = models.CharField("komponent", max_length=3, choices=Component.choices)
     bloom_level = models.PositiveSmallIntegerField(
         "Bloom darajasi", choices=BloomLevel.choices, default=BloomLevel.APPLY
@@ -97,6 +112,17 @@ class Assignment(SoftDeleteModel):
 
     def __str__(self):
         return self.title
+
+    @property
+    def picture_url(self):
+        """Tasvir manzili: yuklangan rasm ustun, bo'lmasa tayyor tasvir; yo'q bo'lsa — ""."""
+        if self.image:
+            return self.image.url
+        if self.visual:
+            from django.templatetags.static import static
+
+            return static(self.visual)
+        return ""
 
     def steps(self):
         """FR-22 — laboratoriya topshirig'ining 4 bosqichi."""
@@ -122,17 +148,21 @@ class Assignment(SoftDeleteModel):
                 ("task", "Topshiriq yaratish", "O'quvchilarga beriladigan aniq topshiriq."),
                 ("fragment", "Dars fragmenti", "10-15 daqiqalik fragment ssenariysi."),
             ]
+        if self.kind == self.Kind.VISUAL:
+            return [
+                ("observe", "1. Kuzatish", "Tasvirda nimani ko'ryapsiz? Faqat faktlarni sanab chiqing — hali izohlamang."),
+                ("problem", "2. Muammo", "Qaysi holat g'ayrioddiy yoki kutilmagan? Muammoni bitta savol shaklida yozing."),
+                ("explain", "3. Tushuntirish", "Biologik qonuniyatga tayanib javob bering. Tasvirdagi qaysi dalil fikringizni tasdiqlaydi?"),
+                ("teach", "4. Darsda qo'llash", "Bu keysni o'quvchilar bilan qanday tahlil qilasiz? 2-3 ta yo'naltiruvchi savol tuzing."),
+            ]
         return [("answer", "Javob", "Yechimingizni batafsil yozing.")]
 
 
-class GroupAssignment(TimeStampedModel):
-    """FR-57 — mentor guruhga topshiriq tayinlaydi."""
+class AssignedTask(TimeStampedModel):
+    """FR-57 — mentor topshiriqni talabalarga tayinlaydi."""
 
-    assignment = models.ForeignKey(
-        Assignment, on_delete=models.CASCADE, related_name="group_assignments"
-    )
-    group = models.ForeignKey(
-        "accounts.StudyGroup", on_delete=models.CASCADE, related_name="assigned_tasks"
+    assignment = models.OneToOneField(
+        Assignment, on_delete=models.CASCADE, related_name="assigned_task"
     )
     assigned_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name="assignments_made"
@@ -141,14 +171,11 @@ class GroupAssignment(TimeStampedModel):
     note = models.TextField("izoh", blank=True)
 
     class Meta:
-        verbose_name = "guruh topshirig'i"
-        verbose_name_plural = "guruh topshiriqlari"
-        constraints = [
-            models.UniqueConstraint(fields=["assignment", "group"], name="uniq_group_assignment")
-        ]
+        verbose_name = "tayinlangan topshiriq"
+        verbose_name_plural = "tayinlangan topshiriqlar"
 
     def __str__(self):
-        return f"{self.group} ← {self.assignment}"
+        return str(self.assignment)
 
 
 class Submission(SoftDeleteModel):

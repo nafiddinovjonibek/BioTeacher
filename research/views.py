@@ -1,5 +1,5 @@
 """
-Tadqiqotchi paneli (FR-58..FR-63).
+Tadqiqot paneli (FR-58..FR-63) — faqat ADMIN uchun.
 
 Bu bo'limda F.I.Sh. KO'RSATILMAYDI — faqat anonim `respondent_id` (NFR-17).
 """
@@ -11,8 +11,8 @@ from django.shortcuts import redirect, render
 from django.utils import timezone
 
 from accounts.forms import StyledFormMixin
-from accounts.models import StudyGroup
-from accounts.permissions import researcher_required
+from accounts.models import Profile
+from accounts.permissions import admin_required
 from accounts.services import log_action
 from core.enums import CUT_ORDER, Cut, StudyArm
 
@@ -39,27 +39,34 @@ class ExportForm(StyledFormMixin, forms.Form):
         help_text="Bo'sh qoldirilsa — barcha kesimlar.",
     )
     arms = forms.MultipleChoiceField(
-        label="Guruhlar", choices=StudyArm.choices, required=False,
+        label="Bo'linmalar", choices=StudyArm.choices, required=False,
         widget=forms.CheckboxSelectMultiple,
-        help_text="Bo'sh qoldirilsa — barcha guruhlar.",
+        help_text="Bo'sh qoldirilsa — barcha bo'linmalar.",
     )
 
 
 class ArmForm(StyledFormMixin, forms.ModelForm):
-    """FR-58 — guruhni tajriba yoki nazorat bo'linmasiga biriktirish."""
+    """FR-58 — respondentni tajriba yoki nazorat bo'linmasiga biriktirish."""
 
     class Meta:
-        model = StudyGroup
+        model = Profile
         fields = ["study_arm"]
-        labels = {"study_arm": "Tadqiqot guruhi"}
+        labels = {"study_arm": "Tadqiqot bo'linmasi"}
 
 
-@researcher_required
+@admin_required
 def dashboard(request):
-    """Tadqiqot paneli: guruhlar, o'lchovlar soni, qamrov."""
+    """Tadqiqot paneli: respondentlar, o'lchovlar soni, qamrov."""
+    from core.enums import Role
     from diagnostics.models import Measurement
 
-    groups = StudyGroup.objects.select_related("teacher").order_by("study_arm", "name")
+    from accounts.models import has_role_q
+
+    respondents = (
+        Profile.objects.filter(has_role_q(Role.TEACHER, prefix=""))
+        .select_related("user")
+        .order_by("study_arm", "respondent_id")
+    )
     rows = measurement_rows()
     coverage = []
     for cut in CUT_ORDER:
@@ -72,38 +79,35 @@ def dashboard(request):
                 "control": sum(1 for r in cut_rows if r["group"] == StudyArm.CONTROL),
             }
         )
-    consented = StudyGroup.objects.none()
-    from accounts.models import Profile
-
     return render(
         request,
         "research/dashboard.html",
         {
-            "groups": groups,
+            "respondents": respondents,
             "coverage": coverage,
             "total_measurements": Measurement.objects.filter(is_void=False).count(),
             "consented": Profile.objects.filter(research_consent=True).count(),
-            "participants": Profile.objects.filter(group__isnull=False).count(),
+            "participants": respondents.count(),
         },
     )
 
 
-@researcher_required
-def set_arm(request, group_id):
-    group = StudyGroup.objects.filter(pk=group_id).first()
-    if group is None:
-        messages.error(request, "Guruh topilmadi.")
+@admin_required
+def set_arm(request, profile_id):
+    profile = Profile.objects.filter(pk=profile_id).first()
+    if profile is None:
+        messages.error(request, "Respondent topilmadi.")
         return redirect("research:dashboard")
-    form = ArmForm(request.POST or None, instance=group)
+    form = ArmForm(request.POST or None, instance=profile)
     if request.method == "POST" and form.is_valid():
         form.save()
-        log_action(request, "research.set_arm", group.name, arm=group.study_arm)
-        messages.success(request, f"\"{group.name}\" guruhi yangilandi.")
+        log_action(request, "research.set_arm", profile.short_code(), arm=profile.study_arm)
+        messages.success(request, f"{profile.short_code()} respondenti yangilandi.")
         return redirect("research:dashboard")
-    return render(request, "research/set_arm.html", {"form": form, "group": group})
+    return render(request, "research/set_arm.html", {"form": form, "profile": profile})
 
 
-@researcher_required
+@admin_required
 def export(request):
     """FR-59, FR-60 — anonim CSV/XLSX eksport."""
     form = ExportForm(request.POST or None)
@@ -148,9 +152,9 @@ def export(request):
     )
 
 
-@researcher_required
+@admin_required
 def statistics(request):
-    """FR-61, FR-62 — tavsifiy statistika va guruhlararo taqqoslash."""
+    """FR-61, FR-62 — tavsifiy statistika va bo'linmalararo taqqoslash."""
     rows = measurement_rows()
     table = stats_table(rows)
     comparison = comparison_table(rows)
@@ -173,7 +177,7 @@ def statistics(request):
     )
 
 
-@researcher_required
+@admin_required
 def refresh_stats(request):
     count = refresh_stat_summary()
     messages.success(request, f"Statistik kesh yangilandi: {count} qator.")

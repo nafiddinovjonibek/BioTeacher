@@ -9,9 +9,9 @@ from datetime import timedelta
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
+from django.urls import reverse
 from django.utils import timezone
 
-from accounts.models import Enrollment, StudyGroup
 from assignments.models import Assignment, Criterion, Rubric, Score, Submission
 from assignments.services import apply_scores, finalize_submission
 from core.enums import BloomLevel, Component, Cut, Module, Role
@@ -27,6 +27,7 @@ from .services import (
     daily_task_for,
     dynamics_summary,
     log_activity,
+    observation_sheet,
     recompute,
     recommended_assignments,
     touch_streak,
@@ -131,6 +132,53 @@ class TrajectoryTests(TestCase):
         self.assertNotIn(weak, recommended)
 
 
+class ObservationSheetTests(TestCase):
+    """Kuzatuv varaqasi — MOT, ACT, REF, CRE kanallari va ularni ko'rsatgan dalillar."""
+
+    def setUp(self):
+        self.user = User.objects.create_user("kuzatuv@test.uz", "parol12345")
+        self.user.profile.onboarding_done = True
+        self.user.profile.save()
+        rubric = Rubric.objects.create(title="R", slug="r-kuzatuv")
+        assignment = Assignment.objects.create(
+            module=Module.LAB, kind=Assignment.Kind.LAB4, title="Osmos tajribasi", slug="osmos",
+            body="matn", component=Component.ACT, bloom_level=BloomLevel.APPLY, rubric=rubric,
+        )
+        Submission.objects.create(
+            assignment=assignment, student=self.user, status=Submission.Status.GRADED, mentor_percent=80,
+        )
+        ReflectionEntry.objects.create(
+            user=self.user, kind=ReflectionEntry.Kind.FREE, quality_score=64,
+            free_text="Bugun osmos tajribasida nazorat namunasi nima uchun kerakligini angladim.",
+        )
+        ComponentScore.objects.create(
+            user=self.user, component=Component.ACT, value=72, diagnostic_part=60, practice_part=80,
+        )
+
+    def test_sheet_covers_four_observed_channels(self):
+        sheet = observation_sheet(self.user)
+        self.assertEqual([c["code"] for c in sheet], ["MOT", "ACT", "REF", "CRE"])  # COG — testda
+
+        act = sheet[1]
+        self.assertEqual(act["value"], 72)
+        self.assertEqual((act["diagnostic"], act["practice"]), (60, 80))
+        self.assertEqual(dict(act["facts"])["Yuborilgan ishlar"], 1)
+        self.assertEqual(dict(act["facts"])["O‘rtacha natija"], "80%")
+        self.assertEqual(act["evidence"][0]["title"], "Osmos tajribasi")
+
+        self.assertEqual(dict(sheet[2]["facts"])["O‘rtacha sifat"], "64%")
+        self.assertEqual(sheet[3]["evidence"], [])  # CRE bo'yicha ish yo'q
+        self.assertEqual(sheet[0]["value"], 0.0)  # MOT hali o'lchanmagan
+
+    def test_page_renders(self):
+        self.client.force_login(self.user)
+        response = self.client.get(reverse("progress:observation"))
+        self.assertContains(response, "Kuzatuv varaqasi")
+        self.assertContains(response, "Osmos tajribasi")
+        self.assertContains(response, "Hali ijodiy ish yuborilmagan.")
+        self.assertNotContains(response, "COG</span>")
+
+
 class FullCycleTests(TestCase):
     """
     TZ 12-bo'lim, 3-4 mezon — to'liq sikl integratsiya testi.
@@ -142,14 +190,12 @@ class FullCycleTests(TestCase):
         ScoringWeights.objects.create(name="Standart", is_active=True)
 
         self.mentor = User.objects.create_user("mentor-sikl@test.uz", "parol12345")
-        self.mentor.profile.role = Role.TEACHER
+        self.mentor.profile.role = Role.ADMIN
+        self.mentor.profile.onboarding_done = True
         self.mentor.profile.save()
-        self.group = StudyGroup.objects.create(name="Sikl guruh", teacher=self.mentor)
 
         self.student = User.objects.create_user("talaba-sikl@test.uz", "parol12345")
-        self.student.profile.group = self.group
         self.student.profile.save()
-        Enrollment.objects.create(student=self.student, group=self.group)
 
         self.rubric = Rubric.objects.create(title="Rubrika", slug="rubrika-sikl")
         self.criterion = Criterion.objects.create(

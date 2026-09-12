@@ -1,175 +1,306 @@
 {% extends "base.html" %}
-{% block title %}Rivojlanish tarixi{% endblock %}
-{% block page_title %}
-  {% if is_mentor_view %}{{ student.get_full_name|default:student.email }}{% else %}Rivojlanish tarixi{% endif %}
+{% load static %}
+{% block title %}
+  {% if is_mentor_view %}{{ student.get_full_name|default:student.email }} — rivojlanish{% else %}Mening rivojlanishim — BioTeacher{% endif %}
 {% endblock %}
 
-{% block content %}
+{% block content_wrap_class %}w-full{% endblock %}
 
-{% comment %}
-Kuzatuv varaqasi to'liq hajmda: besh kanal + SDI millimetrli qog'oz ustida.
-Bu sahifadagi yagona jasur element; qolgani chiziq va bo'shliq.
-{% endcomment %}
-<section class="section">
-  <div class="card">
-    <div class="flex items-start justify-between gap-4 px-5 pt-5">
-      <div>
-        <p class="text-slateg-700">Kanal o‘qishlari</p>
-        {% if series and series.points > 1 %}
-          <p class="mt-0.5 text-sm text-slateg-600 metric">
-            {{ series.labels|first }} — {{ series.labels|last }} · {{ series.points }} o‘lchov
-          </p>
+{% block content %}
+<div class="space-y-6">
+
+  {# =================== 1-qator: sarlavha + joriy SDI =================== #}
+  <div class="grid gap-4 lg:grid-cols-3 items-stretch">
+
+    {# Bosh sahifadagi kabi to'q fotobanner: rasm ochiq qoladi, matn oq. #}
+    <section class="photo photo-banner prog-banner hero lg:col-span-2 p-6 sm:p-8 flex flex-col justify-center">
+      <span class="photo-bg" style="background-image:url('{% static "img/card-foliage.jpg" %}')"
+            role="img" aria-label="Quyuq yashil barglar"></span>
+
+      <p class="flex items-center gap-2 text-brand-200 font-semibold text-[13px]">
+        <span class="w-4 h-4">{% include "partials/icon.html" with name="chart" %}</span>
+        {% if is_mentor_view %}Mentor ko‘rinishi{% else %}6-modul · o‘z-o‘zini monitoring{% endif %}
+      </p>
+
+      <h1 class="mt-2.5 text-2xl sm:text-3xl font-extrabold leading-tight text-white max-w-xl">
+        {% if is_mentor_view %}{{ student.get_full_name|default:student.email }}{% else %}Mening rivojlanishim{% endif %}
+      </h1>
+
+      <p class="mt-3 max-w-xl text-[0.95rem] leading-relaxed text-brand-100/90">
+        {% if summary %}
+          {{ summary }}
+        {% else %}
+          Har bir kesim va bajarilgan ish beshta komponent bo‘yicha o‘qish qoldiradi.
+          Shu o‘qishlardan o‘sish chizig‘i, profil radari va kesimlar jadvali quriladi.
         {% endif %}
+      </p>
+    </section>
+
+    {# ---- Joriy SDI ---- #}
+    <section class="sidecard px-5 py-4 flex flex-col">
+      <h2 class="flex items-center gap-2.5 text-[15px] font-bold text-slateg-900">
+        <span class="grid place-items-center w-7 h-7 rounded-lg bg-brand-600 text-white shrink-0">
+          <span class="w-4 h-4">{% include "partials/icon.html" with name="target" %}</span>
+        </span>
+        Umumiy SDI
+      </h2>
+
+      <div class="relative w-[104px] h-[104px] mx-auto mt-3">
+        <svg viewBox="0 0 100 100" class="w-full h-full -rotate-90" aria-hidden="true">
+          <circle cx="50" cy="50" r="42" fill="none" stroke="#E7EEE9" stroke-width="9"/>
+          {% if sdi %}
+            <circle cx="50" cy="50" r="42" fill="none" stroke="url(#sdiGrad)" stroke-width="9"
+                    stroke-linecap="round" stroke-dasharray="{% widthratio sdi 100 264 %} 264"/>
+          {% endif %}
+          <defs>
+            <linearGradient id="sdiGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#3FAA6C"/>
+              <stop offset="100%" stop-color="#116A33"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <span class="absolute inset-0 grid place-items-center">
+          <span class="text-[1.6rem] font-extrabold text-slateg-900 metric leading-none">
+            {% if sdi is not None %}{{ sdi|floatformat:0 }}<span class="text-sm text-slateg-400 font-bold">%</span>
+            {% else %}<span class="text-slateg-300">—</span>{% endif %}
+          </span>
+        </span>
       </div>
-      <div class="text-right">
-        <div class="text-2xl font-semibold text-slateg-900 metric leading-none">
-          {% if sdi is not None %}{{ sdi|floatformat:0 }}<span class="text-lg text-slateg-600 font-normal">%</span>{% else %}—{% endif %}
+
+      <div class="mt-3 flex items-center justify-center gap-2">
+        {% include "partials/level_badge.html" with name=level.1 step=level.3 %}
+      </div>
+
+      {% if series.sdi_delta %}
+        <p class="mt-2 text-center text-[12px] metric
+                  {% if series.sdi_delta > 0 %}text-brand-700{% else %}text-rosex-600{% endif %}">
+          Kuzatuv boshidan {% if series.sdi_delta > 0 %}+{% endif %}{{ series.sdi_delta }} punkt
+        </p>
+      {% endif %}
+
+      {% if movers %}
+        <dl class="mt-3 space-y-1.5">
+          {% for m in movers %}
+            <div class="flex items-center gap-2 text-[12px]">
+              <dt class="w-9 font-bold text-brand-700 metric shrink-0">{{ m.code }}</dt>
+              <dd class="flex-1 min-w-0 truncate text-slateg-600">{{ m.label }}</dd>
+              <dd class="metric font-semibold shrink-0
+                         {% if m.delta > 0 %}text-brand-700{% else %}text-rosex-600{% endif %}">
+                {% if m.delta > 0 %}+{% endif %}{{ m.delta|floatformat:1 }}
+              </dd>
+            </div>
+          {% endfor %}
+        </dl>
+      {% endif %}
+
+      {% if not is_mentor_view %}
+        <a href="{% url 'progress:report_pdf' %}" class="btn btn-primary btn-wide mt-auto"
+           style="margin-top:1rem">
+          {% include "partials/icon.html" with name="download" %} PDF hisobot
+        </a>
+      {% endif %}
+    </section>
+  </div>
+
+
+  {# =================== O'sish chizig'i =================== #}
+  <section>
+    <div class="flex items-center justify-between gap-4 mb-3">
+      <div class="flex items-center gap-3 min-w-0">
+        <span class="chip chip-sm shrink-0">{% include "partials/icon.html" with name="chart" %}</span>
+        <div class="min-w-0">
+          <h2 class="text-[16px] font-bold text-slateg-900 leading-tight">O‘sish chizig‘i</h2>
+          <p class="mt-0.5 text-[12px] text-slateg-500">
+            Beshta komponent va umumiy SDI — o‘lchovlar tartibida.
+          </p>
         </div>
-        {% if series.sdi_delta %}
-          <p class="mt-1 text-sm metric {% if series.sdi_delta > 0 %}text-slateg-700{% else %}text-rosex-600{% endif %}">
-            {% if series.sdi_delta > 0 %}+{% endif %}{{ series.sdi_delta }} punkt
-          </p>
-        {% endif %}
       </div>
-    </div>
-    <div class="px-5 pb-5 pt-3">
       {% if series and series.points > 1 %}
-        <div class="h-[300px] sm:h-[380px]"><canvas id="growth"></canvas></div>
+        <span class="shrink-0 pill pill-xs pill-mute metric">
+          {{ series.labels|first }} — {{ series.labels|last }} · {{ series.points }} o‘lchov
+        </span>
+      {% endif %}
+    </div>
+
+    <div class="panel">
+      {% if series and series.points > 1 %}
+        <div class="px-2 pt-2 pb-1 h-[300px] sm:h-[360px]"><canvas id="growth"></canvas></div>
       {% else %}
-        <div class="h-[200px] grid place-items-center text-center">
-          <p class="text-slateg-700 max-w-md">
-            Grafik chizilishi uchun kamida ikkita o‘lchov kerak.
-            Topshiriq bajaring yoki oraliq diagnostikadan o‘ting.
+        <div class="py-12 text-center">
+          <span class="chip chip-lg mx-auto">{% include "partials/icon.html" with name="chart" %}</span>
+          <p class="mt-3 font-semibold text-slateg-900">Chiziq uchun ikkita o‘lchov kerak</p>
+          <p class="mt-1 text-sm text-slateg-600 max-w-sm mx-auto">
+            Topshiriq bajaring yoki chorak diagnostikasidan o‘ting — ikkinchi o‘lchovdan keyin
+            shu yerda o‘sish chizig‘i paydo bo‘ladi.
           </p>
+          <a href="{% url 'diagnostics:index' %}" class="btn btn-primary btn-sm mt-4">Diagnostikaga o‘tish</a>
         </div>
       {% endif %}
     </div>
-  </div>
-
-  {% if summary %}<p class="mt-3 text-slateg-700">{{ summary }}</p>{% endif %}
-</section>
-
-
-{% comment %}Kesimlar jadvali — laboratoriya daftaridagi o'lchov jadvali.{% endcomment %}
-<section class="section">
-  <div class="section-head">
-    <h2>Kesimlar bo‘yicha o‘lchov</h2>
-    <span class="aside">Muzlatilgan qiymatlar</span>
-  </div>
-  <div class="overflow-x-auto">
-    <table class="datatable">
-      <thead>
-        <tr>
-          <th scope="col">Kanal</th>
-          {% for cut in cuts %}<th scope="col" class="num">{{ cut.label }}</th>{% endfor %}
-          <th scope="col" class="num">Joriy</th>
-          <th scope="col" class="num">O‘zgarish</th>
-          <th scope="col">Daraja</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for row in table %}
-          <tr>
-            <th scope="row" class="font-normal text-slateg-800">
-              <span class="metric text-slateg-600">{{ row.code }}</span>
-              <span class="ml-2">{{ row.label }}</span>
-            </th>
-            {% for cell in row.cells %}
-              <td class="num {% if cell is None %}text-slateg-400{% else %}text-slateg-700{% endif %}">
-                {% if cell is None %}—{% else %}{{ cell|floatformat:0 }}{% endif %}
-              </td>
-            {% endfor %}
-            <td class="num font-semibold text-slateg-900">{{ row.current|floatformat:0 }}</td>
-            <td class="num">
-              {% if row.delta is None %}<span class="text-slateg-400">—</span>
-              {% elif row.delta > 0 %}<span class="text-slateg-800">+{{ row.delta|floatformat:1 }}</span>
-              {% elif row.delta < 0 %}<span class="text-rosex-600">{{ row.delta|floatformat:1 }}</span>
-              {% else %}<span class="text-slateg-500">0</span>{% endif %}
-            </td>
-            <td>{% include "partials/level_badge.html" with name=row.level.1 step=row.level.3 %}</td>
-          </tr>
-        {% endfor %}
-        <tr>
-          <th scope="row" class="font-semibold text-slateg-900">Umumiy SDI</th>
-          {% for cell in sdi_row.cells %}
-            <td class="num {% if cell is None %}text-slateg-400{% else %}text-slateg-800{% endif %}">
-              {% if cell is None %}—{% else %}{{ cell|floatformat:1 }}{% endif %}
-            </td>
-          {% endfor %}
-          <td class="num font-semibold text-slateg-900">
-            {% if sdi_row.current is not None %}{{ sdi_row.current|floatformat:1 }}{% else %}—{% endif %}
-          </td>
-          <td class="num">
-            {% if sdi_row.delta is None %}<span class="text-slateg-400">—</span>
-            {% elif sdi_row.delta > 0 %}<span class="text-slateg-800">+{{ sdi_row.delta|floatformat:1 }}</span>
-            {% else %}<span class="text-rosex-600">{{ sdi_row.delta|floatformat:1 }}</span>{% endif %}
-          </td>
-          <td></td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</section>
-
-
-{% comment %}Profil radari — kesimlarni ustma-ust solishtirish.{% endcomment %}
-<div class="grid lg:grid-cols-2 gap-x-12">
-  <section class="section min-w-0">
-    <div class="section-head">
-      <h2>Profil</h2>
-      <span class="aside">Kesimlar ustma-ust</span>
-    </div>
-    <div class="card p-4">
-      <div class="h-[300px]"><canvas id="radar"></canvas></div>
-    </div>
   </section>
 
-  <section class="section">
-    <div class="section-head"><h2>Faoliyat</h2></div>
-    <table class="datatable">
-      <tbody>
-        <tr><th scope="row" class="font-normal text-slateg-800">Bajarilgan ishlar</th>
-            <td class="num text-slateg-900">{{ activity.SUBMISSION|default:0 }}</td></tr>
-        <tr><th scope="row" class="font-normal text-slateg-800">Refleksiya yozuvlari</th>
-            <td class="num text-slateg-900">{{ activity.REFLECTION|default:0 }}</td></tr>
-        <tr><th scope="row" class="font-normal text-slateg-800">O‘zlashtirilgan darslar</th>
-            <td class="num text-slateg-900">{{ activity.LESSON|default:0 }}</td></tr>
-        <tr><th scope="row" class="font-normal text-slateg-800">Ketma-ket faol kunlar</th>
-            <td class="num text-slateg-900">{% if streak %}{{ streak.current }}{% else %}0{% endif %}</td></tr>
-        {% if streak %}
-          <tr><th scope="row" class="font-normal text-slateg-600">eng uzun zanjir</th>
-              <td class="num text-slateg-600">{{ streak.longest }}</td></tr>
-        {% endif %}
-      </tbody>
-    </table>
 
-    {% if gap %}
-      <div class="mt-6">
-        <p class="text-slateg-900">Baholash adekvatligi</p>
-        <p class="mt-1 text-2xl font-semibold text-slateg-900 metric leading-none">
-          {% if gap.average > 0 %}+{% endif %}{{ gap.average }}<span class="text-base font-normal text-slateg-600"> punkt</span>
-        </p>
-        <p class="mt-1.5 text-slateg-700">{{ gap.verdict }}</p>
-        <p class="mt-1 text-sm text-slateg-600 metric">{{ gap.count }} ta baholangan ish bo‘yicha</p>
+  {# =================== Profil + faoliyat =================== #}
+  <div class="grid gap-6 lg:grid-cols-2 items-start">
+
+    <section class="min-w-0">
+      <div class="flex items-center gap-3 mb-3">
+        <span class="chip chip-sm shrink-0">{% include "partials/icon.html" with name="target" %}</span>
+        <div class="min-w-0">
+          <h2 class="text-[16px] font-bold text-slateg-900 leading-tight">Profil</h2>
+          <p class="mt-0.5 text-[12px] text-slateg-500">Kesimlar ustma-ust qo‘yilgan.</p>
+        </div>
       </div>
-    {% endif %}
-  </section>
-</div>
+      <div class="panel">
+        <div class="px-2 pt-2 pb-1 h-[320px]"><canvas id="radar"></canvas></div>
+      </div>
+    </section>
+
+    <section class="min-w-0">
+      <div class="flex items-center gap-3 mb-3">
+        <span class="chip chip-sm shrink-0">{% include "partials/icon.html" with name="flame" %}</span>
+        <div class="min-w-0">
+          <h2 class="text-[16px] font-bold text-slateg-900 leading-tight">Faoliyat</h2>
+          <p class="mt-0.5 text-[12px] text-slateg-500">Muntazamlik ko‘rsatkichlari.</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="grid grid-cols-2 gap-3">
+          {% include "progress/_metric.html" with icon="send" value=activity.SUBMISSION|default:0 label="Bajarilgan ishlar" %}
+          {% include "progress/_metric.html" with icon="pen" value=activity.REFLECTION|default:0 label="Refleksiya yozuvlari" %}
+          {% include "progress/_metric.html" with icon="book" value=activity.LESSON|default:0 label="O‘zlashtirilgan darslar" %}
+          {% include "progress/_metric.html" with icon="flame" value=streak.current|default:0 label="Ketma-ket faol kunlar" hint=streak.longest %}
+        </div>
+
+        {% if gap %}
+          <div class="mt-3 rounded-[12px] border border-slateg-200 p-4">
+            <div class="flex items-baseline justify-between gap-3">
+              <p class="text-[13px] font-bold text-slateg-900">Baholash adekvatligi</p>
+              <p class="text-[1.25rem] font-extrabold text-slateg-900 metric leading-none">
+                {% if gap.average > 0 %}+{% endif %}{{ gap.average }}
+                <span class="text-[12px] font-semibold text-slateg-500">punkt</span>
+              </p>
+            </div>
+            <p class="mt-1.5 text-[12px] leading-snug text-slateg-600">{{ gap.verdict }}</p>
+            <p class="mt-1 text-[11px] text-slateg-500 metric">{{ gap.count }} ta baholangan ish bo‘yicha</p>
+          </div>
+        {% endif %}
+      </div>
+    </section>
+  </div>
 
 
-{% if not is_mentor_view %}
-  <section class="section no-print">
-    <div class="section-head"><h2>Hisobot</h2></div>
-    <div class="flex flex-wrap gap-2">
-      <a href="{% url 'progress:report_pdf' %}" class="btn btn-primary">PDF yuklab olish</a>
-      <button onclick="window.print()" class="btn btn-quiet">Chop etish</button>
-      <button onclick="downloadChart('growth','osish-grafigi')" class="btn btn-quiet">Grafikni PNG qilib saqlash</button>
-      <button onclick="downloadChart('radar','profil-radari')" class="btn btn-quiet">Radarni PNG qilib saqlash</button>
+  {# =================== Kesimlar jadvali =================== #}
+  <section>
+    <div class="flex items-center gap-3 mb-3">
+      <span class="chip chip-sm shrink-0">{% include "partials/icon.html" with name="shield" %}</span>
+      <div class="min-w-0">
+        <h2 class="text-[16px] font-bold text-slateg-900 leading-tight">Kesimlar bo‘yicha o‘lchov</h2>
+        <p class="mt-0.5 text-[12px] text-slateg-500">Muzlatilgan qiymatlar — keyin o‘zgartirilmaydi.</p>
+      </div>
     </div>
-    <p class="mt-2 text-sm text-slateg-600">PNG fayllar dissertatsiyaga qo‘yish uchun tayyor o‘lchamda saqlanadi.</p>
-  </section>
-{% endif %}
 
+    <div class="panel">
+      <div class="overflow-x-auto rounded-[12px]">
+        <table class="datatable">
+          <thead>
+            <tr>
+              <th scope="col">Kanal</th>
+              {% for cut in cuts %}<th scope="col" class="num">{{ cut.label }}</th>{% endfor %}
+              <th scope="col" class="num">Joriy</th>
+              <th scope="col" class="num">O‘zgarish</th>
+              <th scope="col">Daraja</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in table %}
+              <tr>
+                <th scope="row" class="text-left whitespace-nowrap">
+                  <span class="metric font-bold text-brand-700">{{ row.code }}</span>
+                  <span class="ml-2 font-medium text-slateg-800">{{ row.label }}</span>
+                </th>
+                {% for cell in row.cells %}
+                  <td class="num {% if cell is None %}text-slateg-400{% else %}text-slateg-700{% endif %}">
+                    {% if cell is None %}—{% else %}{{ cell|floatformat:0 }}{% endif %}
+                  </td>
+                {% endfor %}
+                <td class="num font-bold text-slateg-900">{{ row.current|floatformat:0 }}</td>
+                <td class="num">
+                  {% if row.delta is None %}<span class="text-slateg-400">—</span>
+                  {% elif row.delta > 0 %}<span class="font-semibold text-brand-700">+{{ row.delta|floatformat:1 }}</span>
+                  {% elif row.delta < 0 %}<span class="font-semibold text-rosex-600">{{ row.delta|floatformat:1 }}</span>
+                  {% else %}<span class="text-slateg-500">0</span>{% endif %}
+                </td>
+                <td>{% include "partials/level_badge.html" with name=row.level.1 step=row.level.3 %}</td>
+              </tr>
+            {% endfor %}
+            <tr class="bg-brand-50/60">
+              <th scope="row" class="text-left font-bold text-slateg-900">Umumiy SDI</th>
+              {% for cell in sdi_row.cells %}
+                <td class="num {% if cell is None %}text-slateg-400{% else %}text-slateg-800{% endif %}">
+                  {% if cell is None %}—{% else %}{{ cell|floatformat:1 }}{% endif %}
+                </td>
+              {% endfor %}
+              <td class="num font-bold text-slateg-900">
+                {% if sdi_row.current is not None %}{{ sdi_row.current|floatformat:1 }}{% else %}—{% endif %}
+              </td>
+              <td class="num">
+                {% if sdi_row.delta is None %}<span class="text-slateg-400">—</span>
+                {% elif sdi_row.delta > 0 %}<span class="font-semibold text-brand-700">+{{ sdi_row.delta|floatformat:1 }}</span>
+                {% else %}<span class="font-semibold text-rosex-600">{{ sdi_row.delta|floatformat:1 }}</span>{% endif %}
+              </td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+
+  {# =================== Hisobot =================== #}
+  {% if not is_mentor_view %}
+    <section class="no-print">
+      <div class="flex items-center gap-3 mb-3">
+        <span class="chip chip-sm shrink-0">{% include "partials/icon.html" with name="download" %}</span>
+        <div class="min-w-0">
+          <h2 class="text-[16px] font-bold text-slateg-900 leading-tight">Hisobot</h2>
+          <p class="mt-0.5 text-[12px] text-slateg-500">
+            PNG fayllar dissertatsiyaga qo‘yish uchun tayyor o‘lchamda saqlanadi.
+          </p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="flex flex-wrap gap-2 p-1">
+          <a href="{% url 'progress:report_pdf' %}" class="btn btn-primary btn-sm">
+            {% include "partials/icon.html" with name="download" %} PDF yuklab olish
+          </a>
+          <button onclick="window.print()" class="btn btn-quiet btn-sm">Chop etish</button>
+          <button onclick="downloadChart('growth','osish-grafigi')" class="btn btn-quiet btn-sm">
+            O‘sish grafigi · PNG
+          </button>
+          <button onclick="downloadChart('radar','profil-radari')" class="btn btn-quiet btn-sm">
+            Profil radari · PNG
+          </button>
+        </div>
+      </div>
+    </section>
+  {% endif %}
+</div>
+{% endblock %}
+
+
+{% block head %}
+<style>
+  /* Bu fotosurat bosh sahifadagidan yorug'roq — chap tomon quyuqlashtirildi,
+     shunda oq matn kontrasti saqlanadi. */
+  .prog-banner::before {
+    background: linear-gradient(90deg, rgb(6 26 14) 0%, rgb(7 30 17 / 88%) 34%, rgb(7 30 17 / 58%) 62%, rgba(7, 30, 17, .10) 100%)
+      
+  }
+</style>
 {% endblock %}
 
 
@@ -203,7 +334,7 @@ Bu sahifadagi yagona jasur element; qolgani chiziq va bo'shliq.
       },
       scales: {
         y: { min: 0, max: 100, ticks: { stepSize: 25, padding: 6 },
-             grid: { display: false }, border: { display: false } },
+             grid: { color: '#EDF2EF' }, border: { display: false } },
         x: { grid: { display: false }, border: { display: false },
              ticks: { maxRotation: 0, autoSkipPadding: 16 } },
       },

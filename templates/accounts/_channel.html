@@ -1,0 +1,8 @@
+{% comment %}
+Kirish sahifasidagi komponent nishoni.
+Ishlatish: {% include "accounts/_channel.html" with code="MOT" icon="flame" %}
+{% endcomment %}
+<div class="auth-chip">
+  {% include "partials/icon.html" with name=icon %}
+  <span>{{ code }}</span>
+</div>

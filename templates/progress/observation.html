@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}Kuzatuv varaqasi — BioTeacher{% endblock %}
+
+{% block content %}
+<div class="space-y-5">
+
+  <div class="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
+    <div class="flex items-start gap-3 min-w-0">
+      <span class="chip chip-lg shrink-0">{% include "partials/icon.html" with name="eye" %}</span>
+      <div class="min-w-0">
+        <h1 class="text-[1.35rem] font-extrabold leading-tight text-slateg-900">Kuzatuv varaqasi</h1>
+        <p class="mt-1 max-w-2xl text-[13px] leading-relaxed text-slateg-600">
+          Faoliyat davomida kuzatiladigan to‘rt kanal: motivatsiya (MOT), amaliy faoliyat (ACT),
+          refleksiya (REF) va kreativlik (CRE). Bilim (COG) test bilan o‘lchanadi —
+          <a href="{% url 'diagnostics:index' %}" class="font-medium text-brand-700 hover:underline">Test</a> bo‘limida.
+        </p>
+      </div>
+    </div>
+    <button type="button" onclick="window.print()" class="no-print btn btn-quiet btn-sm shrink-0">Chop etish</button>
+  </div>
+
+  <div class="grid gap-4 lg:grid-cols-2">
+    {% for ch in channels %}
+      <section class="card card-p flex flex-col" aria-labelledby="ch-{{ ch.code }}">
+        <div class="flex items-start gap-3">
+          <span class="chip shrink-0">{% include "partials/icon.html" with name=ch.icon %}</span>
+          <div class="min-w-0 flex-1">
+            <h2 id="ch-{{ ch.code }}" class="text-[15px] font-bold leading-tight text-slateg-900">
+              <span class="metric text-brand-700">{{ ch.code }}</span> · {{ ch.label }}
+            </h2>
+            <p class="mt-0.5 text-[12px] leading-snug text-slateg-500">{{ ch.description }}</p>
+          </div>
+          <p class="shrink-0 leading-none">
+            <span class="text-[1.5rem] font-extrabold text-slateg-900 metric">{{ ch.value|floatformat:0 }}</span><span class="text-sm text-slateg-500">%</span>
+          </p>
+        </div>
+
+        <div class="bar mt-3"><span style="width: {{ ch.value|floatformat:0 }}%"></span></div>
+        <div class="mt-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+          {% include "partials/level_badge.html" with name=ch.level.1 step=ch.level.3 %}
+          <p class="text-[12px] text-slateg-500 metric">
+            {% if not ch.measured %}Hali o‘lchanmagan{% endif %}
+            {% if ch.diagnostic is not None %}Test {{ ch.diagnostic|floatformat:0 }}%{% endif %}{% if ch.diagnostic is not None and ch.practice is not None %} · {% endif %}{% if ch.practice is not None %}Amaliyot {{ ch.practice|floatformat:0 }}%{% endif %}
+            {% if ch.delta %}
+              {% if ch.diagnostic is not None or ch.practice is not None %}·{% endif %}
+              <span class="font-semibold {% if ch.delta > 0 %}text-brand-700{% else %}text-rosex-600{% endif %}">{% if ch.delta > 0 %}+{% endif %}{{ ch.delta|floatformat:1 }}</span> boshidan
+            {% endif %}
+          </p>
+        </div>
+
+        <dl class="mt-4 grid grid-cols-3 gap-2">
+          {% for label, value in ch.facts %}
+            <div class="flex flex-col-reverse justify-end rounded-xl bg-slateg-50 px-3 py-2.5">
+              <dt class="mt-1 text-[11px] leading-snug text-slateg-500">{{ label }}</dt>
+              <dd class="text-[1.05rem] font-extrabold leading-none text-slateg-900 metric">{{ value }}</dd>
+            </div>
+          {% endfor %}
+        </dl>
+
+        <div class="mt-4">
+          <h3 class="text-[12px] font-semibold text-slateg-700">{{ ch.evidence_title }}</h3>
+          {% if ch.evidence %}
+            <ul class="mt-1 divide-y divide-slateg-100">
+              {% for e in ch.evidence %}
+                <li>
+                  <a href="{{ e.url }}" class="group flex items-center gap-3 py-2">
+                    <span class="min-w-0 flex-1">
+                      <span class="block truncate text-[13px] font-medium text-slateg-900 group-hover:text-brand-700">{{ e.title }}</span>
+                      <span class="block text-[11px] text-slateg-500 metric">{{ e.meta }}</span>
+                    </span>
+                    <span class="w-4 h-4 shrink-0 text-slateg-400 group-hover:text-brand-600">{% include "partials/icon.html" with name="chevron" %}</span>
+                  </a>
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="mt-1 text-[13px] text-slateg-500">{{ ch.empty }}</p>
+          {% endif %}
+        </div>
+
+        <div class="no-print mt-auto pt-4">
+          <a href="{{ ch.action.url }}" class="btn btn-quiet btn-sm">{{ ch.action.label }}</a>
+        </div>
+      </section>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

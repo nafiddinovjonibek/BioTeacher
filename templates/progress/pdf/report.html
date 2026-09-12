@@ -19,7 +19,6 @@
   <h1>Shaxsiy rivojlanish hisoboti</h1>
   <p class="meta">
     {{ student.get_full_name|default:student.email }}
-    {% if student.profile.group %} &middot; {{ student.profile.group.name }}{% endif %}
     {% if student.profile.otm %} &middot; {{ student.profile.otm }}{% endif %}
   </p>
 

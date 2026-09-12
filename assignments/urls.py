@@ -6,6 +6,7 @@ app_name = "assignments"
 
 urlpatterns = [
     path("modul/<str:module>/", views.module_list, name="module"),
+    path("keyslar/", views.cases, name="cases"),
     path("galereya/", views.gallery, name="gallery"),
     path("kompetensiya/", views.competency, name="competency"),
     path("navbat/", views.queue, name="queue"),

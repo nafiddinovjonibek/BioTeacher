@@ -105,6 +105,21 @@ class BadgeBoardTests(TestCase):
         row = badge_board(self.user)[0]
         self.assertEqual(row["progress"], 100)
 
+    def test_progress_is_not_negative(self):
+        """Natija pasaygan bo'lsa ham foiz manfiy bo'lmaydi."""
+        growth_badge = Badge.objects.create(code="osish", title="O'sish", emoji="📈",
+                                            how_to_earn="SDI 15 punktga oshsin")
+        BadgeRule.objects.create(
+            badge=growth_badge, metric=BadgeRule.Metric.SDI_GROWTH, threshold=15
+        )
+        Measurement.objects.create(user=self.user, cut=Cut.INITIAL,
+                                   mot=90, cog=90, act=90, ref=90, cre=90)
+        Measurement.objects.create(user=self.user, cut=Cut.FINAL,
+                                   mot=10, cog=10, act=10, ref=10, cre=10)
+
+        row = next(r for r in badge_board(self.user) if r["badge"] == growth_badge)
+        self.assertEqual(row["progress"], 0)
+
     def test_achievements_page_has_no_leaderboard(self):
         """SR-07 / FR-51 — ochiq reyting jadvali bo'lmasligi shart."""
         other = User.objects.create_user("boshqa-talaba@test.uz", "parol12345")

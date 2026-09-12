@@ -62,7 +62,7 @@ SCHEMAS = {
             "Hujayra tuzilishi", "hujayra-tuzilishi",
             "Yangi dars", "yangi-dars", "20", "Dars matni…",
         ],
-        "help": "Bo'lim va mavzu mavjud bo'lmasa avtomatik yaratiladi.",
+        "help": "Fan va mavzu mavjud bo'lmasa avtomatik yaratiladi.",
     },
 }
 

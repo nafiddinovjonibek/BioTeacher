@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" width="960" height="600" font-family="'Segoe UI', Arial, Helvetica, sans-serif">
+<rect width="960" height="600" fill="#FFFFFF"/>
+<text x="40.0" y="50.0" font-size="23" font-weight="700" fill="#1F2D24" text-anchor="start" >So‘lak amilazasi: reaksiya tezligi va harorat</text><text x="40.0" y="76.0" font-size="15" font-weight="400" fill="#5E6F65" text-anchor="start" >Kraxmalning parchalanish tezligi (yod sinovi bo‘yicha)</text>
+<line x1="110.0" y1="110" x2="110.0" y2="500" stroke="#E3EAE5" stroke-width="1"/>
+<text x="110.0" y="524.0" font-size="14" font-weight="400" fill="#5E6F65" text-anchor="middle" >0</text>
+<line x1="182.9" y1="110" x2="182.9" y2="500" stroke="#E3EAE5" stroke-width="1"/>
+<text x="182.9" y="524.0" font-size="14" font-weight="400" fill="#5E6F65" text-anchor="middle" >10</text>
+<line x1="255.7" y1="110" x2="255.7" y2="500" stroke="#E3EAE5" stroke-width="1"/>
+<text x="255.7" y="524.0" font-size="14" font-weight="400" fill="#5E6F65" text-anchor="middle" >20</text>
+<line x1="328.6" y1="110" x2="328.6" y2="500" stroke="#E3EAE5" stroke-width="1"/>
+<text x="328.6" y="524.0" font-size="14" font-weight="400" fill="#5E6F65" text-anchor="middle" >30</text>
+<line x1="401.4" y1="110" x2="401.4" y2="500" stroke="#E3EAE5" stroke-width="1"/>
+<text x="401.4" y="524.0" font-size="14" font-weight="400" fill="#5E6F65" text-anchor="middle" >40</text>
+<line x1="474.3" y1="110" x2="474.3" y2="500" stroke="#E3EAE5" stroke-width="1"/>
+<text x="474.3" y="524.0" font-size="14" font-weight="400" fill="#5E6F65" text-anchor="middle" >50</text>
+<line x1="547.1" y1="110" x2="547.1" y2="500" stroke="#E3EAE5" stroke-width="1"/>
+<text x="547.1" y="524.0" font-size="14" font-weight="400" fill="#5E6F65" text-anchor="middle" >60</text>
+<line x1="620.0" y1="110" x2="620.0" y2="500" stroke="#E3EAE5" stroke-width="1"/>
+<text x="620.0" y="524.0" font-size="14" font-weight="400" fill="#5E6F65" text-anchor="middle" >70</text>
+<line x1="110" y1="500.0" x2="620" y2="500.0" stroke="#E3EAE5" stroke-width="1"/>
+<text x="98.0" y="505.0" font-size="14" font-weight="400" fill="#5E6F65" text-anchor="end" >0</text>
+<line x1="110" y1="402.5" x2="620" y2="402.5" stroke="#E3EAE5" stroke-width="1"/>
+<text x="98.0" y="407.5" font-size="14" font-weight="400" fill="#5E6F65" text-anchor="end" >25</text>
+<line x1="110" y1="305.0" x2="620" y2="305.0" stroke="#E3EAE5" stroke-width="1"/>
+<text x="98.0" y="310.0" font-size="14" font-weight="400" fill="#5E6F65" text-anchor="end" >50</text>
+<line x1="110" y1="207.5" x2="620" y2="207.5" stroke="#E3EAE5" stroke-width="1"/>
+<text x="98.0" y="212.5" font-size="14" font-weight="400" fill="#5E6F65" text-anchor="end" >75</text>
+<line x1="110" y1="110.0" x2="620" y2="110.0" stroke="#E3EAE5" stroke-width="1"/>
+<text x="98.0" y="115.0" font-size="14" font-weight="400" fill="#5E6F65" text-anchor="end" >100</text>
+<line x1="110" y1="500" x2="620" y2="500" stroke="#5E6F65" stroke-width="2"/>
+<line x1="110" y1="110" x2="110" y2="500" stroke="#5E6F65" stroke-width="2"/>
+<text x="365.0" y="556.0" font-size="16" font-weight="600" fill="#1F2D24" text-anchor="middle" >Harorat, °C</text>
+<text x="46.0" y="305.0" font-size="15" font-weight="600" fill="#1F2D24" text-anchor="middle" transform="rotate(-90 46 305.0)">Reaksiya tezligi, % (eng yuqorisi = 100)</text>
+<path d="M110.0,484.4 C116.1,482.4 134.3,477.9 146.4,472.7 C158.6,467.5 170.7,461.6 182.9,453.2 C195.0,444.8 207.1,435.6 219.3,422.0 C231.4,408.4 243.6,389.5 255.7,371.3 C267.9,353.1 280.0,335.6 292.1,312.8 C304.3,290.1 316.4,263.4 328.6,234.8 C340.7,206.2 356.5,162.0 365.0,141.2 C373.5,120.4 373.5,111.3 379.6,110.0 C385.6,108.7 391.7,107.4 401.4,133.4 C411.1,159.4 425.7,222.4 437.9,266.0 C450.0,309.6 462.1,361.6 474.3,394.7 C486.4,427.8 498.6,448.6 510.7,464.9 C522.9,481.1 535.0,486.3 547.1,492.2 C559.3,498.1 571.4,498.7 583.6,500.0 C595.7,500.0 613.9,500.0 620.0,500.0 L620.0,500 L110.0,500 Z" fill="#EAF6EE"/>
+<line x1="379.6" y1="500" x2="379.6" y2="110.0" stroke="#116A33" stroke-width="1.6" stroke-dasharray="6 5"/>
+<path d="M110.0,484.4 C116.1,482.4 134.3,477.9 146.4,472.7 C158.6,467.5 170.7,461.6 182.9,453.2 C195.0,444.8 207.1,435.6 219.3,422.0 C231.4,408.4 243.6,389.5 255.7,371.3 C267.9,353.1 280.0,335.6 292.1,312.8 C304.3,290.1 316.4,263.4 328.6,234.8 C340.7,206.2 356.5,162.0 365.0,141.2 C373.5,120.4 373.5,111.3 379.6,110.0 C385.6,108.7 391.7,107.4 401.4,133.4 C411.1,159.4 425.7,222.4 437.9,266.0 C450.0,309.6 462.1,361.6 474.3,394.7 C486.4,427.8 498.6,448.6 510.7,464.9 C522.9,481.1 535.0,486.3 547.1,492.2 C559.3,498.1 571.4,498.7 583.6,500.0 C595.7,500.0 613.9,500.0 620.0,500.0" fill="none" stroke="#17843F" stroke-width="4" stroke-linejoin="round"/>
+<circle cx="110.0" cy="484.4" r="5.5" fill="#FFFFFF" stroke="#17843F" stroke-width="2.6"/>
+<circle cx="182.9" cy="453.2" r="5.5" fill="#FFFFFF" stroke="#17843F" stroke-width="2.6"/>
+<circle cx="255.7" cy="371.3" r="5.5" fill="#FFFFFF" stroke="#17843F" stroke-width="2.6"/>
+<circle cx="328.6" cy="234.8" r="5.5" fill="#FFFFFF" stroke="#17843F" stroke-width="2.6"/>
+<circle cx="379.6" cy="110.0" r="5.5" fill="#FFFFFF" stroke="#17843F" stroke-width="2.6"/>
+<circle cx="437.9" cy="266.0" r="5.5" fill="#FFFFFF" stroke="#17843F" stroke-width="2.6"/>
+<circle cx="474.3" cy="394.7" r="5.5" fill="#FFFFFF" stroke="#17843F" stroke-width="2.6"/>
+<circle cx="547.1" cy="492.2" r="5.5" fill="#FFFFFF" stroke="#17843F" stroke-width="2.6"/>
+<circle cx="620.0" cy="500.0" r="5.5" fill="#FFFFFF" stroke="#17843F" stroke-width="2.6"/>
+<text x="389.6" y="114.0" font-size="14" font-weight="700" fill="#116A33" text-anchor="start" >37 °C</text>
+<text x="660.0" y="132.0" font-size="18" font-weight="700" fill="#1F2D24" text-anchor="start" >Qo‘shimcha tajriba</text>
+<rect x="660" y="150" width="260" height="128" rx="14" fill="#EAF2FB" stroke="#BFD8F1" stroke-width="2"/>
+<text x="680.0" y="182.0" font-size="15" font-weight="600" fill="#1E5488" text-anchor="start" >Ferment 10 daqiqa 0 °C da</text>
+<text x="680.0" y="204.0" font-size="15" font-weight="400" fill="#1F2D24" text-anchor="start" >ushlandi, so‘ng 37 °C da</text>
+<text x="680.0" y="224.0" font-size="15" font-weight="400" fill="#1F2D24" text-anchor="start" >sinaldi. Faollik:</text>
+<text x="680.0" y="262.0" font-size="32" font-weight="800" fill="#1E5488" text-anchor="start" >97%</text>
+<rect x="660" y="300" width="260" height="128" rx="14" fill="#FDEEEC" stroke="#F4C7C0" stroke-width="2"/>
+<text x="680.0" y="332.0" font-size="15" font-weight="600" fill="#96291D" text-anchor="start" >Ferment 10 daqiqa 70 °C da</text>
+<text x="680.0" y="354.0" font-size="15" font-weight="400" fill="#1F2D24" text-anchor="start" >ushlandi, so‘ng 37 °C da</text>
+<text x="680.0" y="374.0" font-size="15" font-weight="400" fill="#1F2D24" text-anchor="start" >sinaldi. Faollik:</text>
+<text x="680.0" y="412.0" font-size="32" font-weight="800" fill="#96291D" text-anchor="start" >2%</text>
+<text x="660.0" y="462.0" font-size="13" font-weight="400" fill="#5E6F65" text-anchor="start" >Faollik 37 °C dagi eng yuqori</text>
+<text x="660.0" y="480.0" font-size="13" font-weight="400" fill="#5E6F65" text-anchor="start" >qiymatga nisbatan olingan.</text>
+</svg>

@@ -10,8 +10,8 @@ from django.utils import timezone
 
 from core.enums import Cut
 
-from .forms import JoinGroupForm, LoginForm, ProfileForm, RegisterForm
-from .models import EmailVerification, Enrollment, StudyGroup
+from .forms import LoginForm, ProfileForm, RegisterForm
+from .models import EmailVerification
 from .services import (
     clear_login_attempts,
     client_ip,
@@ -127,12 +127,15 @@ def onboarding(request):
     """
     FR-06 — bloklanadigan onboarding.
 
-    3 qadam: profil → guruh → boshlang'ich diagnostika.
+    2 qadam: profil → boshlang'ich diagnostika.
     """
     from diagnostics.models import Questionnaire
 
     profile = request.user.profile
-    questionnaires = Questionnaire.objects.filter(cut=Cut.INITIAL, is_active=True).order_by("kind")
+    # Onboardingda faqat kesim diagnostikasi — dars testlari (QUIZ) emas.
+    questionnaires = Questionnaire.objects.filter(
+        cut=Cut.INITIAL, is_active=True, kind__in=Questionnaire.DIAGNOSTIC_KINDS
+    ).order_by("kind")
     done_slugs = set(
         request.user.attempts.filter(status="FINISHED").values_list(
             "questionnaire__slug", flat=True
@@ -144,13 +147,6 @@ def onboarding(request):
             "done": bool(profile.otm and request.user.first_name),
             "url": "accounts:profile_edit",
             "cta": "Profilni to'ldirish",
-        },
-        {
-            "title": "Guruhga qo'shiling",
-            "done": profile.group is not None,
-            "url": "accounts:join_group",
-            "cta": "Guruh kodini kiritish",
-            "optional": True,
         },
     ]
     return render(
@@ -178,22 +174,20 @@ def profile_edit(request):
 
 
 @login_required
-def join_group(request):
-    """FR-03 — guruh kodi orqali qo'shilish."""
-    form = JoinGroupForm(request.POST or None)
-    if request.method == "POST" and form.is_valid():
-        group = form.group
-        profile = request.user.profile
-        profile.group = group
-        profile.otm = profile.otm or group.otm
-        profile.faculty = profile.faculty or group.faculty
-        profile.course = profile.course or group.course
-        profile.save()
-        Enrollment.objects.get_or_create(student=request.user, group=group)
-        log_action(request, "group.join", group.name)
-        messages.success(request, f"\"{group.name}\" guruhiga qo'shildingiz.")
-        return redirect("accounts:onboarding" if not profile.onboarding_done else "home:cabinet")
-    return render(request, "accounts/join_group.html", {"form": form})
+def switch_role(request):
+    """Bir nechta roli bor foydalanuvchi faol rolni almashtiradi (POST)."""
+    from django.http import HttpResponseNotAllowed
+
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["POST"])
+    profile = request.user.profile
+    role = request.POST.get("role", "")
+    if profile.switch_role(role):
+        log_action(request, "role.switch", role)
+        messages.success(request, f"Rejim almashtirildi: {profile.get_role_display()}.")
+    else:
+        messages.error(request, "Bu rol sizga berilmagan.")
+    return redirect("home:dashboard")
 
 
 @login_required

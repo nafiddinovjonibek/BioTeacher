@@ -2,13 +2,18 @@
 {% load static %}
 {% block title %}Bosh sahifa — BioTeacher{% endblock %}
 
-{% block main_class %}flex-1 min-h-0 px-4 sm:px-6 lg:px-7 pb-10 lg:overflow-y-auto xl:overflow-hidden xl:pb-4{% endblock %}
+{% comment %}
+Sahifa boshqa bo'limlardagidek yaxlit siljiydi. Ilgari xl'da <main>
+`overflow-hidden` bo'lib, ikki ustun alohida siljirdi; lekin ustunlarning
+balandligi hech qayerda belgilanmagani uchun kontent kesilib qolar va
+umuman siljimasdi.
+{% endcomment %}
 
 {% block content %}
-<div class="grid gap-5 items-start xl:grid-cols-3 xl:h-full xl:items-stretch xl:min-h-0">
+<div class="grid gap-5 items-start xl:grid-cols-3">
 
   {# ================= CHAP USTUN ================= #}
-  <div class="min-w-0 space-y-5 xl:col-span-2 xl:overflow-y-auto xl:min-h-0 xl:pr-1 xl:pb-6">
+  <div class="min-w-0 space-y-5 xl:col-span-2">
 
     {# ---- Hero ---- #}
     <section class="photo photo-banner hero p-6 sm:p-8">
@@ -226,7 +231,7 @@
   Umumiy natija -> Bilim kartasi -> Bugun -> iqtibos lentasi.
   "Maqsadim" chap ustunga ko'chdi, aks holda balandlik ekranga sig'maydi.
   {% endcomment %}
-  <div class="min-w-0 space-y-4 xl:overflow-y-auto xl:min-h-0 xl:pb-4">
+  <div class="min-w-0 space-y-4 xl:sticky xl:top-4">
 
     {# Umumiy natija #}
     <section class="card p-5 bg-brand-50/70 border-brand-100 relative overflow-hidden">

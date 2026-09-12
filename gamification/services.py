@@ -181,7 +181,9 @@ def badge_board(user):
                 metric_fn = METRICS.get(rule.metric)
                 if metric_fn is None or rule.threshold <= 0:
                     continue
-                ratios.append(min(1.0, (metric_fn(user) or 0) / rule.threshold))
+                # 0..1 oralig'iga qisamiz: `sdi_growth` manfiy bo'lishi mumkin
+                # (natija pasaygan bo'lsa), aks holda foiz -156% bo'lib chiqadi.
+                ratios.append(max(0.0, min(1.0, (metric_fn(user) or 0) / rule.threshold)))
             if ratios:
                 progress = round(min(ratios) * 100)
         rows.append({"badge": badge, "earned": earned, "progress": progress})

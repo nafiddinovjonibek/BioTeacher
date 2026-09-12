@@ -2,7 +2,7 @@
 Topshiriqlar va rubrikalar bazasi — haqiqiy pedagogik mazmun bilan.
 
 RUBRICS     — mezonli baholash jadvallari (FR-31, FR-37)
-ASSIGNMENTS — laboratoriya, pedagogik keys, dars loyihasi, raqamli va ijodiy topshiriqlar
+ASSIGNMENTS — laboratoriya, pedagogik keys, dars loyihasi, raqamli, ijodiy topshiriqlar va vizual keyslar
 COMPETENCY  — "Men buni bajara olaman" checklisti (FR-34)
 BADGES      — nishonlar va ularni berish qoidalari (FR-49, FR-50)
 """
@@ -124,6 +124,30 @@ RUBRICS = [
              "hint": "Real sinfda, mavjud resurs bilan bajarilarlimi?",
              "levels": {"0": "Amalga oshmaydi", "2": "Katta resurs talab qiladi",
                         "4": "Oddiy sharoitda ham qo'llanadi"}},
+        ],
+    },
+    {
+        "slug": "vizual-tahlil",
+        "title": "Vizual keys tahlili rubrikasi",
+        "description": "Tasvirga asoslangan muammoli vaziyatni mustaqil tahlil qilishni baholash uchun.",
+        "criteria": [
+            {"name": "Kuzatish aniqligi", "max_score": 4, "weight": 1.0,
+             "hint": "Tasvirdagi faktlar to'liq va izohsiz sanab o'tilganmi?",
+             "levels": {"0": "Kuzatish yo'q yoki darhol xulosaga o'tilgan",
+                        "2": "Asosiy belgilar bor, muhim tafsilotlar tushib qolgan",
+                        "4": "Barcha muhim belgilar aniq, qiymat va birliklari bilan keltirilgan"}},
+            {"name": "Muammoni ko'ra bilish", "max_score": 4, "weight": 1.0,
+             "hint": "G'ayrioddiy holat aniq savol shaklida qo'yilganmi?",
+             "levels": {"0": "Muammo aniqlanmagan", "2": "Muammo umumiy gap bilan aytilgan",
+                        "4": "Muammo aniq, tekshirsa bo'ladigan savol shaklida"}},
+            {"name": "Ilmiy asoslash", "max_score": 4, "weight": 1.2,
+             "hint": "Tushuntirish biologik qonuniyatga va tasvirdagi dalilga tayanadimi?",
+             "levels": {"0": "Asoslash yo'q yoki xato", "2": "Qonuniyat nomlangan, dalil bilan bog'lanmagan",
+                        "4": "Sabab-oqibat zanjiri tasvirdagi dalillar bilan isbotlangan"}},
+            {"name": "Pedagogik qo'llash", "max_score": 4, "weight": 1.0,
+             "hint": "Keys darsda qanday ishlatilishi aniq ko'rsatilganmi?",
+             "levels": {"0": "Ko'rsatilmagan", "2": "Umumiy g'oya bor",
+                        "4": "Sinf, maqsad va yo'naltiruvchi savollar aniq berilgan"}},
         ],
     },
 ]
@@ -453,6 +477,233 @@ ASSIGNMENTS = [
                      "Nima uchun ishlaydi: ma'no o'quvchining shaxsiy tajribasiga ulanganda paydo "
                      "bo'ladi. Bundan tashqari, savolni jiddiy qabul qilish sinfda ishonch muhitini "
                      "kuchaytiradi — keyingi safar ular ko'proq savol beradi.",
+    },
+
+    # ================= MUAMMOLI VIZUAL KEYSLAR (mustaqil tahlil) =================
+    # `visual` — static/ ichidagi tasvir, `section` — fan slugi, `alt` — tasvirning matnli tavsifi.
+    {
+        "slug": "vizual-plazmoliz",
+        "module": Module.VISUAL, "kind": "VISUAL", "component": Component.COG,
+        "bloom": BloomLevel.ANALYZE, "difficulty": 2, "minutes": 25,
+        "rubric": "vizual-tahlil", "section": "hujayra-biologiyasi",
+        "visual": "img/cases/plazmoliz.svg",
+        "alt": "Mikroskopning ikki ko'rish maydoni. A: qizil piyoz po'stining cho'ziq hujayralari, binafsha "
+               "rangli hujayra shirasi hujayrani to'liq egallagan. B: xuddi shunday hujayralar, binafsha qism "
+               "kichrayib, to'qroq tusga kirgan va hujayra devoridan ajralgan; 1 raqami binafsha qismni, "
+               "2 raqami devor bilan binafsha qism orasidagi rangsiz bo'shliqni ko'rsatadi.",
+        "title": "Mikroskop ostidagi ikki preparat",
+        "context": "Qizil piyoz po'stidan ikkita preparat tayyorlandi. A preparatga distillangan suv, B preparatga "
+                   "5% li osh tuzi (NaCl) eritmasi tomizildi. 10 daqiqadan keyin ikkalasi ham 400 marta "
+                   "kattalashtirib kuzatildi.",
+        "body": "Tasvirni diqqat bilan kuzating va A hamda B preparatdagi hujayralarni solishtiring.\n\n"
+                "B preparatda hujayraning qaysi qismi o'zgardi, qaysi qismi o'zgarmadi? 1 va 2 raqamlari bilan "
+                "belgilangan joylarda nima bor? Nima uchun hujayra devori o'z shaklini saqlab qoldi?\n\n"
+                "B preparatdagi hujayralarni qanday qilib yana A holatiga qaytarish mumkin va bu tajriba "
+                "hujayralar haqida nimani isbotlaydi?",
+        "reference": "KUZATISH: A da binafsha rangli hujayra shirasi hujayrani to'liq to'ldirgan. B da hujayra "
+                     "devorlari o'zgarmagan, binafsha qism esa kichrayib, to'qroq tusga kirgan va devordan ajralgan; "
+                     "ular orasida rangsiz bo'shliq paydo bo'lgan.\n\n"
+                     "MUAMMO: nima uchun hujayraning ichki qismi qisqardi-yu, devori qisqarmadi?\n\n"
+                     "TUSHUNTIRISH: bu — plazmoliz. Tashqi eritma gipertonik, shuning uchun suv osmos yo'li bilan "
+                     "vakuoladan tashqariga chiqadi: protoplast (1 — sitoplazma va vakuola) kichrayadi, shira "
+                     "quyuqlashib to'qroq ko'rinadi. Hujayra devori sellulozadan iborat, mustahkam va eritmalarni "
+                     "erkin o'tkazadi — u shaklini saqlaydi, devor bilan protoplast orasidagi bo'shliqni (2) esa tashqi "
+                     "tuz eritmasi egallaydi. Preparatga yana toza suv tomizilsa, deplazmoliz kuzatiladi — bu "
+                     "hujayralar tirikligini va membrananing yarim o'tkazuvchanligini isbotlaydi.\n\n"
+                     "DARSDA: 6-7-sinfda avval faqat A tasvirini ko'rsatib, \"tuz tomizsak nima bo'ladi?\" deb bashorat "
+                     "yozdiriladi, keyin B ko'rsatiladi. Yo'naltiruvchi savollar: \"Qaysi qism o'zgarmadi?\", "
+                     "\"Bo'shliqni nima to'ldirdi?\", \"Nega sho'r tuproqda o'simlik so'liydi?\"",
+    },
+    {
+        "slug": "vizual-xloroz",
+        "module": Module.VISUAL, "kind": "VISUAL", "component": Component.COG,
+        "bloom": BloomLevel.ANALYZE, "difficulty": 3, "minutes": 30,
+        "rubric": "vizual-tahlil", "section": "hujayra-biologiyasi",
+        "visual": "img/cases/xloroz.svg",
+        "alt": "Bir xil navdagi ikki o'simlik. 1-o'simlikda pastki, qari barglar butunlay sarg'aygan, yuqori yosh "
+               "barglar yashil. 2-o'simlikda pastki barglar yashil, yuqori yosh barglar sarg'aygan, lekin ularning "
+               "tomirlari yashil qolgan.",
+        "title": "Sarg'aygan barglar qayerda?",
+        "context": "Bir xil navdagi ikki o'simlik bir xil sharoitda o'stirildi, faqat oziq eritmasi farq qildi: har "
+                   "birida bittadan mineral element yetishmadi. To'rt haftadan keyin barglarda xloroz (sarg'ayish) "
+                   "paydo bo'ldi.",
+        "body": "Ikki o'simlikdagi xlorozni solishtiring: u qaysi barglarda boshlandi va barg yuzasida qanday "
+                "taqsimlangan?\n\n"
+                "Har bir o'simlikda qaysi element yetishmaydi deb o'ylaysiz? Nima uchun bir o'simlikda qari, "
+                "boshqasida yosh barglar zararlandi? Taxminingizni qanday tajriba bilan tekshirasiz?",
+        "reference": "KUZATISH: 1-o'simlikda pastki (qari) barglar bir tekis sarg'aygan, yuqori barglar yashil. "
+                     "2-o'simlikda aksincha — yosh barglar sarg'aygan, lekin ularning tomirlari yashil qolgan "
+                     "(tomirlararo xloroz).\n\n"
+                     "TUSHUNTIRISH: 1 — azot (N) yetishmovchiligi. Azot o'simlik ichida harakatchan: yetishmaganda "
+                     "o'simlik uni qari barglardagi oqsil va xlorofilldan ajratib, yosh barglarga ko'chiradi — shuning "
+                     "uchun avval pastki barglar butunlay sarg'ayadi. 2 — temir (Fe) yetishmovchiligi. Temir "
+                     "harakatsiz, qari barglardan qayta taqsimlanmaydi, shuning uchun yangi o'sayotgan barglar zarar "
+                     "ko'radi; temir xlorofill sintezida ishtirok etadigan fermentlar uchun zarur.\n\n"
+                     "TEKSHIRISH: har bir o'simlikning yarmiga taxmin qilingan element qo'shiladi, qolgan yarmi "
+                     "nazorat bo'ladi; 2-3 haftada yangi barglar yashillashsa, taxmin tasdiqlanadi.\n\n"
+                     "DARSDA: 6-sinf \"O'simliklarning mineral oziqlanishi\" mavzusida yoki maktab o'quv-tajriba "
+                     "uchastkasida kuzatish topshirig'i sifatida. Savollar: \"Qaysi barglar birinchi zararlandi?\", "
+                     "\"Element o'simlik ichida ko'chsa, qaysi barg birinchi zarar ko'radi?\"",
+    },
+    {
+        "slug": "vizual-ferment-harorat",
+        "module": Module.VISUAL, "kind": "VISUAL", "component": Component.COG,
+        "bloom": BloomLevel.ANALYZE, "difficulty": 3, "minutes": 30,
+        "rubric": "vizual-tahlil", "section": "genetika",
+        "visual": "img/cases/ferment-harorat.svg",
+        "alt": "Chiziqli grafik: so'lak amilazasining reaksiya tezligi haroratga bog'liq. 0 °C da 4%, 20 °C da 33%, "
+               "37 °C da eng yuqori 100%, 45 °C da 60%, 50 °C da 27%, 60 °C da 2%, 65 °C dan yuqorida nol. Yonida "
+               "qo'shimcha tajriba: 0 °C da ushlangan ferment 37 °C da 97%, 70 °C da ushlangani 2% faollik ko'rsatgan.",
+        "title": "Ferment faolligi va harorat",
+        "context": "Talabalar so'lak amilazasining kraxmalni parchalash tezligini 0 °C dan 70 °C gacha bo'lgan haroratda "
+                   "o'lchashdi (yod sinovi bilan). Qo'shimcha tajribada ferment 10 daqiqa davomida 0 °C va 70 °C da "
+                   "ushlab turildi, so'ng yana 37 °C da sinaldi.",
+        "body": "Grafikni tahlil qiling: harorat ortishi bilan reaksiya tezligi qanday o'zgaradi? Egri chiziq nima "
+                "uchun simmetrik emas — o'ng tomoni keskinroq tushadi?\n\n"
+                "Qo'shimcha tajriba natijalarini tushuntiring: nega sovitilgan ferment faolligini tiklaydi, qizdirilgani "
+                "esa yo'q? Issiq buloqlarda yashovchi bakteriya fermentining grafigi qanday bo'lishini bashorat qiling.",
+        "reference": "KUZATISH: 0 °C dan 37 °C gacha tezlik asta-sekin ortadi, 37 °C atrofida eng yuqori (100%), keyin "
+                     "keskin tushib, 60 °C dan yuqorida deyarli nolga teng. 0 °C da ushlangan ferment 37 °C da 97% "
+                     "faollik ko'rsatdi, 70 °C da ushlangani — atigi 2%.\n\n"
+                     "TUSHUNTIRISH: harorat ortganda molekulalarning kinetik energiyasi va to'qnashuvlar soni oshadi — "
+                     "tezlik ortadi. Optimumdan yuqorida oqsilning uchlamchi tuzilmasini ushlab turgan kuchsiz (vodorod "
+                     "va boshqa) bog'lar uziladi, faol markaz shakli buziladi — denaturatsiya. U tez kechadi va "
+                     "qaytmaydi, shuning uchun egri o'ng tomonda keskin tushadi va qizdirilgan ferment tiklanmaydi. Past "
+                     "haroratda esa tuzilma buzilmaydi, faqat harakat sekinlashadi — isitilganda faollik qaytadi. "
+                     "Termofil bakteriya fermentining optimumi ancha yuqori (70–80 °C atrofida) bo'ladi.\n\n"
+                     "DARSDA: \"ferment o'ladi\" degan xato iborani ishlatmaslik kerak — ferment tirik emas, u "
+                     "denaturatsiyaga uchraydi. 9-sinfda so'lak va kraxmal bilan uch xil haroratda (muzli suv, 37 °C, "
+                     "qaynoq suv) yod sinovi o'tkazib, o'quvchilar grafikni o'zlari chizishadi.",
+    },
+    {
+        "slug": "vizual-shajara",
+        "module": Module.VISUAL, "kind": "VISUAL", "component": Component.COG,
+        "bloom": BloomLevel.EVALUATE, "difficulty": 4, "minutes": 35,
+        "rubric": "vizual-tahlil", "section": "genetika",
+        "visual": "img/cases/shajara.svg",
+        "alt": "Uch avlodli oila shajarasi. I avlodda belgisi yo'q ota (I-1) va ona (I-2). Ularning to'rt farzandidan "
+               "qizi II-2 va o'g'li II-6 da belgi bor, o'g'li II-3 va qizi II-5 da yo'q. Belgili II-2 belgisi yo'q "
+               "erkak II-1 ga turmushga chiqqan, ularning o'g'li III-1 va qizi III-2 da belgi yo'q. II-3 va uning "
+               "rafiqasi II-4 ning qizi III-3 va o'g'li III-4 da ham belgi yo'q.",
+        "title": "Oila shajarasi: belgi qanday irsiylanadi?",
+        "context": "Shifokor-genetik oilada kam uchraydigan bir belgini o'rganish uchun uch avlod shajarasini tuzdi. "
+                   "Oila a'zolari orasida qarindosh nikoh yo'q.",
+        "body": "Shajarani tahlil qiling. Belgi dominantmi yoki retsessiv, autosomaga yoki X-xromosomaga birikkanmi? "
+                "Har bir xulosangizni shajaradagi aniq oila a'zosi bilan isbotlang.\n\n"
+                "I-1 va I-2 ning genotiplarini yozing. Ularning navbatdagi farzandida belgi namoyon bo'lish ehtimoli "
+                "qancha? II-3 ning geterozigota (tashuvchi) bo'lish ehtimolini hisoblang.",
+        "reference": "KUZATISH: belgisi yo'q ota-onadan (I-1, I-2) belgili qiz (II-2) va o'g'il (II-6) tug'ilgan. "
+                     "Belgili ona II-2 ning o'g'li III-1 da belgi yo'q.\n\n"
+                     "TUSHUNTIRISH: 1) Sog' ota-onadan belgili farzand tug'ilishi belgi RETSESSIV ekanini ko'rsatadi "
+                     "(dominant bo'lsa, ota-onadan kamida birida namoyon bo'lardi). 2) Belgili qiz II-2 ning otasi I-1 "
+                     "sog' — agar belgi X-xromosomaga birikkan retsessiv bo'lsa, qiz ikkala X ni ham belgili olgan, "
+                     "demak otasi ham belgili bo'lishi kerak edi. Shuningdek, belgili ona II-2 ning o'g'li III-1 sog'. "
+                     "Demak, belgi AUTOSOM-RETSESSIV.\n\n"
+                     "Genotiplar: I-1 — Aa, I-2 — Aa, II-2 va II-6 — aa. Navbatdagi farzandda belgi ehtimoli: "
+                     "Aa × Aa → 1/4 (25%). II-3 sog', demak aa emas: qolgan AA : Aa : Aa ichidan tashuvchi bo'lish "
+                     "ehtimoli 2/3. III-1 va III-2 albatta Aa (tashuvchi): ular onasidan a oladi, lekin sog'.\n\n"
+                     "DARSDA: 10-sinfda \"farazni rad etish\" algoritmi — har bir irsiylanish turini navbatma-navbat "
+                     "tekshirib, uni inkor qiladigan shaxsni topish. Hayotiy misollar: albinizm, fenilketonuriya.",
+    },
+    {
+        "slug": "vizual-trofik-kaskad",
+        "module": Module.VISUAL, "kind": "VISUAL", "component": Component.COG,
+        "bloom": BloomLevel.ANALYZE, "difficulty": 3, "minutes": 30,
+        "rubric": "vizual-tahlil", "section": "ekologiya",
+        "visual": "img/cases/trofik-kaskad.svg",
+        "alt": "Chapda oziq to'ri sxemasi: o'tlar va tol butalari bug'uga, tol butalari qunduzga oziq bo'ladi, bug'u "
+               "bo'riga oziq bo'ladi; qo'shiqchi qushlar tol butalarida yashaydi. O'ngda to'rtta kichik ustunli "
+               "diagramma — bo'rilar qaytarilishidan oldin va 15 yildan keyin: bug'ular soni 100% dan 45% ga kamaygan, "
+               "tol butalarining balandligi 0,8 m dan 2,4 m ga, qunduz oilalari 1 tadan 9 taga, qo'shiqchi qush "
+               "turlari 8 tadan 14 taga ko'paygan.",
+        "title": "Yirtqich qaytgan vodiy",
+        "context": "Tog' vodiysida bo'rilar yo'q qilingach, bug'ular ko'payib ketdi. Oradan yillar o'tib vodiyga "
+                   "bo'rilar qayta keltirildi. Diagrammada 15 yil davomidagi o'zgarishlar berilgan (o'quv maqsadida "
+                   "soddalashtirilgan ma'lumotlar).",
+        "body": "Oziq to'ri va diagrammani birga tahlil qiling. Bo'rilar tol butalarini yemaydi — unda nima uchun "
+                "ular qaytgach butalar baland o'sdi, qunduz va qushlar ko'paydi? Ta'sir zanjirini bosqichma-bosqich "
+                "yozing.\n\n"
+                "O'zgarishlarning sababi aynan bo'rilar ekanini isbotlash uchun yana qanday ma'lumot kerak? Agar "
+                "bo'rilar yana yo'qolsa, 10 yildan keyin nima bo'lishini bashorat qiling.",
+        "reference": "KUZATISH: bo'rilar qaytgach bug'ular soni ikki baravardan ko'proq kamaygan, tol butalari uch "
+                     "baravar baland bo'lgan, qunduz oilalari 1 tadan 9 taga, qush turlari 8 tadan 14 taga ko'paygan.\n\n"
+                     "TUSHUNTIRISH: bu — trofik kaskad. Yirtqich o'txo'rlar sonini kamaytiradi va ularning xulqini "
+                     "o'zgartiradi (bug'ular ochiq daryo bo'yida uzoq qolmaydi). O'txo'r bosimi kamaygach, tol butalari "
+                     "tiklanadi; tol — qunduzning oziq va qurilish materiali, qunduz to'g'onlari botqoqliklar hosil "
+                     "qilib, yangi yashash joylarini yaratadi; butalarda qushlar uya quradi. Yuqori trofik darajadagi "
+                     "bitta tur pastki darajalarga zanjir bo'ylab ta'sir qiladi.\n\n"
+                     "SABABIYAT: bir vaqtda o'zgargan boshqa omillarni istisno qilish kerak — yog'ingarchilik, ov, "
+                     "boshqa yirtqichlar (ayiq), yaylov. Bo'ri bo'lmagan qo'shni vodiy bilan taqqoslash (nazorat) eng "
+                     "kuchli dalil bo'ladi. Bo'rilar yana yo'qolsa: bug'ular ko'payadi, butalar qayta yeyiladi, qunduz "
+                     "va qushlar kamayadi. Mashhur real misol — AQShdagi Yellouston milliy bog'i (1995 yildan bo'rilar "
+                     "qayta keltirilgan); u yerda ham olimlar ta'sir kuchi haqida hali bahslashadi.\n\n"
+                     "DARSDA: 9-11-sinf ekologiya. O'quvchilar zanjirni kartochkalar bilan tuzadi va \"bitta tur "
+                     "yo'qolsa nima bo'ladi?\" savoliga javob beradi — korrelyatsiya va sababiyat farqini ham shu yerda "
+                     "ko'rsatish mumkin.",
+    },
+    {
+        "slug": "vizual-oquvchi-daftari",
+        "module": Module.VISUAL, "kind": "VISUAL", "component": Component.ACT,
+        "bloom": BloomLevel.EVALUATE, "difficulty": 3, "minutes": 35,
+        "rubric": "vizual-tahlil", "section": "metodika",
+        "visual": "img/cases/oquvchi-daftari.svg",
+        "alt": "6-sinf o'quvchisi daftaridagi rasm: quyosh, o'simlik va tuproq. Strelkalar: tuproqdan ildizga \"ovqat\" "
+               "va \"suv\", havodan bargga \"kislorod\", bargdan havoga \"karbonat angidrid\", quyoshdan o'simlikka "
+               "\"issiqlik\". Pastida yozuv: \"O'simlik ovqatini tuproqdan oladi. Barglar kislorod bilan nafas oladi. "
+               "Quyosh o'simlikni isitadi.\"",
+        "title": "O'quvchi daftaridagi fotosintez sxemasi",
+        "context": "\"Fotosintez\" mavzusidan keyin 6-sinf o'quvchilariga \"O'simlik qanday oziqlanadi? Sxema "
+                   "chizing\" degan topshiriq berildi. Rasmda bitta o'quvchining ishi. Sinfdagi 26 o'quvchidan "
+                   "17 tasining sxemasi shunga o'xshash chiqdi.",
+        "body": "O'quvchining sxemasini tahlil qiling: undagi qaysi tasavvurlar ilmiy jihatdan noto'g'ri yoki to'liq "
+                "emas? Qaysi biri eng asosiy (qolganlari undan kelib chiqadigan) xato?\n\n"
+                "Bu tasavvurlar qayerdan paydo bo'lgan bo'lishi mumkin? Xatoni shunchaki \"to'g'ri javob\"ni aytish "
+                "bilan emas, o'quvchi o'zi anglaydigan qilib tuzatish uchun 10-15 daqiqalik dars fragmentini rejalang.",
+        "reference": "KUZATISH: sxemada \"ovqat\" tuproqdan ildizga kiradi; bargga kislorod kiradi, karbonat angidrid "
+                     "chiqadi; quyosh faqat \"issiqlik\" beradi. Organik modda (glyukoza, kraxmal) va yorug'lik "
+                     "energiyasi umuman yo'q.\n\n"
+                     "TAHLIL: asosiy xato — \"o'simlik ovqatni tayyor holda tuproqdan oladi\". Aslida tuproqdan suv va "
+                     "mineral tuzlar olinadi, organik moddani o'simlik o'zi — bargda, yorug'lik energiyasi hisobiga "
+                     "karbonat angidrid va suvdan sintez qiladi. Gazlar yo'nalishi fotosintezga teskari, lekin bu "
+                     "to'liq xato emas: o'quvchi nafas olishni tasvirlagan — o'simlik ham kecha-kunduz nafas oladi. "
+                     "Demak, u ikki jarayonni chalkashtirgan. Quyoshning roli — issiqlik emas, ENERGIYA manbai. "
+                     "Manbalar: kundalik til (\"o'simlikni o'g'itlab ovqatlantiramiz\"), hayvonlar bilan o'xshatish.\n\n"
+                     "FRAGMENT (kognitiv to'qnashuv): 1) Van Gelmont tajribasi: tol novdasi 5 yilda taxminan 74 kg ga "
+                     "og'irlashgan, tuproq esa atigi 57 g ga kamaygan — \"massa qayerdan keldi?\" (5 daq). 2) Juftlikda "
+                     "bashorat va muhokama (5 daq). 3) Yorug'da va qorong'ida saqlangan barglarda kraxmalga yod sinovi "
+                     "natijasini ko'rsatish (3 daq). 4) O'quvchi sxemasini o'zi qayta chizadi — fotosintez va nafas "
+                     "olish alohida rangda (2 daq). Formativ savol: \"Yo'g'on daraxt tanasining massasi asosan nimadan "
+                     "hosil bo'lgan?\"",
+    },
+    {
+        "slug": "vizual-ish-qobiliyati",
+        "module": Module.VISUAL, "kind": "VISUAL", "component": Component.ACT,
+        "bloom": BloomLevel.APPLY, "difficulty": 2, "minutes": 25,
+        "rubric": "vizual-tahlil", "section": "yosh-fiziologiya-va-gigiyena-fani",
+        "visual": "img/cases/ish-qobiliyati.svg",
+        "alt": "Ikki chiziqli grafik. Chapda kun davomida ish qobiliyati: 1-darsda 72%, 2-darsda 90%, 3-darsda 100%, "
+               "4-darsda 88%, 5-darsda 74%, 6-darsda 63%. O'ngda hafta davomida: dushanba 82%, seshanba 96%, "
+               "chorshanba 100%, payshanba 90%, juma 76%, shanba 68%.",
+        "title": "O'quvchining ish qobiliyati grafigi",
+        "context": "Maktab psixologi 7-sinf o'quvchilarining aqliy ish qobiliyatini kun va hafta davomida (diqqat "
+                   "testi — bajarish tezligi va xatolar soni bo'yicha) o'lchadi. Grafiklarda o'rtacha natija "
+                   "berilgan, eng yuqori qiymat 100% deb olingan.",
+        "body": "Grafiklarni tahlil qiling: kun va hafta davomida ish qobiliyati qanday o'zgaradi? Egri chiziqda qaysi "
+                "fiziologik davrlarni ajratish mumkin?\n\n"
+                "Biologiyadan nazorat ishini qaysi kun va nechanchi darsga qo'yish maqsadga muvofiq? 45 daqiqalik dars "
+                "ichida ham shunday qonuniyat bor — darsning tuzilishini shunga moslab rejalang.",
+        "reference": "KUZATISH: kun davomida ish qobiliyati 1-darsda nisbatan past (72%), 2-3-darsda eng yuqori, "
+                     "5-6-darsga kelib 63% gacha tushadi. Hafta davomida seshanba-chorshanba eng yuqori, juma-shanba "
+                     "eng past.\n\n"
+                     "TUSHUNTIRISH: uch davr ajratiladi — ishga kirishish (organizm faoliyat ritmiga moslashadi), "
+                     "barqaror yuqori ish qobiliyati va charchash (asab hujayralarida himoya tormozlanishi rivojlanadi). "
+                     "Dushanba — hafta boshidagi ishga kirishish, hafta oxiri — to'plangan charchoq.\n\n"
+                     "QO'LLASH: nazorat ishi seshanba yoki chorshanba kuni, 2-3-darsga qo'yiladi. Dars ichida: dastlabki "
+                     "5-7 daqiqa — kirishish (takrorlash, qiziqarli savol), taxminan 10-30-daqiqalar — eng murakkab yangi "
+                     "material, 25-30-daqiqadan keyin faoliyat turini almashtirish yoki jismoniy daqiqa, oxirida — "
+                     "mustahkamlash. Individual farqlarni (sog'liq, uyqu, bioritm) ham hisobga olish kerak.\n\n"
+                     "DARSDA: bo'lajak o'qituvchi uchun — dars jadvali va dars tuzilishini gigiyena talablariga moslash "
+                     "ko'nikmasi; o'quvchilar bilan esa \"Men qachon yaxshi o'qiyman?\" o'z-o'zini kuzatish loyihasi.",
     },
 ]
 

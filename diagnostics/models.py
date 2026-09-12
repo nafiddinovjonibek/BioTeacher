@@ -66,6 +66,13 @@ class Questionnaire(SoftDeleteModel):
     class Kind(models.TextChoices):
         LIKERT = "LIKERT", "Likert anketa (o'z-o'zini baholash)"
         TEST = "TEST", "Bilim testi"
+        QUIZ = "QUIZ", "Dars mustahkamlash testi"
+
+    #: Kesim o'lchovini (Measurement) hosil qiladigan turlar — SR-06.
+    DIAGNOSTIC_KINDS = (Kind.LIKERT, Kind.TEST)
+
+    #: Variantli (to'g'ri javobli) turlar — boshqaruvda "Testlar" bo'limi shular.
+    TEST_KINDS = (Kind.TEST, Kind.QUIZ)
 
     title = models.CharField("nomi", max_length=200)
     slug = models.SlugField("slug", max_length=80, unique=True)
@@ -92,6 +99,22 @@ class Questionnaire(SoftDeleteModel):
     @property
     def is_likert(self):
         return self.kind == self.Kind.LIKERT
+
+    @property
+    def is_test(self):
+        """Variantli test (bilim testi yoki dars mustahkamlash testi)."""
+        return self.kind in self.TEST_KINDS
+
+    @property
+    def is_diagnostic(self):
+        """
+        SR-06 — faqat kesim so'rovnomalari o'lchov hosil qiladi.
+
+        Dars mustahkamlash testi (`QUIZ`) mavzuni o'zlashtirishni tekshiradi,
+        kesim o'lchovi emas: aks holda 4 savollik test boshlang'ich diagnostika
+        o'lchovini bekor qilib, tadqiqot ma'lumotini buzardi.
+        """
+        return self.kind in self.DIAGNOSTIC_KINDS
 
 
 class Question(SoftDeleteModel):

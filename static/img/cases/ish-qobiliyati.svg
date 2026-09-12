@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" width="960" height="600" font-family="'Segoe UI', Arial, Helvetica, sans-serif">
+<rect width="960" height="600" fill="#FFFFFF"/>
+<text x="40.0" y="50.0" font-size="23" font-weight="700" fill="#1F2D24" text-anchor="start" >Aqliy ish qobiliyatining o‘zgarishi (7-sinf, o‘rtacha)</text><text x="40.0" y="76.0" font-size="15" font-weight="400" fill="#5E6F65" text-anchor="start" >Eng yuqori qiymat = 100%</text>
+<text x="90.0" y="118.0" font-size="18" font-weight="700" fill="#1F2D24" text-anchor="start" >Kun davomida</text>
+<line x1="90" y1="470.0" x2="450" y2="470.0" stroke="#E3EAE5" stroke-width="1"/>
+<text x="80.0" y="475.0" font-size="13" font-weight="400" fill="#5E6F65" text-anchor="end" >50%</text>
+<line x1="90" y1="404.0" x2="450" y2="404.0" stroke="#E3EAE5" stroke-width="1"/>
+<text x="80.0" y="409.0" font-size="13" font-weight="400" fill="#5E6F65" text-anchor="end" >60%</text>
+<line x1="90" y1="338.0" x2="450" y2="338.0" stroke="#E3EAE5" stroke-width="1"/>
+<text x="80.0" y="343.0" font-size="13" font-weight="400" fill="#5E6F65" text-anchor="end" >70%</text>
+<line x1="90" y1="272.0" x2="450" y2="272.0" stroke="#E3EAE5" stroke-width="1"/>
+<text x="80.0" y="277.0" font-size="13" font-weight="400" fill="#5E6F65" text-anchor="end" >80%</text>
+<line x1="90" y1="206.0" x2="450" y2="206.0" stroke="#E3EAE5" stroke-width="1"/>
+<text x="80.0" y="211.0" font-size="13" font-weight="400" fill="#5E6F65" text-anchor="end" >90%</text>
+<line x1="90" y1="140.0" x2="450" y2="140.0" stroke="#E3EAE5" stroke-width="1"/>
+<text x="80.0" y="145.0" font-size="13" font-weight="400" fill="#5E6F65" text-anchor="end" >100%</text>
+<line x1="90" y1="470" x2="450" y2="470" stroke="#5E6F65" stroke-width="2"/>
+<polyline points="120,324.8 180,206.0 240,140.0 300,219.2 360,311.6 420,384.2" fill="none" stroke="#17843F" stroke-width="4" stroke-linejoin="round"/>
+<circle cx="120" cy="324.8" r="6" fill="#FFFFFF" stroke="#17843F" stroke-width="3"/>
+<text x="120.0" y="310.8" font-size="14" font-weight="700" fill="#1F2D24" text-anchor="middle" >72%</text>
+<text x="120.0" y="494.0" font-size="14" font-weight="600" fill="#5E6F65" text-anchor="middle" >1-dars</text>
+<circle cx="180" cy="206.0" r="6" fill="#FFFFFF" stroke="#17843F" stroke-width="3"/>
+<text x="180.0" y="192.0" font-size="14" font-weight="700" fill="#1F2D24" text-anchor="middle" >90%</text>
+<text x="180.0" y="494.0" font-size="14" font-weight="600" fill="#5E6F65" text-anchor="middle" >2-dars</text>
+<circle cx="240" cy="140.0" r="6" fill="#FFFFFF" stroke="#17843F" stroke-width="3"/>
+<text x="240.0" y="126.0" font-size="14" font-weight="700" fill="#1F2D24" text-anchor="middle" >100%</text>
+<text x="240.0" y="494.0" font-size="14" font-weight="600" fill="#5E6F65" text-anchor="middle" >3-dars</text>
+<circle cx="300" cy="219.2" r="6" fill="#FFFFFF" stroke="#17843F" stroke-width="3"/>
+<text x="300.0" y="205.2" font-size="14" font-weight="700" fill="#1F2D24" text-anchor="middle" >88%</text>
+<text x="300.0" y="494.0" font-size="14" font-weight="600" fill="#5E6F65" text-anchor="middle" >4-dars</text>
+<circle cx="360" cy="311.6" r="6" fill="#FFFFFF" stroke="#17843F" stroke-width="3"/>
+<text x="360.0" y="297.6" font-size="14" font-weight="700" fill="#1F2D24" text-anchor="middle" >74%</text>
+<text x="360.0" y="494.0" font-size="14" font-weight="600" fill="#5E6F65" text-anchor="middle" >5-dars</text>
+<circle cx="420" cy="384.2" r="6" fill="#FFFFFF" stroke="#17843F" stroke-width="3"/>
+<text x="420.0" y="370.2" font-size="14" font-weight="700" fill="#1F2D24" text-anchor="middle" >63%</text>
+<text x="420.0" y="494.0" font-size="14" font-weight="600" fill="#5E6F65" text-anchor="middle" >6-dars</text>
+<text x="560.0" y="118.0" font-size="18" font-weight="700" fill="#1F2D24" text-anchor="start" >Hafta davomida</text>
+<line x1="560" y1="470.0" x2="920" y2="470.0" stroke="#E3EAE5" stroke-width="1"/>
+<text x="550.0" y="475.0" font-size="13" font-weight="400" fill="#5E6F65" text-anchor="end" >50%</text>
+<line x1="560" y1="404.0" x2="920" y2="404.0" stroke="#E3EAE5" stroke-width="1"/>
+<text x="550.0" y="409.0" font-size="13" font-weight="400" fill="#5E6F65" text-anchor="end" >60%</text>
+<line x1="560" y1="338.0" x2="920" y2="338.0" stroke="#E3EAE5" stroke-width="1"/>
+<text x="550.0" y="343.0" font-size="13" font-weight="400" fill="#5E6F65" text-anchor="end" >70%</text>
+<line x1="560" y1="272.0" x2="920" y2="272.0" stroke="#E3EAE5" stroke-width="1"/>
+<text x="550.0" y="277.0" font-size="13" font-weight="400" fill="#5E6F65" text-anchor="end" >80%</text>
+<line x1="560" y1="206.0" x2="920" y2="206.0" stroke="#E3EAE5" stroke-width="1"/>
+<text x="550.0" y="211.0" font-size="13" font-weight="400" fill="#5E6F65" text-anchor="end" >90%</text>
+<line x1="560" y1="140.0" x2="920" y2="140.0" stroke="#E3EAE5" stroke-width="1"/>
+<text x="550.0" y="145.0" font-size="13" font-weight="400" fill="#5E6F65" text-anchor="end" >100%</text>
+<line x1="560" y1="470" x2="920" y2="470" stroke="#5E6F65" stroke-width="2"/>
+<polyline points="590,258.8 650,166.4 710,140.0 770,206.0 830,298.4 890,351.2" fill="none" stroke="#17843F" stroke-width="4" stroke-linejoin="round"/>
+<circle cx="590" cy="258.8" r="6" fill="#FFFFFF" stroke="#17843F" stroke-width="3"/>
+<text x="590.0" y="244.8" font-size="14" font-weight="700" fill="#1F2D24" text-anchor="middle" >82%</text>
+<text x="590.0" y="494.0" font-size="14" font-weight="600" fill="#5E6F65" text-anchor="middle" >Du</text>
+<circle cx="650" cy="166.4" r="6" fill="#FFFFFF" stroke="#17843F" stroke-width="3"/>
+<text x="650.0" y="152.4" font-size="14" font-weight="700" fill="#1F2D24" text-anchor="middle" >96%</text>
+<text x="650.0" y="494.0" font-size="14" font-weight="600" fill="#5E6F65" text-anchor="middle" >Se</text>
+<circle cx="710" cy="140.0" r="6" fill="#FFFFFF" stroke="#17843F" stroke-width="3"/>
+<text x="710.0" y="126.0" font-size="14" font-weight="700" fill="#1F2D24" text-anchor="middle" >100%</text>
+<text x="710.0" y="494.0" font-size="14" font-weight="600" fill="#5E6F65" text-anchor="middle" >Cho</text>
+<circle cx="770" cy="206.0" r="6" fill="#FFFFFF" stroke="#17843F" stroke-width="3"/>
+<text x="770.0" y="192.0" font-size="14" font-weight="700" fill="#1F2D24" text-anchor="middle" >90%</text>
+<text x="770.0" y="494.0" font-size="14" font-weight="600" fill="#5E6F65" text-anchor="middle" >Pa</text>
+<circle cx="830" cy="298.4" r="6" fill="#FFFFFF" stroke="#17843F" stroke-width="3"/>
+<text x="830.0" y="284.4" font-size="14" font-weight="700" fill="#1F2D24" text-anchor="middle" >76%</text>
+<text x="830.0" y="494.0" font-size="14" font-weight="600" fill="#5E6F65" text-anchor="middle" >Ju</text>
+<circle cx="890" cy="351.2" r="6" fill="#FFFFFF" stroke="#17843F" stroke-width="3"/>
+<text x="890.0" y="337.2" font-size="14" font-weight="700" fill="#1F2D24" text-anchor="middle" >68%</text>
+<text x="890.0" y="494.0" font-size="14" font-weight="600" fill="#5E6F65" text-anchor="middle" >Sha</text>
+<text x="40.0" y="560.0" font-size="14" font-weight="400" fill="#5E6F65" text-anchor="start" >Ish qobiliyati diqqat testi bo‘yicha baholangan: bajarish tezligi va xatolar soni.</text>
+</svg>

@@ -29,31 +29,31 @@
   },
   {
     "file": "topic-cell.jpg",
-    "title": "AnimalCell.png",
-    "license": "Public domain",
-    "artist": "chatgpt",
-    "page": "https://commons.wikimedia.org/wiki/File:AnimalCell.png"
+    "title": "Hujayra kesimi — 3D render (16:9 ga kesilgan)",
+    "license": "Loyiha egasi taqdim etgan fayl",
+    "artist": "Jonibek Nafiddinov",
+    "page": "b3b450240635417.6942b02aba15b.jpg"
   },
   {
     "file": "topic-photo.jpg",
-    "title": "Cross section of Arabidopsis thaliana, a C3 plant..jpg",
-    "license": "CC BY-SA 3.0",
-    "artist": "Ninghui Shi",
-    "page": "https://commons.wikimedia.org/wiki/File:Cross%20section%20of%20Arabidopsis%20thaliana%2C%20a%20C3%20plant..jpg"
+    "title": "Close-up of a Populus leaf (5736619201).jpg (kesilgan, 16:9)",
+    "license": "CC BY 2.0",
+    "artist": "Oak Ridge National Laboratory",
+    "page": "https://commons.wikimedia.org/wiki/File:Close-up_of_a_Populus_leaf_(5736619201).jpg"
   },
   {
     "file": "topic-dna.jpg",
-    "title": "XBio illustration – DNA (Deoxyribonucleic Acid).png",
-    "license": "CC BY 4.0",
-    "artist": "explorebiology",
-    "page": "https://commons.wikimedia.org/wiki/File:XBio%20illustration%20%E2%80%93%20DNA%20%28Deoxyribonucleic%20Acid%29.png"
+    "title": "DNK qo'sh spirali — 3D render (16:9 ga kesilgan)",
+    "license": "Loyiha egasi taqdim etgan fayl",
+    "artist": "Jonibek Nafiddinov",
+    "page": "main-image-GECF-1920x1080.jpeg"
   },
   {
     "file": "topic-ecosystem.jpg",
-    "title": "Ecological Pyramid with energy and biomass.png",
+    "title": "Dülmen, Rorup, NSG Roruper Holz -- 2021 -- 8187-91.jpg (kesilgan, 16:9)",
     "license": "CC BY-SA 4.0",
-    "artist": "CK-12 Foundation",
-    "page": "https://commons.wikimedia.org/wiki/File:Ecological%20Pyramid%20with%20energy%20and%20biomass.png"
+    "artist": "Dietmar Rabich",
+    "page": "https://commons.wikimedia.org/wiki/File:D%C3%BClmen,_Rorup,_NSG_Roruper_Holz_--_2021_--_8187-91.jpg"
   },
   {
     "file": "topic-teaching.jpg",
@@ -61,5 +61,26 @@
     "license": "CC0",
     "artist": "Aigner Ronja, Kohlmeier Michelle",
     "page": "https://commons.wikimedia.org/wiki/File:Tabletunterricht%2006.jpg"
+  },
+  {
+    "file": "hero-biobilim.webp",
+    "title": "BioBilim banneri — hujayra va barglar (1800px WebP)",
+    "license": "Loyiha egasi taqdim etgan fayl",
+    "artist": "Jonibek Nafiddinov",
+    "page": "ChatGPT Image Sep 8, 2026, 11_32_53 AM.png"
+  },
+  {
+    "file": "landing-hero.webp",
+    "title": "Nihollar va molekulyar to'r (kirish sahifasi banneri, 21:9 ga kesilgan)",
+    "license": "Loyiha egasi taqdim etgan fayl",
+    "artist": "Jonibek Nafiddinov",
+    "page": "https://i.pinimg.com/originals/4d/50/36/4d5036cc63fb37fb58a9ce2ed8681a43.jpg"
+  },
+  {
+    "file": "auth-hero.webp",
+    "title": "DNK spirali va barglar (kirish/ro'yxat sahifasi, 3:4 ga kesilgan)",
+    "license": "Loyiha egasi taqdim etgan fayl",
+    "artist": "Jonibek Nafiddinov",
+    "page": "https://internationalbusinessnews.co.uk/wp-content/uploads/2023/12/621.jpg"
   }
 ]

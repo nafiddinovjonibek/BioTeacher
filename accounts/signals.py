@@ -13,5 +13,9 @@ def create_profile(sender, instance, created, **kwargs):
 
     from .models import Profile
 
-    Profile.objects.get_or_create(user=instance)
+    from core.enums import Role
+
+    # Superuser (createsuperuser) — avtomatik ADMIN roli; qolganlar TEACHER.
+    role = Role.ADMIN if instance.is_superuser else Role.TEACHER
+    Profile.objects.get_or_create(user=instance, defaults={"role": role, "roles": role})
     NotificationSetting.objects.get_or_create(user=instance)

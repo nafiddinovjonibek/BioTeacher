@@ -453,6 +453,142 @@ def biggest_movers(user, limit=2):
         for code, value in moved[:limit]
     ]
 
+# ------------------------------------------------------------ kuzatuv varaqasi
+
+# Faoliyat davomida kuzatiladigan kanallar. COG bilim testi bilan o'lchanadi
+# («Test» bo'limi), shuning uchun kuzatuv varaqasida yo'q.
+OBSERVED_COMPONENTS = [Component.MOT, Component.ACT, Component.REF, Component.CRE]
+
+
+def observation_sheet(user):
+    """
+    Kuzatuv varaqasi: har bir kuzatiladigan kanal bo'yicha joriy o'qish,
+    uning manbalari (test / amaliyot) va kuzatilgan dalillar.
+
+    Qaytaradi: [{"code", "label", "description", "icon", "value", "level", "delta",
+                 "diagnostic", "practice", "facts": [(yorliq, qiymat)],
+                 "evidence_title", "evidence": [{"title", "meta", "url"}], "empty", "action"}]
+    """
+    from django.urls import reverse
+
+    from assignments.models import Submission
+    from core.enums import COMPONENT_DESCRIPTIONS, Module
+    from goals.models import Goal
+    from reflection.models import ReflectionEntry
+
+    since = timezone.now() - timedelta(days=30)
+
+    def percent(value):
+        return "—" if value is None else f"{value:.0f}%"
+
+    # ACT va CRE — rubrika bilan baholanadigan ishlar (practice_scores bilan bir xil tanlov).
+    works = list(
+        Submission.objects.filter(
+            student=user,
+            status__in=[Submission.Status.SUBMITTED, Submission.Status.GRADED],
+            assignment__component__in=[Component.ACT, Component.CRE],
+        ).select_related("assignment").order_by("-submitted_at", "-created_at")
+    )
+
+    def work_evidence(component):
+        rows = [s for s in works if s.assignment.component == component]
+        scored = [s.final_percent for s in rows if s.final_percent is not None]
+        facts = [
+            ("Yuborilgan ishlar", len(rows)),
+            ("Baholangan", sum(1 for s in rows if s.status == Submission.Status.GRADED)),
+            ("O‘rtacha natija", percent(sum(scored) / len(scored) if scored else None)),
+        ]
+        evidence = [
+            {
+                "title": s.assignment.title,
+                "meta": s.get_status_display()
+                + (f" · {s.final_percent:.0f}%" if s.final_percent is not None else ""),
+                "url": reverse("assignments:submission", args=[s.pk]),
+            }
+            for s in rows[:3]
+        ]
+        return facts, evidence
+
+    # MOT — faollik va maqsadlar.
+    active_days = (
+        ActivityLog.objects.filter(user=user, created_at__gte=since).dates("created_at", "day").count()
+    )
+    streak = Streak.objects.filter(user=user).first()
+    goals = list(
+        Goal.objects.filter(user=user, status=Goal.Status.ACTIVE)
+        .prefetch_related("tasks").order_by("deadline")
+    )
+    mot = (
+        [
+            ("Faol kunlar (30 kun)", f"{active_days} / {ENGAGEMENT_TARGET_DAYS}"),
+            ("Ketma-ket kunlar", streak.current if streak else 0),
+            ("Faol maqsadlar", len(goals)),
+        ],
+        [
+            {"title": g.title, "meta": f"{g.progress_percent()}% bajarildi · {g.deadline:%d.%m.%Y} gacha",
+             "url": reverse("goals:detail", args=[g.pk])}
+            for g in goals[:3]
+        ],
+    )
+
+    # REF — kundalik yozuvlari va ularning sifati (FR-41).
+    entries = ReflectionEntry.objects.filter(user=user)
+    ref_avg = entries.aggregate(avg=Avg("quality_score"), n=Count("id"))
+    ref = (
+        [
+            ("Kundalik yozuvlari", ref_avg["n"]),
+            ("So‘nggi 30 kunda", entries.filter(created_at__gte=since).count()),
+            ("O‘rtacha sifat", percent(ref_avg["avg"])),
+        ],
+        [
+            {"title": e.preview(80) or e.get_kind_display(),
+             "meta": f"{e.created_at:%d.%m.%Y}"
+             + (f" · sifat {e.quality_score:.0f}%" if e.quality_score is not None else ""),
+             "url": reverse("reflection:detail", args=[e.pk])}
+            for e in entries[:3]
+        ],
+    )
+
+    sources = {
+        Component.MOT: (mot, "Faol maqsadlar", "Hali faol maqsad yo‘q.",
+                        ("Maqsad belgilash", reverse("goals:list"))),
+        Component.ACT: (work_evidence(Component.ACT), "So‘nggi ishlar", "Hali amaliy ish yuborilmagan.",
+                        ("Amaliy topshiriq tanlash", reverse("assignments:module", args=[Module.LAB]))),
+        Component.REF: (ref, "So‘nggi yozuvlar", "Kundalikda hali yozuv yo‘q.",
+                        ("Refleksiya yozish", reverse("reflection:create_free"))),
+        Component.CRE: (work_evidence(Component.CRE), "So‘nggi ishlar", "Hali ijodiy ish yuborilmagan.",
+                        ("Ijodiy topshiriq tanlash", reverse("assignments:module", args=[Module.CREATIVE]))),
+    }
+
+    stored = {row.component: row for row in ComponentScore.objects.filter(user=user)}
+    series = growth_series(user)
+    deltas = series["delta"] if series else {}
+
+    sheet = []
+    for component in OBSERVED_COMPONENTS:
+        (facts, evidence), evidence_title, empty, (action_label, action_url) = sources[component]
+        row = stored.get(component.value)
+        value = row.value if row else 0.0
+        sheet.append({
+            "code": component.value,
+            "label": component.label,
+            "description": COMPONENT_DESCRIPTIONS[component],
+            "icon": COMPONENT_ICONS[component.value],
+            "value": round(value, 1),
+            "level": level_for(value),
+            "measured": row is not None,
+            "delta": deltas.get(component.value),
+            "diagnostic": row.diagnostic_part if row else None,
+            "practice": row.practice_part if row else None,
+            "facts": facts,
+            "evidence_title": evidence_title,
+            "evidence": evidence,
+            "empty": empty,
+            "action": {"label": action_label, "url": action_url},
+        })
+    return sheet
+
+
 def weakest_reading(user):
     """
     Eng past kanal — hero uchun bitta aniq jumla.

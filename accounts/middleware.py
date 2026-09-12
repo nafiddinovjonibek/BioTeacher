@@ -1,5 +1,5 @@
 """
-FR-06 — ro'yxatdan o'tgan talaba boshlang'ich diagnostikadan o'tmaguncha
+FR-06 — ro'yxatdan o'tgan o'qituvchi boshlang'ich diagnostikadan o'tmaguncha
 platformaning qolgan qismi bloklanadi (bloklanadigan onboarding).
 """
 
@@ -8,7 +8,7 @@ from django.urls import resolve, reverse
 
 from core.enums import Role
 
-# Onboarding tugamagan talaba ham kira oladigan url nomlari.
+# Onboarding tugamagan foydalanuvchi ham kira oladigan url nomlari.
 ALLOWED_URL_NAMES = {
     "accounts:login",
     "accounts:logout",
@@ -21,8 +21,8 @@ ALLOWED_URL_NAMES = {
     "accounts:password_reset_complete",
     "accounts:onboarding",
     "accounts:profile_edit",
-    "accounts:join_group",
     "accounts:consent",
+    "accounts:switch_role",
     "diagnostics:start",
     "diagnostics:take",
     "diagnostics:answer",
@@ -50,7 +50,7 @@ class OnboardingMiddleware:
             return self.get_response(request)
 
         profile = getattr(user, "profile", None)
-        if profile is None or profile.role != Role.STUDENT or profile.onboarding_done:
+        if profile is None or profile.role != Role.TEACHER or profile.onboarding_done:
             return self.get_response(request)
 
         try:

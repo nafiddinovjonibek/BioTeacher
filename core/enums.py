@@ -53,8 +53,8 @@ class Cut(models.TextChoices):
     """SR-06 — tajriba-sinov kesim nuqtalari."""
 
     INITIAL = "INITIAL", "Boshlang'ich"
-    INTERIM_1 = "INTERIM_1", "1-oraliq"
-    INTERIM_2 = "INTERIM_2", "2-oraliq"
+    INTERIM_1 = "INTERIM_1", "1-chorak"
+    INTERIM_2 = "INTERIM_2", "2-chorak"
     FINAL = "FINAL", "Yakuniy"
 
 
@@ -62,20 +62,23 @@ CUT_ORDER = [Cut.INITIAL, Cut.INTERIM_1, Cut.INTERIM_2, Cut.FINAL]
 
 
 class StudyArm(models.TextChoices):
-    """Tajriba / nazorat guruhi (FR-04, FR-58)."""
+    """Tajriba / nazorat bo'linmasi (FR-04, FR-58)."""
 
-    EXPERIMENTAL = "E", "Tajriba guruhi"
-    CONTROL = "C", "Nazorat guruhi"
+    EXPERIMENTAL = "E", "Tajriba bo'linmasi"
+    CONTROL = "C", "Nazorat bo'linmasi"
     NONE = "N", "Tadqiqotdan tashqari"
 
 
 class Role(models.TextChoices):
-    """TZ 3-bo'lim — foydalanuvchi rollari."""
+    """
+    Foydalanuvchi rollari.
 
-    STUDENT = "STUDENT", "Talaba"
-    TEACHER = "TEACHER", "O'qituvchi / mentor"
-    RESEARCHER = "RESEARCHER", "Tadqiqotchi"
-    METHODIST = "METHODIST", "Kontent-metodist"
+    Platforma o'qituvchining o'zini rivojlantirishi uchun: TEACHER — barcha
+    bo'limlardan foydalanadi, lekin kontentni o'zgartira olmaydi; ADMIN —
+    hamma narsani yaratadi/tahrirlaydi/o'chiradi.
+    """
+
+    TEACHER = "TEACHER", "O'qituvchi"
     ADMIN = "ADMIN", "Administrator"
 
 
@@ -87,6 +90,7 @@ class Module(models.TextChoices):
     TEACHER = "PEDAGOG", "Men — o'qituvchi"
     DIGITAL = "RAQAMLI", "Raqamli biologiya"
     CREATIVE = "KREATIV", "Kreativ o'qituvchi"
+    VISUAL = "VIZUAL", "Muammoli vizual keyslar"
 
 
 # SR-03 — daraja shkalasi.

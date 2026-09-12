@@ -1,15 +1,127 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Loyiha haqida — BioTeacher{% endblock %}
-{% block page_title %}Loyiha haqida{% endblock %}
+
+{# Kirgan foydalanuvchi uchun sahifa kabinet ichida ochiladi. #}
+{% block content %}
+  <div class="max-w-4xl">{% include "home/_about_body.html" %}</div>
+{% endblock %}
+
+
+{# Anonim mehmon uchun — o'z sarlavhasi va footer'i bilan. #}
 {% block public %}
-<div class="min-h-full bg-slateg-50">
-  <header class="border-b border-slateg-200 bg-white">
-    <div class="max-w-3xl mx-auto px-6 h-16 flex items-center justify-between">
-      <a href="/" class="flex items-center gap-3"><span class="grid place-items-center w-9 h-9 rounded-xl bg-brand-700 text-white"></span><span class="font-semibold text-slateg-900">BioTeacher</span></a>
-      <a href="{% url 'accounts:login' %}" class="text-sm text-slateg-600 hover:text-slateg-900">Kirish</a>
+<div class="min-h-full bg-white">
+
+  <header class="lp-nav">
+    <div class="lp-wrap h-16 flex items-center justify-between gap-4">
+      <a href="/" class="flex items-center gap-2.5 shrink-0">
+        <span class="grid place-items-center w-9 h-9 rounded-xl bg-brand-600 text-white">
+          <span class="w-5 h-5">{% include "partials/icon.html" with name="leaf" %}</span>
+        </span>
+        <span class="font-extrabold text-slateg-900">BioTeacher</span>
+      </a>
+
+      <nav class="flex items-center gap-1.5 text-sm">
+        <a href="{% url 'accounts:login' %}"
+           class="px-3.5 py-2 rounded-lg font-medium text-slateg-700 hover:text-slateg-900 hover:bg-slateg-100">
+          Kirish
+        </a>
+        <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-sm">Ro‘yxatdan o‘tish</a>
+      </nav>
     </div>
   </header>
-  <div class="max-w-3xl mx-auto px-6 py-12">{% include "home/_about_body.html" %}</div>
+
+  {# ---- Ixcham sarlavha lentasi ---- #}
+  <section class="lp-hero">
+    <span class="lp-hero-bg" aria-hidden="true"
+          style="background-image:url('{% static "img/landing-hero.webp" %}')"></span>
+
+    <div class="lp-wrap relative z-10 py-12 sm:py-16">
+      <a href="/" class="inline-flex items-center gap-1.5 text-[12px] font-semibold text-brand-200 hover:text-white">
+        <span class="w-3.5 h-3.5 rotate-180">{% include "partials/icon.html" with name="arrow" %}</span>
+        Bosh sahifa
+      </a>
+      <h1 class="mt-3 text-[1.9rem] sm:text-[2.4rem] font-extrabold leading-[1.15] text-white">
+        Platforma qanday ishlaydi
+      </h1>
+      <p class="mt-3 max-w-xl text-[0.95rem] leading-relaxed text-white/75">
+        O‘lchov metodikasi, SDI formulasi, daraja shkalasi va maxfiylik qoidalari.
+      </p>
+    </div>
+  </section>
+
+  <div class="lp-wrap py-12 sm:py-16">
+    <div class="max-w-4xl">{% include "home/_about_body.html" with hide_title=True %}</div>
+  </div>
+
+  <footer class="border-t border-slateg-200">
+    <div class="lp-wrap py-8 flex flex-wrap items-center justify-between gap-3 text-[13px] text-slateg-500">
+      <p>BioTeacher — Self-Development Platform · Ma’lumotlar anonim tahlil qilinadi.</p>
+      <a href="{% url 'accounts:register' %}" class="font-semibold text-brand-700 hover:text-brand-800">
+        Ro‘yxatdan o‘tish
+      </a>
+    </div>
+  </footer>
 </div>
 {% endblock %}
-{% block content %}<div class="max-w-3xl mx-auto">{% include "home/_about_body.html" %}</div>{% endblock %}
+
+
+{% block head %}
+<style>
+  .lp-wrap { max-width: 76rem; margin: 0 auto; padding-left: 1.5rem; padding-right: 1.5rem; }
+
+  .lp-nav {
+    position: sticky; top: 0; z-index: 30;
+    background: rgba(255,255,255,.88); backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .lp-hero { position: relative; overflow: hidden; isolation: isolate; background: #071E11; }
+  .lp-hero-bg {
+    position: absolute; inset: 0; z-index: -2;
+    background-size: cover; background-position: center 70%;
+  }
+  .lp-hero::before {
+    content: ""; position: absolute; inset: 0; z-index: -1;
+    background: linear-gradient(92deg, rgba(4,18,10,.92) 0%, rgba(5,24,13,.84) 42%,
+                                       rgba(6,30,17,.58) 70%, rgba(6,30,17,.34) 100%);
+  }
+
+  /* ---------- Matn bloklari ---------- */
+  .ab-card {
+    background: #fff; border: 1px solid var(--line); border-radius: 16px;
+    padding: 1.35rem 1.5rem;
+    box-shadow: 0 1px 2px rgba(11,43,24,.04), 0 8px 24px -12px rgba(11,43,24,.10);
+  }
+  .ab-h2 {
+    display: flex; align-items: center; gap: .7rem;
+    font-size: 1.05rem; font-weight: 800; color: #12261A;
+  }
+
+  /* Komponent qatori: kod nishoni + tavsif. */
+  .ab-row {
+    display: flex; gap: .85rem; align-items: flex-start;
+    padding: .7rem 0; border-top: 1px solid var(--line);
+  }
+  .ab-row:first-child { border-top: 0; padding-top: 0; }
+  .ab-code {
+    flex: none; display: inline-block; width: 3rem; text-align: center;
+    padding: .12rem 0; border-radius: 999px;
+    background: #EAF6EE; color: #116A33;
+    font-size: 11px; font-weight: 800; letter-spacing: .04em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Daraja shkalasi kartachalari. */
+  .ab-level {
+    border: 1px solid var(--line); border-radius: 12px; padding: .8rem .6rem;
+    text-align: center; background: #fff;
+  }
+
+  .ab-formula {
+    overflow-x: auto; border-radius: 12px; padding: .9rem 1.1rem;
+    background: #0B2B18; color: #D3ECDC;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px;
+  }
+</style>
+{% endblock %}

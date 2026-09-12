@@ -115,8 +115,16 @@ def monitoring(request):
 
 
 @login_required
+def observation(request):
+    """Kuzatuv varaqasi — MOT, ACT, REF, CRE kanallari va ularni ko'rsatgan dalillar."""
+    from .services import observation_sheet
+
+    return render(request, "progress/observation.html", {"channels": observation_sheet(request.user)})
+
+
+@login_required
 def student_monitoring(request, user_id):
-    """Mentor talabaning kartochkasini ko'radi (NFR-12 tekshiruvi bilan)."""
+    """Admin foydalanuvchi kartochkasini ko'radi (NFR-12 tekshiruvi bilan)."""
     from django.contrib.auth import get_user_model
 
     student = get_object_or_404(get_user_model(), pk=user_id)

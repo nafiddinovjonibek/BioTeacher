@@ -21,7 +21,8 @@ ular dashboard va rivojlanish tarixida. Bu sahifa faqat "mening hisobim".
       {% endif %}
       <div class="flex-1 min-w-0">
         <h2 class="text-xl font-semibold text-slateg-900">{{ user.get_full_name|default:user.email }}</h2>
-        <p class="mt-1 text-slateg-700">{{ profile.get_role_display }}</p>
+        <p class="mt-1 text-slateg-700">{{ profile.get_role_display }}{% if profile.has_multiple_roles %}
+          <span class="text-xs text-slateg-500">· rollar: {% for code, label in profile.role_choices %}{{ label }}{% if not forloop.last %}, {% endif %}{% endfor %}</span>{% endif %}</p>
       </div>
       <a href="{% url 'accounts:profile_edit' %}" class="btn btn-quiet shrink-0">Profilni tahrirlash</a>
     </div>
@@ -61,37 +62,6 @@ ular dashboard va rivojlanish tarixida. Bu sahifa faqat "mening hisobim".
         </tr>
       </tbody>
     </table>
-  </section>
-
-
-  <section class="section">
-    <h2>Guruh va mentor</h2>
-    {% if profile.group %}
-      <table class="datatable">
-        <tbody>
-          <tr>
-            <th scope="row" class="font-normal text-slateg-600">Guruh</th>
-            <td class="text-slateg-900">{{ profile.group.name }}</td>
-          </tr>
-          <tr>
-            <th scope="row" class="font-normal text-slateg-600">Mentor</th>
-            <td class="text-slateg-900">
-              {% if profile.mentor %}{{ profile.mentor.get_full_name|default:profile.mentor.email }}{% else %}tayinlanmagan{% endif %}
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <p class="mt-3 text-sm text-slateg-600">
-        Guruhni almashtirish kerak bo‘lsa, mentoringizdan yangi kod so‘rang.
-      </p>
-      <a href="{% url 'accounts:join_group' %}" class="btn btn-quiet mt-3">Boshqa guruhga o‘tish</a>
-    {% else %}
-      <p class="text-slateg-700">
-        Siz hali guruhga qo‘shilmagansiz. Mentoringiz bergan 8 belgili kodni kiriting —
-        shundan keyin ishlaringiz tekshiriladi va guruh e’lonlari keladi.
-      </p>
-      <a href="{% url 'accounts:join_group' %}" class="btn btn-primary mt-4">Guruh kodini kiritish</a>
-    {% endif %}
   </section>
 
 

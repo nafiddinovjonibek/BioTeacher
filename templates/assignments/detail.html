@@ -3,86 +3,100 @@
 {% block page_title %}{{ assignment.title }}{% endblock %}
 
 {% block content %}
-<div class="max-w-3xl mx-auto">
+{% with picture=assignment.picture_url %}
+<div class="{% if picture %}max-w-6xl{% else %}max-w-3xl{% endif %} mx-auto">
 
-  <a href="{% url 'assignments:module' assignment.module %}" class="text-sm text-slateg-500 hover:text-slateg-800">← {{ meta.title }}</a>
+  <a href="{{ back_url }}" class="text-sm text-slateg-500 hover:text-slateg-800">← {{ meta.title }}</a>
 
-  {# Topshiriq matni #}
-  <section class="section">
-    <div class="flex flex-wrap gap-2 text-[11px] mb-4">
-      <span class="rounded-full bg-slateg-100 px-2 py-0.5 text-slateg-600">{{ assignment.get_component_display }}</span>
-      <span class="rounded-full bg-slateg-100 px-2 py-0.5 text-slateg-600">{{ assignment.get_bloom_level_display }}</span>
-      <span class="rounded-full bg-slateg-100 px-2 py-0.5 text-slateg-600">~{{ assignment.estimated_minutes }} daqiqa</span>
-    </div>
-    {% if assignment.context_note %}
-      <div class="rounded-xl bg-slateg-50 border-l-2 border-slateg-300 p-4 mb-4">
-        <p class="text-sm text-slateg-600 mb-1">Vaziyat</p>
-        <p class="text-sm text-slateg-700 leading-relaxed">{{ assignment.context_note|linebreaksbr }}</p>
-      </div>
+  <div class="mt-3{% if picture %} grid gap-5 items-start xl:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]{% endif %}">
+    {% if picture %}
+      {# Tasvir yozish davomida ko'z oldida tursin — keng ekranda yopishqoq. #}
+      <div class="min-w-0 xl:sticky xl:top-4">{% include "assignments/_visual.html" with a=assignment %}</div>
     {% endif %}
-    <div class="text-slateg-800 leading-relaxed space-y-3">{{ assignment.body|linebreaks }}</div>
-  </section>
 
-  {% if submission.is_locked %}
-    <div class="rounded-2xl border border-brand-200 bg-brand-50 p-5">
-      <p class="text-sm text-brand-900">
-        Bu ish yuborilgan ({{ submission.get_status_display }}). Tahrirlash yopilgan —
-        <a href="{% url 'assignments:submission' submission.pk %}" class="font-medium underline">natijani ko‘rish</a>.
-      </p>
-    </div>
-  {% else %}
-    {# Bosqichli javob formasi #}
-    <form method="post" class="space-y-4">{% csrf_token %}
-      {% for field in form %}
-        <div class="section">
-          <label for="{{ field.id_for_label }}" class="block font-medium text-slateg-900">{{ field.label }}</label>
-          <p class="mt-0.5 text-sm text-slateg-500">{{ field.help_text }}</p>
-          <div class="mt-3">{{ field }}</div>
-          {% for error in field.errors %}<p class="mt-1 text-xs text-rosex-600">{{ error }}</p>{% endfor %}
-        </div>
-      {% endfor %}
-      {% if form.non_field_errors %}
-        <div class="rounded-xl bg-rosex-50 border border-rosex-200 px-4 py-3 text-sm text-rosex-700">
-          {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
-        </div>
-      {% endif %}
-
-      <div class="flex flex-wrap gap-3">
-        <button name="action" value="save" class="btn btn-quiet">
-          Qoralamani saqlash
-        </button>
-        <button name="action" value="submit" class="btn btn-primary">
-          Yakunlash va o‘zini baholashga o‘tish
-        </button>
-      </div>
-      <p class="text-xs text-slateg-500">
-        Yuborgandan keyin etalon yechim ochiladi va ish tahrirlanmaydi.
-      </p>
-    </form>
-
-    {# Fayl biriktirish #}
-    {% if assignment.allow_files %}
+    <div class="min-w-0">
+      {# Topshiriq matni #}
       <section class="section">
-        <h3 class="font-medium text-slateg-900">Fayl biriktirish</h3>
-        <p class="mt-0.5 text-xs text-slateg-500">Rasm, PDF, taqdimot — 10 MB gacha.</p>
-        <form method="post" enctype="multipart/form-data" class="mt-3 flex flex-wrap items-center gap-3">{% csrf_token %}
-          {{ file_form.file }}
-          <button name="action" value="upload" class="btn btn-quiet">Yuklash</button>
-        </form>
-        {% for error in file_form.file.errors %}<p class="mt-1 text-xs text-rosex-600">{{ error }}</p>{% endfor %}
-        {% if submission.files.all %}
-          <ul class="mt-4 space-y-1.5">
-            {% for f in submission.files.all %}
-              <li class="flex items-center gap-2 text-sm">
-                <span></span>
-                <a href="{{ f.file.url }}" class="text-brand-700 hover:underline">{{ f.original_name|default:f.file.name }}</a>
-                <span class="text-xs text-slateg-500">{{ f.size|filesizeformat }}</span>
-              </li>
-            {% endfor %}
-          </ul>
+        <div class="flex flex-wrap gap-2 text-[11px] mb-4">
+          {% if assignment.section %}
+            <span class="rounded-full bg-skyx-50 px-2 py-0.5 text-skyx-700">{{ assignment.section.title }}</span>
+          {% endif %}
+          <span class="rounded-full bg-slateg-100 px-2 py-0.5 text-slateg-600">{{ assignment.get_component_display }}</span>
+          <span class="rounded-full bg-slateg-100 px-2 py-0.5 text-slateg-600">{{ assignment.get_bloom_level_display }}</span>
+          <span class="rounded-full bg-slateg-100 px-2 py-0.5 text-slateg-600">~{{ assignment.estimated_minutes }} daqiqa</span>
+        </div>
+        {% if assignment.context_note %}
+          <div class="rounded-xl bg-slateg-50 border-l-2 border-slateg-300 p-4 mb-4">
+            <p class="text-sm text-slateg-600 mb-1">Vaziyat</p>
+            <p class="text-sm text-slateg-700 leading-relaxed">{{ assignment.context_note|linebreaksbr }}</p>
+          </div>
         {% endif %}
+        <div class="text-slateg-800 leading-relaxed space-y-3">{{ assignment.body|linebreaks }}</div>
       </section>
-    {% endif %}
-  {% endif %}
+
+      {% if submission.is_locked %}
+        <div class="mt-5 rounded-2xl border border-brand-200 bg-brand-50 p-5">
+          <p class="text-sm text-brand-900">
+            Bu ish yuborilgan ({{ submission.get_status_display }}). Tahrirlash yopilgan —
+            <a href="{% url 'assignments:submission' submission.pk %}" class="font-medium underline">natijani ko‘rish</a>.
+          </p>
+        </div>
+      {% else %}
+        {# Bosqichli javob formasi #}
+        <form method="post" class="mt-5 space-y-4">{% csrf_token %}
+          {% for field in form %}
+            <div class="section">
+              <label for="{{ field.id_for_label }}" class="block font-medium text-slateg-900">{{ field.label }}</label>
+              <p class="mt-0.5 text-sm text-slateg-500">{{ field.help_text }}</p>
+              <div class="mt-3">{{ field }}</div>
+              {% for error in field.errors %}<p class="mt-1 text-xs text-rosex-600">{{ error }}</p>{% endfor %}
+            </div>
+          {% endfor %}
+          {% if form.non_field_errors %}
+            <div class="rounded-xl bg-rosex-50 border border-rosex-200 px-4 py-3 text-sm text-rosex-700">
+              {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+            </div>
+          {% endif %}
+
+          <div class="flex flex-wrap gap-3">
+            <button name="action" value="save" class="btn btn-quiet">
+              Qoralamani saqlash
+            </button>
+            <button name="action" value="submit" class="btn btn-primary">
+              Yakunlash va o‘zini baholashga o‘tish
+            </button>
+          </div>
+          <p class="text-xs text-slateg-500">
+            Yuborgandan keyin {% if picture %}namunaviy tahlil{% else %}etalon yechim{% endif %} ochiladi va ish tahrirlanmaydi.
+          </p>
+        </form>
+
+        {# Fayl biriktirish #}
+        {% if assignment.allow_files %}
+          <section class="section">
+            <h3 class="font-medium text-slateg-900">Fayl biriktirish</h3>
+            <p class="mt-0.5 text-xs text-slateg-500">Rasm, PDF, taqdimot — 10 MB gacha.</p>
+            <form method="post" enctype="multipart/form-data" class="mt-3 flex flex-wrap items-center gap-3">{% csrf_token %}
+              {{ file_form.file }}
+              <button name="action" value="upload" class="btn btn-quiet">Yuklash</button>
+            </form>
+            {% for error in file_form.file.errors %}<p class="mt-1 text-xs text-rosex-600">{{ error }}</p>{% endfor %}
+            {% if submission.files.all %}
+              <ul class="mt-4 space-y-1.5">
+                {% for f in submission.files.all %}
+                  <li class="flex items-center gap-2 text-sm">
+                    <span></span>
+                    <a href="{{ f.file.url }}" class="text-brand-700 hover:underline">{{ f.original_name|default:f.file.name }}</a>
+                    <span class="text-xs text-slateg-500">{{ f.size|filesizeformat }}</span>
+                  </li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+          </section>
+        {% endif %}
+      {% endif %}
+    </div>
+  </div>
 </div>
+{% endwith %}
 {% endblock %}

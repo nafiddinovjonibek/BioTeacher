@@ -6,13 +6,13 @@
 
   <div class="flex flex-wrap items-center justify-between gap-3">
     <p class="text-sm text-slateg-600">
-      Tavsifiy statistika va guruhlararo taqqoslash — dissertatsiya jadvallariga tayyor ko‘rinishda.
+      Tavsifiy statistika va bo‘linmalararo taqqoslash — dissertatsiya jadvallariga tayyor ko‘rinishda.
     </p>
     <a href="{% url 'research:refresh_stats' %}" class="shrink-0 btn btn-quiet">Keshni yangilash</a>
   </div>
 
   <section class="section">
-    <h3 class="font-semibold text-lg text-slateg-900 mb-1">Guruhlararo taqqoslash</h3>
+    <h3 class="font-semibold text-lg text-slateg-900 mb-1">Bo‘linmalararo taqqoslash</h3>
     <p class="text-xs text-slateg-500 mb-4">
       Boshlang‘ich → yakuniy kesim. Δ — o‘sish; oxirgi ustun — tajriba va nazorat o‘sishlari farqi
       (tajriba samaradorligining asosiy ko‘rsatkichi).
@@ -83,7 +83,7 @@
       </div>
     {% else %}
       <div class="rounded-xl bg-amberx-50 border border-amberx-200 p-4 text-sm text-amberx-700">
-        Yakuniy kesimda har ikki guruhda kamida 2 tadan o‘lchov bo‘lishi kerak.
+        Yakuniy kesimda har ikki bo‘linmada kamida 2 tadan o‘lchov bo‘lishi kerak.
         Hozir: E = {{ final_e.n }}, C = {{ final_c.n }}.
       </div>
     {% endif %}
@@ -94,7 +94,7 @@
     <div class="overflow-x-auto">
       <table class="w-full text-sm">
         <thead><tr class="text-left text-sm text-slateg-600 border-b border-slateg-200">
-          <th class="py-2 pr-3">Kesim</th><th class="py-2 px-3">Guruh</th><th class="py-2 px-3">Ko‘rsatkich</th>
+          <th class="py-2 pr-3">Kesim</th><th class="py-2 px-3">Bo‘linma</th><th class="py-2 px-3">Ko‘rsatkich</th>
           <th class="py-2 px-3 text-center">n</th><th class="py-2 px-3 text-center">M</th>
           <th class="py-2 px-3 text-center">SD</th><th class="py-2 px-3 text-center">Min</th><th class="py-2 pl-3 text-center">Max</th>
         </tr></thead>

@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
-from .models import AuditLog, EmailVerification, Enrollment, Profile, StudyGroup, User
+from .models import AuditLog, EmailVerification, MenuGroup, MenuItem, Profile, User
 
 
 class ProfileInline(admin.StackedInline):
@@ -30,26 +30,12 @@ class UserAdmin(BaseUserAdmin):
     readonly_fields = ("last_login", "date_joined", "last_login_ip")
 
 
-@admin.register(StudyGroup)
-class StudyGroupAdmin(admin.ModelAdmin):
-    list_display = ("name", "otm", "course", "teacher", "study_arm", "invite_code", "student_count", "is_active")
-    list_filter = ("study_arm", "is_active", "course")
-    search_fields = ("name", "otm", "invite_code")
-    readonly_fields = ("invite_code",)
-
-
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ("user", "role", "group", "course", "research_consent", "onboarding_done")
-    list_filter = ("role", "research_consent", "onboarding_done", "group")
+    list_display = ("user", "role", "roles", "study_arm", "course", "research_consent", "onboarding_done")
+    list_filter = ("role", "study_arm", "research_consent", "onboarding_done")
     search_fields = ("user__email", "user__first_name", "user__last_name")
     readonly_fields = ("respondent_id",)
-
-
-@admin.register(Enrollment)
-class EnrollmentAdmin(admin.ModelAdmin):
-    list_display = ("student", "group", "joined_at", "is_active")
-    list_filter = ("is_active", "group")
 
 
 @admin.register(AuditLog)
@@ -67,3 +53,15 @@ class AuditLogAdmin(admin.ModelAdmin):
 
 
 admin.site.register(EmailVerification)
+
+
+@admin.register(MenuItem)
+class MenuItemAdmin(admin.ModelAdmin):
+    list_display = ("key", "group", "parent", "order", "label", "page", "url")
+    list_filter = ("group",)
+    ordering = ("group", "order")
+
+
+@admin.register(MenuGroup)
+class MenuGroupAdmin(admin.ModelAdmin):
+    list_display = ("key", "audience", "order", "title")

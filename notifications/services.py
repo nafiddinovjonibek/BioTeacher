@@ -29,16 +29,15 @@ def notify(user, kind, title, body="", url="", send_email=True):
     return notification
 
 
-def notify_group(group, kind, title, body="", url="", exclude=None):
-    """Guruhdagi barcha faol talabalarga xabar (FR-57)."""
-    from accounts.models import Enrollment
+def notify_students(kind, title, body="", url="", exclude=None):
+    """Barcha faol o'qituvchilarga xabar (FR-57)."""
+    from accounts.services import learner_queryset
 
     created = []
-    enrollments = Enrollment.objects.filter(group=group, is_active=True).select_related("student")
-    for enrollment in enrollments:
-        if exclude and enrollment.student_id == exclude.pk:
+    for student in learner_queryset():
+        if exclude and student.pk == exclude.pk:
             continue
-        created.append(notify(enrollment.student, kind, title, body, url))
+        created.append(notify(student, kind, title, body, url))
     return created
 
 

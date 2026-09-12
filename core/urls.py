@@ -21,7 +21,7 @@ urlpatterns = [
     path("yutuqlar/", include("gamification.urls")),
     path("tadqiqot/", include("research.urls")),
     path("bildirishnomalar/", include("notifications.urls")),
-    path("mentor/", include("accounts.urls_teacher")),
+    path("boshqaruv/", include("accounts.urls_manage")),
     path("", include("home.urls")),
 ]
 

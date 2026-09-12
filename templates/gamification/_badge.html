@@ -1,0 +1,38 @@
+{% comment %}
+Nishon kartasi.
+Ishlatish: {% include "gamification/_badge.html" with row=row %}
+Olingan nishon yashil yuzada, olinmagani oq yuzada va emoji xiralashadi.
+{% endcomment %}
+<article class="badge-card{% if row.earned %} is-earned{% endif %}">
+  <span class="badge-emoji" aria-hidden="true">{{ row.badge.emoji }}</span>
+
+  <div class="min-w-0 flex-1">
+    <div class="flex items-start gap-2">
+      <h3 class="text-[14px] font-bold leading-snug min-w-0 flex-1
+                 {% if row.earned %}text-brand-900{% else %}text-slateg-900{% endif %}">
+        {{ row.badge.title }}
+      </h3>
+      {% if row.earned %}
+        <span class="pill pill-xs pill-ok shrink-0">Olingan</span>
+      {% elif row.progress %}
+        <span class="pill pill-xs pill-go metric shrink-0">{{ row.progress }}%</span>
+      {% endif %}
+    </div>
+
+    <p class="mt-1 text-[12px] leading-snug
+              {% if row.earned %}text-brand-700{% else %}text-slateg-500{% endif %}">
+      {{ row.badge.description|default:row.badge.how_to_earn }}
+    </p>
+
+    {% if row.earned %}
+      <p class="mt-2 text-[11px] text-brand-700 metric">
+        {{ row.earned.created_at|date:"d.m.Y" }} da olingan
+      </p>
+    {% elif row.progress is not None %}
+      <div class="mt-2.5 bar bar-thin"><span style="width: {{ row.progress }}%"></span></div>
+      <p class="mt-1.5 text-[11px] leading-snug text-slateg-500">{{ row.badge.how_to_earn }}</p>
+    {% else %}
+      <p class="mt-2 text-[11px] leading-snug text-slateg-500">{{ row.badge.how_to_earn }}</p>
+    {% endif %}
+  </div>
+</article>

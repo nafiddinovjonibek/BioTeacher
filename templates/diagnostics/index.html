@@ -1,71 +1,290 @@
 {% extends "base.html" %}
-{% block title %}Diagnostika{% endblock %}
-{% block page_title %}Diagnostika{% endblock %}
+{% load static %}
+{% block title %}Diagnostika — BioTeacher{% endblock %}
+
+{# BioBilim kabi to'liq kenglikda. #}
+{% block content_wrap_class %}w-full{% endblock %}
+
 {% block content %}
-<div class="">
-  <div class="section">
-    <h2 class="font-semibold text-xl text-slateg-900">Men qanday o‘qituvchiman?</h2>
-    <p class="mt-2 text-sm text-slateg-600 leading-relaxed">
-      Diagnostika sizni baholash uchun emas, <strong>yo‘nalish berish</strong> uchun. Natija asosida
-      tizim eng zaif ikki komponentingizni aniqlaydi va keyingi topshiriqlarni shunga moslaydi.
-      Kesimlar (boshlang‘ich → oraliq → yakuniy) o‘sishni o‘lchash imkonini beradi.
-    </p>
+<div class="space-y-6">
+
+  {# =================== 1-qator: tanishtiruv + joriy daraja =================== #}
+  <div class="grid gap-4 lg:grid-cols-3 items-stretch">
+
+    <section class="pagehero lg:col-span-2">
+      <span class="pagehero-bg" aria-hidden="true"
+            style="background-image:url('{% static "img/promo-micro.jpg" %}')"></span>
+
+      <div class="pagehero-in px-6 py-6 sm:px-7 sm:py-7 max-w-[27rem]">
+        <p class="inline-flex items-center gap-2 text-[13px] font-semibold text-brand-700">
+          <span class="w-4 h-4">{% include "partials/icon.html" with name="target" %}</span>
+          1-modul · o‘zini anglash
+        </p>
+
+        <h1 class="mt-2.5 text-[1.45rem] sm:text-[1.7rem] font-extrabold leading-[1.2] text-forest-900">
+          Men qanday o‘qituvchiman?
+        </h1>
+
+        <p class="mt-3 text-[0.85rem] leading-relaxed text-slateg-600">
+          Diagnostika sizni baholash uchun emas, <strong class="text-slateg-800">yo‘nalish
+          berish</strong> uchun. Natija asosida tizim eng zaif ikki komponentingizni aniqlaydi
+          va keyingi topshiriqlarni shunga moslaydi. Kesimlar o‘sishni o‘lchash imkonini beradi.
+        </p>
+      </div>
+    </section>
+
+    {# ---- Joriy daraja ---- #}
+    <section class="sidecard px-5 py-4 flex flex-col">
+      <h2 class="flex items-center gap-2.5 text-[15px] font-bold text-slateg-900">
+        <span class="grid place-items-center w-7 h-7 rounded-lg bg-brand-600 text-white shrink-0">
+          <span class="w-4 h-4">{% include "partials/icon.html" with name="chart" %}</span>
+        </span>
+        Joriy daraja
+      </h2>
+
+      <div class="relative w-[104px] h-[104px] mx-auto mt-3">
+        <svg viewBox="0 0 100 100" class="w-full h-full -rotate-90" aria-hidden="true">
+          <circle cx="50" cy="50" r="42" fill="none" stroke="#E7EEE9" stroke-width="9"/>
+          <circle cx="50" cy="50" r="42" fill="none" stroke="url(#sdiGrad)" stroke-width="9"
+                  stroke-linecap="round" stroke-dasharray="264" stroke-dashoffset="{{ ring_offset }}"/>
+          <defs>
+            <linearGradient id="sdiGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#3FAA6C"/>
+              <stop offset="100%" stop-color="#116A33"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <span class="absolute inset-0 grid place-items-center">
+          {% if latest %}
+            <span class="text-[1.6rem] font-extrabold text-slateg-900 metric leading-none">
+              {{ latest.sdi|floatformat:0 }}<span class="text-sm text-slateg-400 font-bold">%</span>
+            </span>
+          {% else %}
+            <span class="text-[1.6rem] font-extrabold text-slateg-300 leading-none">—</span>
+          {% endif %}
+        </span>
+      </div>
+
+      {% if latest %}
+        <p class="mt-3 text-center text-[13px] font-semibold text-slateg-800">
+          SDI · {{ level.1 }}
+        </p>
+        <p class="mt-1 text-center text-[12px] leading-snug text-slateg-500">
+          {{ latest.get_cut_display }} kesim · {{ latest.created_at|date:"d.m.Y" }}
+        </p>
+
+        <dl class="mt-3 space-y-1.5">
+          {% for row in components %}
+            <div class="flex items-center gap-2">
+              <dt class="w-9 text-[11px] font-bold text-brand-700 metric shrink-0">{{ row.code }}</dt>
+              <dd class="flex-1 min-w-0">
+                <div class="bar bar-thin"><span style="width: {{ row.value }}%"></span></div>
+              </dd>
+              <dd class="w-8 text-right text-[11px] text-slateg-500 metric shrink-0">{{ row.value|floatformat:0 }}</dd>
+            </div>
+          {% endfor %}
+        </dl>
+      {% else %}
+        <p class="mt-3 text-center text-[12px] leading-snug text-slateg-500">
+          Boshlang‘ich anketa va testdan o‘ting — beshta komponent bo‘yicha birinchi
+          o‘lchovingiz shu yerda paydo bo‘ladi.
+        </p>
+      {% endif %}
+
+      {% if current %}
+        {% if current.done < current.total %}
+          <a href="{% url 'diagnostics:start' current.next_slug %}"
+             class="btn btn-primary btn-wide mt-auto" style="margin-top:1rem">{{ current.cta }}</a>
+        {% else %}
+          <p class="mt-auto pt-4 text-center text-[12px] text-brand-700 font-semibold">{{ current.cta }}</p>
+        {% endif %}
+      {% endif %}
+    </section>
   </div>
 
-  <div class="space-y-3">
-    {% for q in questionnaires %}
-      <div class="section flex flex-col sm:flex-row sm:items-center gap-4">
-        <div class="flex-1">
-          <div class="flex items-center gap-2 flex-wrap">
-            <h3 class="font-medium text-slateg-900">{{ q.title }}</h3>
-            <span class="rounded-full bg-slateg-100 px-2 py-0.5 text-[11px] text-slateg-600">{{ q.get_cut_display }}</span>
-            <span class="rounded-full bg-slateg-100 px-2 py-0.5 text-[11px] text-slateg-600">{{ q.get_kind_display }}</span>
+
+  {# =================== Kesimlar =================== #}
+  {% for block in blocks %}
+    <section>
+      <div class="flex items-center justify-between gap-4 mb-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <span class="chip chip-sm shrink-0">{% include "partials/icon.html" with name="calendar" %}</span>
+          <div class="min-w-0">
+            <h2 class="text-[16px] font-bold text-slateg-900 leading-tight">
+              {{ block.label }} kesim
+              {% if block.is_current %}
+                <span class="ml-1.5 pill pill-xs pill-go align-middle">joriy</span>
+              {% endif %}
+            </h2>
+            <p class="mt-0.5 text-[12px] text-slateg-500">
+              {% if block.measurement %}
+                O‘lchov muzlatilgan · SDI {{ block.measurement.sdi|floatformat:1 }}
+              {% else %}
+                Anketa va bilim testi — ikkalasi ham komponent ballariga qo‘shiladi.
+              {% endif %}
+            </p>
           </div>
-          {% if q.description %}<p class="mt-1.5 text-sm text-slateg-600">{{ q.description }}</p>{% endif %}
-          <p class="mt-1 text-xs text-slateg-500">
-            {% if q.question_count %}{{ q.question_count }} savol{% else %}{{ q.questions.count }} savol{% endif %}
-            {% if q.time_limit_minutes %} · {{ q.time_limit_minutes }} daqiqa{% endif %}
+        </div>
+
+        <span class="shrink-0 pill pill-xs {% if block.done == block.total %}pill-ok{% else %}pill-mute{% endif %} metric">
+          {{ block.done }}/{{ block.total }}
+        </span>
+      </div>
+
+      <div class="panel">
+        <div class="grid sm:grid-cols-2 gap-4">
+          {% for row in block.rows %}
+            <article class="quiz-card">
+              <span class="quiz-icon">{% include "partials/icon.html" with name=row.icon %}</span>
+
+              <div class="min-w-0 flex-1 flex flex-col">
+                <div class="flex items-start gap-2">
+                  <h3 class="text-[15px] font-bold text-slateg-900 leading-snug min-w-0 flex-1">
+                    {{ row.title }}
+                  </h3>
+                  <span class="pill pill-xs {{ row.state.tone }} shrink-0">{{ row.state.label }}</span>
+                </div>
+
+                {% if row.q.description %}
+                  <p class="mt-1 text-[12px] leading-snug text-slateg-500">{{ row.q.description }}</p>
+                {% endif %}
+
+                <p class="mt-1.5 text-[12px] text-slateg-500 metric">
+                  {{ row.count }} savol
+                  {% if row.q.time_limit_minutes %} · {{ row.q.time_limit_minutes }} daqiqa{% endif %}
+                  {% if row.attempt and not row.state.done %}
+                    · {{ row.attempt.answered_count }} javob berilgan
+                  {% endif %}
+                </p>
+
+                <div class="mt-auto pt-3">
+                  {% if row.state.done %}
+                    <a href="{% url 'diagnostics:result' row.attempt.pk %}" class="btn btn-quiet btn-sm">
+                      {% include "partials/icon.html" with name="chart" %} {{ row.state.cta }}
+                    </a>
+                  {% else %}
+                    <a href="{% url 'diagnostics:start' row.q.slug %}" class="btn btn-primary btn-sm">
+                      {{ row.state.cta }}
+                      <span class="w-3.5 h-3.5">{% include "partials/icon.html" with name="arrow" %}</span>
+                    </a>
+                  {% endif %}
+                </div>
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+
+  {% empty %}
+    <section class="card card-p text-center py-10">
+      <span class="chip chip-lg mx-auto">{% include "partials/icon.html" with name="clipboard" %}</span>
+      <p class="mt-3 font-semibold text-slateg-900">So‘rovnomalar yuklanmagan</p>
+      <p class="mt-1 text-sm text-slateg-600">
+        Administrator <code>python manage.py seed_demo</code> buyrug‘ini bajarishi kerak.
+      </p>
+    </section>
+  {% endfor %}
+
+
+  {# =================== Tavsiyalar =================== #}
+  {% if recommendations %}
+    <section>
+      <div class="flex items-center gap-3 mb-3">
+        <span class="chip chip-sm shrink-0">{% include "partials/icon.html" with name="spark" %}</span>
+        <div>
+          <h2 class="text-[16px] font-bold text-slateg-900 leading-tight">Sizga tavsiya</h2>
+          <p class="mt-0.5 text-[12px] text-slateg-500">Oxirgi o‘lchovdagi eng zaif ikki komponent bo‘yicha.</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="grid sm:grid-cols-2 gap-4">
+          {% for rec in recommendations %}
+            <article class="rounded-[14px] border border-slateg-200 p-4">
+              <div class="flex items-center gap-2">
+                <span class="pill pill-xs pill-info metric">{{ rec.component }}</span>
+                <h3 class="text-[14px] font-bold text-slateg-900">{{ rec.title }}</h3>
+              </div>
+              <p class="mt-1.5 text-[12px] leading-relaxed text-slateg-600">{{ rec.body }}</p>
+            </article>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+  {% endif %}
+
+
+  {# =================== Muzlatilgan o'lchovlar =================== #}
+  {% if measurements %}
+    <section>
+      <div class="flex items-center gap-3 mb-3">
+        <span class="chip chip-sm shrink-0">{% include "partials/icon.html" with name="shield" %}</span>
+        <div>
+          <h2 class="text-[16px] font-bold text-slateg-900 leading-tight">Muzlatilgan o‘lchovlar</h2>
+          <p class="mt-0.5 text-[12px] text-slateg-500">
+            Yozilgandan keyin o‘zgartirilmaydi — o‘sishni shu yozuvlar bo‘yicha solishtiriladi.
           </p>
         </div>
-        <div class="shrink-0">
-          <a href="{% url 'diagnostics:start' q.slug %}"
-             class="inline-flex rounded-xl bg-brand-600 px-5 py-2.5 text-sm text-white hover:bg-brand-700">Boshlash / davom ettirish</a>
+      </div>
+
+      <div class="panel">
+        <div class="overflow-x-auto rounded-[12px]">
+          <table class="datatable">
+            <thead>
+              <tr>
+                <th>Kesim</th><th>Sana</th>
+                <th class="num">MOT</th><th class="num">COG</th><th class="num">ACT</th>
+                <th class="num">REF</th><th class="num">CRE</th><th class="num">SDI</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for m in measurements %}
+                <tr>
+                  <td class="font-semibold text-slateg-800 whitespace-nowrap">{{ m.get_cut_display }}</td>
+                  <td class="text-slateg-500 whitespace-nowrap">{{ m.created_at|date:"d.m.Y" }}</td>
+                  <td class="num">{{ m.mot|floatformat:0 }}</td>
+                  <td class="num">{{ m.cog|floatformat:0 }}</td>
+                  <td class="num">{{ m.act|floatformat:0 }}</td>
+                  <td class="num">{{ m.ref|floatformat:0 }}</td>
+                  <td class="num">{{ m.cre|floatformat:0 }}</td>
+                  <td class="num font-bold text-slateg-900">{{ m.sdi|floatformat:1 }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
       </div>
-    {% empty %}
-      <div class="rounded-2xl border border-amberx-200 bg-amberx-50 p-5 text-sm text-amberx-700">
-        So‘rovnomalar yuklanmagan. <code>python manage.py seed_demo</code> buyrug‘ini bajaring.
-      </div>
-    {% endfor %}
-  </div>
-
-  {% if measurements %}
-    <div class="section">
-      <h3 class="font-semibold text-lg text-slateg-900 mb-4">Muzlatilgan o‘lchovlar</h3>
-      <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-          <thead><tr class="text-left text-sm text-slateg-600 border-b border-slateg-200">
-            <th class="py-2 pr-4">Kesim</th><th class="py-2 pr-4">Sana</th>
-            <th class="py-2 pr-2">MOT</th><th class="py-2 pr-2">COG</th><th class="py-2 pr-2">ACT</th>
-            <th class="py-2 pr-2">REF</th><th class="py-2 pr-2">CRE</th><th class="py-2 pr-2">SDI</th>
-          </tr></thead>
-          <tbody class="divide-y divide-slateg-100">
-          {% for m in measurements %}
-            <tr>
-              <td class="py-2 pr-4 font-medium text-slateg-800">{{ m.get_cut_display }}</td>
-              <td class="py-2 pr-4 text-slateg-500">{{ m.created_at|date:"d.m.Y" }}</td>
-              <td class="py-2 pr-2">{{ m.mot|floatformat:0 }}</td>
-              <td class="py-2 pr-2">{{ m.cog|floatformat:0 }}</td>
-              <td class="py-2 pr-2">{{ m.act|floatformat:0 }}</td>
-              <td class="py-2 pr-2">{{ m.ref|floatformat:0 }}</td>
-              <td class="py-2 pr-2">{{ m.cre|floatformat:0 }}</td>
-              <td class="py-2 pr-2 font-semibold text-slateg-900">{{ m.sdi|floatformat:1 }}</td>
-            </tr>
-          {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    </div>
+    </section>
   {% endif %}
 </div>
+{% endblock %}
+
+
+{% block head %}
+<style>
+  /* ---------- So'rovnoma kartasi ---------- */
+  .quiz-card {
+    position: relative; display: flex; gap: .85rem;
+    background: #fff; border: 1px solid #E6EDE9; border-radius: 14px;
+    padding: 1rem 1.1rem;
+    transition: border-color .18s, box-shadow .18s, transform .18s;
+  }
+  .quiz-card:hover {
+    border-color: #A9DBBB; transform: translateY(-2px);
+    box-shadow: 0 2px 6px rgba(11,43,24,.06), 0 18px 36px -16px rgba(11,43,24,.18);
+  }
+  .quiz-card:focus-within { border-color: #A9DBBB; }
+
+  .quiz-icon {
+    display: grid; place-items: center; flex: none;
+    width: 2.5rem; height: 2.5rem; border-radius: 12px;
+    background: #EAF6EE; color: var(--brand-dark);
+  }
+  .quiz-icon svg { width: 1.15rem; height: 1.15rem; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .quiz-card:hover { transform: none; }
+  }
+</style>
 {% endblock %}

@@ -37,11 +37,11 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument("--with-users", action="store_true",
-                            help="Demo mentor va talabalarni ham yaratadi.")
+                            help="Demo admin va o'qituvchilarni ham yaratadi.")
         parser.add_argument("--reset", action="store_true",
                             help="Mavjud kontentni o'chirib, qaytadan yuklaydi.")
         parser.add_argument("--students", type=int, default=24,
-                            help="--with-users bilan yaratiladigan talabalar soni.")
+                            help="--with-users bilan yaratiladigan o'qituvchilar soni.")
 
     @transaction.atomic
     def handle(self, *args, **options):
@@ -52,11 +52,11 @@ class Command(BaseCommand):
         self._weights()
         self._reflection_prompts()
         rubrics = self._rubrics()
+        quizzes = self._lesson_quizzes()
+        self._content(quizzes)  # topshiriqlardan oldin: vizual keyslar fanga bog'lanadi
         self._assignments(rubrics)
         self._competency()
         self._badges()
-        quizzes = self._lesson_quizzes()
-        self._content(quizzes)
         self._diagnostics()
 
         if options["with_users"]:
@@ -140,6 +140,9 @@ class Command(BaseCommand):
                     "reference_solution": data.get("reference", ""),
                     "estimated_minutes": data["minutes"],
                     "difficulty": data["difficulty"],
+                    "section": Section.objects.filter(slug=data["section"]).first() if data.get("section") else None,
+                    "visual": data.get("visual", ""),
+                    "image_alt": data.get("alt", ""),
                     "is_active": True,
                 },
             )
@@ -178,7 +181,7 @@ class Command(BaseCommand):
                 slug=f"quiz-{topic_slug}",
                 defaults={
                     "title": f"Mustahkamlash testi — {topic_slug.replace('-', ' ')}",
-                    "kind": Questionnaire.Kind.TEST,
+                    "kind": Questionnaire.Kind.QUIZ,
                     "cut": Cut.INITIAL,
                     "instruction": "Har bir savolga bitta to'g'ri javobni tanlang.",
                     "question_count": 0,
@@ -250,7 +253,7 @@ class Command(BaseCommand):
                         )
                     lesson_count += 1
         self.stdout.write(
-            f"  Kontent: {Section.objects.count()} bo'lim, {Topic.objects.count()} mavzu, "
+            f"  Kontent: {Section.objects.count()} fan, {Topic.objects.count()} mavzu, "
             f"{lesson_count} dars"
         )
 
@@ -258,8 +261,8 @@ class Command(BaseCommand):
         """FR-07, FR-08 — har bir kesim uchun anketa va bilim testi."""
         cut_labels = {
             Cut.INITIAL: "Boshlang'ich",
-            Cut.INTERIM_1: "1-oraliq",
-            Cut.INTERIM_2: "2-oraliq",
+            Cut.INTERIM_1: "1-chorak",
+            Cut.INTERIM_2: "2-chorak",
             Cut.FINAL: "Yakuniy",
         }
         for cut, label in cut_labels.items():
@@ -323,56 +326,28 @@ class Command(BaseCommand):
 
     def _demo_users(self, student_count):
         """
-        Tajriba/nazorat guruhlari va real ko'rinishdagi o'lchovlar yaratadi —
+        Tajriba/nazorat bo'linmalari va real ko'rinishdagi o'lchovlar yaratadi —
         tadqiqot moduli va statistikani sinab ko'rish uchun.
         """
         from django.contrib.auth import get_user_model
 
-        from accounts.models import Enrollment, Profile, StudyGroup
         from diagnostics.models import Measurement
         from progress.models import ComponentScore
 
         User = get_user_model()
         random.seed(20260907)  # takrorlanadigan demo ma'lumot
 
-        mentor, created = User.objects.get_or_create(
-            email="mentor@bioteacher.uz",
+        manager, created = User.objects.get_or_create(
+            email="admin@bioteacher.uz",
             defaults={"first_name": "Nodira", "last_name": "Karimova", "email_verified": True},
         )
         if created:
-            mentor.set_password("bioteacher2026")
-            mentor.save()
-        mentor.profile.role = Role.TEACHER
-        mentor.profile.otm = "Toshkent davlat pedagogika universiteti"
-        mentor.profile.save()
-
-        researcher, created = User.objects.get_or_create(
-            email="tadqiqotchi@bioteacher.uz",
-            defaults={"first_name": "Sanjar", "last_name": "Yo'ldoshev", "email_verified": True},
-        )
-        if created:
-            researcher.set_password("bioteacher2026")
-            researcher.save()
-        researcher.profile.role = Role.RESEARCHER
-        researcher.profile.save()
-
-        groups = {}
-        for arm, name in [(StudyArm.EXPERIMENTAL, "BIO-21 (tajriba)"),
-                          (StudyArm.CONTROL, "BIO-22 (nazorat)")]:
-            group, _ = StudyGroup.objects.get_or_create(
-                name=name,
-                defaults={
-                    "otm": "Toshkent davlat pedagogika universiteti",
-                    "faculty": "Tabiiy fanlar",
-                    "course": 3,
-                    "teacher": mentor,
-                    "study_arm": arm,
-                },
-            )
-            group.study_arm = arm
-            group.teacher = mentor
-            group.save()
-            groups[arm] = group
+            manager.set_password("bioteacher2026")
+            manager.save()
+        manager.profile.role = Role.ADMIN
+        manager.profile.otm = "Toshkent davlat pedagogika universiteti"
+        manager.profile.onboarding_done = True
+        manager.profile.save()
 
         first_names = ["Aziza", "Bekzod", "Dilnoza", "Eldor", "Feruza", "G'olib", "Hulkar",
                        "Islom", "Jasmina", "Kamola", "Lola", "Muhammad", "Nilufar", "Otabek",
@@ -384,11 +359,10 @@ class Command(BaseCommand):
                       "Qosimov", "Rahimova", "Saidov", "To'rayeva", "Usmonov", "Valiyeva",
                       "Xolmatov", "Yusupova"]
 
-        created_students = 0
+        created_teachers = 0
         for index in range(student_count):
             arm = StudyArm.EXPERIMENTAL if index % 2 == 0 else StudyArm.CONTROL
-            group = groups[arm]
-            email = f"talaba{index + 1}@bioteacher.uz"
+            email = f"oqituvchi{index + 1}@bioteacher.uz"
             student, is_new = User.objects.get_or_create(
                 email=email,
                 defaults={
@@ -400,30 +374,27 @@ class Command(BaseCommand):
             if is_new:
                 student.set_password("bioteacher2026")
                 student.save()
-                created_students += 1
+                created_teachers += 1
 
             profile = student.profile
-            profile.role = Role.STUDENT
-            profile.group = group
-            profile.otm = group.otm
-            profile.faculty = group.faculty
-            profile.course = group.course
+            profile.role = Role.TEACHER
+            profile.study_arm = arm
+            profile.otm = "Toshkent davlat pedagogika universiteti"
+            profile.faculty = "Tabiiy fanlar"
+            profile.course = 3
             profile.research_consent = True
             profile.research_consent_at = timezone.now()
             profile.onboarding_done = True
             profile.save()
-            Enrollment.objects.get_or_create(student=student, group=group)
 
             self._simulate_measurements(student, arm, Measurement, ComponentScore)
 
         self.stdout.write(self.style.SUCCESS(
-            f"\n  Demo foydalanuvchilar: {created_students} yangi talaba, "
-            f"{StudyGroup.objects.count()} guruh"
+            f"\n  Demo foydalanuvchilar: {created_teachers} yangi o'qituvchi"
         ))
         self.stdout.write("  Kirish ma'lumotlari (parol: bioteacher2026):")
-        self.stdout.write("    mentor@bioteacher.uz        — o'qituvchi kabineti")
-        self.stdout.write("    tadqiqotchi@bioteacher.uz   — tadqiqot paneli")
-        self.stdout.write("    talaba1@bioteacher.uz …     — talaba kabineti")
+        self.stdout.write("    admin@bioteacher.uz         — boshqaruv paneli (ADMIN)")
+        self.stdout.write("    oqituvchi1@bioteacher.uz …  — o'qituvchi kabineti")
 
     def _simulate_measurements(self, student, arm, Measurement, ComponentScore):
         """

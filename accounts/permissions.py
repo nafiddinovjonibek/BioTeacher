@@ -1,7 +1,8 @@
 """
 Rolga asoslangan ruxsat dekoratorlari va obyekt darajasidagi tekshiruvlar (NFR-12).
 
-Qoida FR-00: talaba boshqa talabaning natijasini hech qachon ko'rmaydi.
+Qoida FR-00: o'qituvchi boshqa o'qituvchining natijasini hech qachon ko'rmaydi.
+Kontent va boshqa foydalanuvchilarning ma'lumoti — faqat ADMIN qo'lida.
 """
 
 from functools import wraps
@@ -17,6 +18,7 @@ def get_profile(user):
 
 
 def has_role(user, *roles):
+    """Faol rol bo'yicha tekshiradi (superuser — hamma joyga kiradi)."""
     profile = get_profile(user)
     if profile is None:
         return False
@@ -41,11 +43,10 @@ def role_required(*roles):
     return decorator
 
 
-student_required = role_required(Role.STUDENT)
+# Har qanday ro'yxatdan o'tgan foydalanuvchi (o'rganuvchi yoki admin).
 teacher_required = role_required(Role.TEACHER, Role.ADMIN)
-researcher_required = role_required(Role.RESEARCHER, Role.ADMIN)
-methodist_required = role_required(Role.METHODIST, Role.ADMIN)
-staff_required = role_required(Role.TEACHER, Role.METHODIST, Role.RESEARCHER, Role.ADMIN)
+# Faqat CRUD huquqiga ega rol.
+admin_required = role_required(Role.ADMIN)
 
 
 def can_view_student(viewer, student):
@@ -53,31 +54,20 @@ def can_view_student(viewer, student):
     NFR-12 / FR-00 — kim kimning ma'lumotini ko'ra oladi.
 
     • O'zi — doim.
-    • Mentor — faqat o'z guruhidagi talabani.
-    • Admin — hammani. Tadqiqotchi — anonim eksport orqali (bu yerda emas).
+    • Admin — hammani.
+    • Boshqa o'qituvchi — hech qachon.
     """
     if viewer.is_superuser:
         return True
     if viewer.pk == student.pk:
         return True
     profile = get_profile(viewer)
-    if profile is None:
-        return False
-    if profile.role == Role.ADMIN:
-        return True
-    if profile.role == Role.TEACHER:
-        student_profile = get_profile(student)
-        return bool(
-            student_profile
-            and student_profile.group
-            and student_profile.group.teacher_id == viewer.pk
-        )
-    return False
+    return bool(profile and profile.role == Role.ADMIN)
 
 
 def require_student_access(viewer, student):
     if not can_view_student(viewer, student):
-        raise PermissionDenied("Bu talabaning ma'lumotlarini ko'rish huquqingiz yo'q.")
+        raise PermissionDenied("Bu foydalanuvchining ma'lumotlarini ko'rish huquqingiz yo'q.")
 
 
 def require_owner(viewer, obj, field="user"):

@@ -28,6 +28,8 @@
               800:'#2A3B31', 900:'#12261A',
             },
             amberx: { 50:'#FFF6E8', 200:'#F6DFB4', 600:'#B7791F', 700:'#8F5E14' },
+            /* Yon paneldagi blok sarlavhalari — to'q fonda bir qarashda ko'rinadigan yorqin rang. */
+            sun:    { 300:'#FCD34D' },
             rosex:  { 50:'#FDEEEC', 200:'#F4C7C0', 600:'#C0392B', 700:'#96291D' },
             skyx:   { 50:'#EAF2FB', 200:'#BFD8F1', 600:'#2A6FB5', 700:'#1E5488' },
           },
@@ -49,6 +51,7 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/htmx/1.9.12/htmx.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       if (!window.Chart) return;
@@ -84,6 +87,8 @@
     }
 
     html { -webkit-text-size-adjust: 100%; }
+    /* `hidden` atributi `block`/`flex` kabi klass bo'lsa ham elementni yashirsin (JS `el.hidden` bilan boshqaradi). */
+    [hidden] { display: none !important; }
     /* Gorizontal siljish bo'lmasligi uchun: media va oldindan formatlangan
        bloklar konteynerdan chiqmaydi. */
     img, svg, video, canvas, table { max-width: 100%; }
@@ -323,6 +328,82 @@
         transition-duration:.001ms !important; scroll-behavior:auto !important;
       }
     }
+    /* ---------- Sahifa sarlavha kartasi (hero) ----------
+       Och yashil yuza, o'ngda rasm; matn HTML'da qoladi. Rasm chap tomonni
+       yopmasligi uchun ::after pardasi matn kontrastini ushlab turadi. */
+    .pagehero {
+      position: relative; overflow: hidden; border-radius: 16px;
+      background: #EAF6EE; border: 1px solid #DDEBE2; min-height: 15.5rem;
+      box-shadow: 0 1px 2px rgba(11,43,24,.04), 0 8px 24px -12px rgba(11,43,24,.10);
+    }
+    .pagehero-bg {
+      position: absolute; inset: 0; z-index: 0;
+      background-size: cover; background-position: right center; background-repeat: no-repeat;
+    }
+    .pagehero::after {
+      content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+      background: linear-gradient(96deg,
+        rgba(247,252,249,.92) 0%, rgba(244,251,247,.88) 34%,
+        rgba(241,250,245,.62) 50%, rgba(240,250,244,.12) 62%,
+        rgba(240,250,244,0) 70%);
+    }
+    .pagehero > .pagehero-in { position: relative; z-index: 2; }
+    @media (max-width: 640px) {
+      .pagehero-bg { background-position: 78% center; }
+      .pagehero::after { background: rgba(246,252,248,.88); }
+    }
+
+    /* Hero yonidagi ixcham holat kartasi. */
+    .sidecard {
+      border-radius: 16px; border: 1px solid #DDEBE2;
+      background:
+        radial-gradient(70% 80% at 50% 0%, rgba(163,220,180,.35) 0%, rgba(163,220,180,0) 70%),
+        linear-gradient(180deg, #F7FCF8 0%, #EAF6EE 100%);
+      box-shadow: 0 1px 2px rgba(11,43,24,.04), 0 8px 24px -12px rgba(11,43,24,.10);
+    }
+    .sidecard .bar { background: #D9E8DE; }
+
+    /* Kartalar guruhi uchun oq panel — bo'lim sarlavhasi panel tashqarisida turadi. */
+    .panel {
+      background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: .65rem;
+      box-shadow: 0 1px 2px rgba(11,43,24,.04), 0 8px 24px -12px rgba(11,43,24,.10);
+    }
+
+    .pill-xs { font-size: 11px; padding: .15rem .55rem; }
+    .bar-thin { height: 6px; }
+
+    /* ---------- Scroll paneli ----------
+       Firefox/yangi Chrome uchun standart xossalar, Safari va eski Chrome
+       uchun ::-webkit-scrollbar. Kenglik 10px — bosish uchun yetarli,
+       sichqonchasiz qurilmalarda esa tizim o'zi yashiradi. */
+    /* Firefox — ::-webkit-scrollbar'ni tushunmaydi, standart xossalar bilan.
+       Chrome'da bu xossalar webkit uslubini bekor qilib yuboradi, shuning
+       uchun faqat webkit qo'llab-quvvatlamaydigan brauzerlarga beriladi. */
+    @supports not selector(::-webkit-scrollbar) {
+      * { scrollbar-width: thin; scrollbar-color: #C7D3CB transparent; }
+      .on-dark * { scrollbar-color: rgba(163,220,180,.35) transparent; }
+    }
+
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb {
+      background: #C7D3CB; border-radius: 999px;
+      border: 2px solid transparent; background-clip: content-box;
+    }
+    ::-webkit-scrollbar-thumb:hover { background: #9AAAA0; background-clip: content-box; }
+    ::-webkit-scrollbar-thumb:active { background: var(--brand); background-clip: content-box; }
+    ::-webkit-scrollbar-corner { background: transparent; }
+
+    /* To'q yon panelda och ranglisi ko'rinadi. */
+    .on-dark ::-webkit-scrollbar-thumb { background: rgba(163,220,180,.32); background-clip: content-box; }
+    .on-dark ::-webkit-scrollbar-thumb:hover { background: rgba(163,220,180,.55); background-clip: content-box; }
+
+    /* Yon paneldagi ichma-ich ro'yxat («Fanlar»): standart uchburchak o'rniga burilgan o'q. */
+    .rail-tree > summary { list-style: none; }
+    .rail-tree > summary::-webkit-details-marker { display: none; }
+    .rail-tree-chevron { transition: transform .15s; }
+    .rail-tree[open] .rail-tree-chevron { transform: rotate(90deg); }
+
     .htmx-indicator { opacity:0; transition:opacity .2s; }
     .htmx-request .htmx-indicator { opacity:1; }
     @media print { .no-print { display:none !important; } body { background:#fff; } }
@@ -330,7 +411,12 @@
   {% block head %}{% endblock %}
 </head>
 
-<body class="h-full bg-slateg-50 font-sans text-slateg-800 lg:overflow-hidden">
+{% comment %}
+`lg:overflow-hidden` faqat kabinet uchun: u yerda yon panel qotib turadi va
+<main> o'zi siljiydi. Ochiq sahifalarda (kirish, loyiha haqida) bu klass
+sahifani umuman siljitmay qo'yardi.
+{% endcomment %}
+<body class="h-full bg-slateg-50 font-sans text-slateg-800{% if user.is_authenticated %} lg:overflow-hidden{% endif %}">
 
 <a href="#main" class="skip-link">Asosiy kontentga o‘tish</a>
 
@@ -341,7 +427,11 @@
     {% include "partials/rail.html" %}
   </aside>
 
-  <div class="lg:pl-rail flex flex-col min-h-full lg:h-screen">
+  {% comment %}
+  Ota-element lg'da flex-row: bu ustun `flex-1` bo'lmasa kengligini
+  kontentiga qarab oladi va kalta sahifalar tor chiqadi.
+  {% endcomment %}
+  <div class="lg:pl-rail flex flex-col flex-1 min-w-0 min-h-full lg:h-screen">
     <div class="shrink-0">{% include "partials/topbar.html" %}</div>
 
     {% comment %}
@@ -349,7 +439,7 @@
     Dashboard uni o'zgartiradi — u ikki ustunni alohida siljitadi.
     {% endcomment %}
     <main id="main" class="{% block main_class %}flex-1 min-h-0 lg:overflow-y-auto px-4 sm:px-6 lg:px-7 pb-10{% endblock %}">
-      <div class="w-full max-w-[1500px] mx-auto">
+      <div class="{% block content_wrap_class %}w-full max-w-[1500px] mx-auto{% endblock %}">
         {% include "partials/messages.html" %}
         {% block content %}{% endblock %}
       </div>
@@ -390,6 +480,15 @@
       else if (!e.shiftKey && document.activeElement === lastEl) { e.preventDefault(); first.focus(); }
     });
   })();
+
+  // Ichma-ich ro'yxat holati cookie'ga yoziladi: keyingi sahifa serverda shu holatda chiziladi.
+  document.querySelectorAll('[data-rail-tree]').forEach(function (tree) {
+    tree.addEventListener('toggle', function () {
+      document.cookie = tree.dataset.railTree + '=' + (tree.open ? '1' : '0') + '; path=/; max-age=31536000; SameSite=Lax';
+    });
+  });
+  // Faol band yon panelning pastki, ko'rinmaydigan qismida qolib ketmasin.
+  document.querySelector('aside [aria-current="page"]')?.scrollIntoView({ block: 'nearest' });
 </script>
 
 {% else %}

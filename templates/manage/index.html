@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Ma'lumotlar boshqaruvi{% endblock %}
+{% block page_title %}Ma'lumotlar boshqaruvi{% endblock %}
+{% block content %}
+<div class="space-y-6">
+  <p class="text-sm text-slateg-600">
+    Platformadagi barcha ma'lumotlarni shu yerdan yaratasiz, tahrirlaysiz va o'chirasiz.
+    Har bir harakat audit jurnaliga yoziladi.
+  </p>
+
+  <section class="section">
+    <div class="section-head"><h2>Tez yaratish</h2><span class="aside">Bog'liq yozuvlar bitta sahifada</span></div>
+    <div class="flex flex-wrap gap-2">
+      {% for kind, title in builders %}
+        <a href="{% url 'manage:builder_new' kind %}" class="btn btn-primary btn-sm">+ {{ title }}</a>
+      {% endfor %}
+    </div>
+  </section>
+
+  {% for group in groups %}
+    <section class="section">
+      <div class="section-head">
+        <h2 class="flex items-center gap-2">
+          <span class="w-5 h-5 text-brand-600">{% include "partials/icon.html" with name=group.icon %}</span>
+          {{ group.name }}
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+        {% for row in group.rows %}
+          <a href="{% url 'manage:crud_list' row.config.key %}" class="card card-p flex items-center justify-between gap-3">
+            <span class="flex items-center gap-3 min-w-0">
+              <span class="w-[18px] h-[18px] text-brand-600 shrink-0">{% include "partials/icon.html" with name=row.config.icon %}</span>
+              <span class="truncate text-sm font-medium text-slateg-900">{{ row.config.label }}</span>
+            </span>
+            <span class="shrink-0 rounded-full bg-slateg-100 px-2 py-0.5 text-xs text-slateg-600">{{ row.count }}</span>
+          </a>
+        {% endfor %}
+      </div>
+    </section>
+  {% endfor %}
+</div>
+{% endblock %}

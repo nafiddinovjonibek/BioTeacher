@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" width="960" height="600" font-family="'Segoe UI', Arial, Helvetica, sans-serif">
+<rect width="960" height="600" fill="#FFFFFF"/>
+<text x="40.0" y="50.0" font-size="23" font-weight="700" fill="#1F2D24" text-anchor="start" >Oziq to‘ri va 15 yillik o‘zgarishlar</text><text x="40.0" y="76.0" font-size="15" font-weight="400" fill="#5E6F65" text-anchor="start" >Ma’lumotlar o‘quv maqsadida soddalashtirilgan</text>
+<defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#42544A"/></marker></defs>
+<line x1="112" y1="396" x2="136" y2="296" stroke="#42544A" stroke-width="2.6" marker-end="url(#ar)"/>
+<line x1="262" y1="396" x2="166" y2="296" stroke="#42544A" stroke-width="2.6" marker-end="url(#ar)"/>
+<line x1="312" y1="396" x2="350" y2="296" stroke="#42544A" stroke-width="2.6" marker-end="url(#ar)"/>
+<line x1="158" y1="246" x2="228" y2="166" stroke="#42544A" stroke-width="2.6" marker-end="url(#ar)"/>
+<line x1="300" y1="444" x2="322" y2="494" stroke="#2A6FB5" stroke-width="2.4" stroke-dasharray="7 5" marker-end="url(#ar)"/>
+<rect x="175.0" y="117" width="150" height="46" rx="12" fill="#FDEEEC" stroke="#C0392B" stroke-width="2.4"/><text x="250.0" y="146.0" font-size="16" font-weight="700" fill="#1F2D24" text-anchor="middle" >Bo‘ri</text>
+<rect x="65.0" y="247" width="150" height="46" rx="12" fill="#FFF6E8" stroke="#B7791F" stroke-width="2.4"/><text x="140.0" y="276.0" font-size="16" font-weight="700" fill="#1F2D24" text-anchor="middle" >Bug‘u</text>
+<rect x="285.0" y="247" width="150" height="46" rx="12" fill="#FFF6E8" stroke="#B7791F" stroke-width="2.4"/><text x="360.0" y="276.0" font-size="16" font-weight="700" fill="#1F2D24" text-anchor="middle" >Qunduz</text>
+<rect x="45.0" y="397" width="130" height="46" rx="12" fill="#EAF6EE" stroke="#17843F" stroke-width="2.4"/><text x="110.0" y="426.0" font-size="16" font-weight="700" fill="#1F2D24" text-anchor="middle" >O‘tlar</text>
+<rect x="215.0" y="397" width="150" height="46" rx="12" fill="#EAF6EE" stroke="#17843F" stroke-width="2.4"/><text x="290.0" y="426.0" font-size="16" font-weight="700" fill="#1F2D24" text-anchor="middle" >Tol butalari</text>
+<rect x="245.0" y="495" width="190" height="46" rx="12" fill="#EAF2FB" stroke="#2A6FB5" stroke-width="2.4"/><text x="340.0" y="524.0" font-size="16" font-weight="700" fill="#1F2D24" text-anchor="middle" >Qo‘shiqchi qushlar</text>
+<text x="40.0" y="572.0" font-size="14" font-weight="400" fill="#5E6F65" text-anchor="start" >→ kim kimga oziq bo‘ladi (energiya oqimi)</text>
+<text x="40.0" y="592.0" font-size="14" font-weight="400" fill="#2A6FB5" text-anchor="start" >⇢ yashash joyi (uya)</text>
+<rect x="560" y="62" width="16" height="16" rx="3" fill="#A9B8AE"/>
+<text x="584.0" y="76.0" font-size="14" font-weight="400" fill="#1F2D24" text-anchor="start" >bo‘rilar qaytarilishidan oldin</text>
+<rect x="560" y="86" width="16" height="16" rx="3" fill="#2E8B57"/>
+<text x="584.0" y="100.0" font-size="14" font-weight="400" fill="#1F2D24" text-anchor="start" >15 yildan keyin</text>
+<rect x="490" y="120" width="212" height="212" rx="14" fill="#FBFCFB" stroke="#E3EAE5" stroke-width="1.5"/>
+<text x="504.0" y="148.0" font-size="15" font-weight="700" fill="#1F2D24" text-anchor="start" >Bug‘ular soni</text>
+<rect x="532" y="178.0" width="52" height="122.0" rx="5" fill="#A9B8AE"/>
+<text x="558.0" y="170.0" font-size="15" font-weight="700" fill="#1F2D24" text-anchor="middle" >100%</text>
+<rect x="608" y="245.1" width="52" height="54.9" rx="5" fill="#2E8B57"/>
+<text x="634.0" y="237.1" font-size="15" font-weight="700" fill="#1F2D24" text-anchor="middle" >45%</text>
+<line x1="512" y1="300" x2="680" y2="300" stroke="#5E6F65" stroke-width="1.5"/>
+<text x="558.0" y="320.0" font-size="12" font-weight="400" fill="#5E6F65" text-anchor="middle" >oldin</text>
+<text x="634.0" y="320.0" font-size="12" font-weight="400" fill="#5E6F65" text-anchor="middle" >keyin</text>
+<rect x="720" y="120" width="212" height="212" rx="14" fill="#FBFCFB" stroke="#E3EAE5" stroke-width="1.5"/>
+<text x="734.0" y="148.0" font-size="15" font-weight="700" fill="#1F2D24" text-anchor="start" >Tol butalari balandligi</text>
+<rect x="762" y="259.3" width="52" height="40.7" rx="5" fill="#A9B8AE"/>
+<text x="788.0" y="251.3" font-size="15" font-weight="700" fill="#1F2D24" text-anchor="middle" >0,8 m</text>
+<rect x="838" y="178.0" width="52" height="122.0" rx="5" fill="#2E8B57"/>
+<text x="864.0" y="170.0" font-size="15" font-weight="700" fill="#1F2D24" text-anchor="middle" >2,4 m</text>
+<line x1="742" y1="300" x2="910" y2="300" stroke="#5E6F65" stroke-width="1.5"/>
+<text x="788.0" y="320.0" font-size="12" font-weight="400" fill="#5E6F65" text-anchor="middle" >oldin</text>
+<text x="864.0" y="320.0" font-size="12" font-weight="400" fill="#5E6F65" text-anchor="middle" >keyin</text>
+<rect x="490" y="345" width="212" height="212" rx="14" fill="#FBFCFB" stroke="#E3EAE5" stroke-width="1.5"/>
+<text x="504.0" y="373.0" font-size="15" font-weight="700" fill="#1F2D24" text-anchor="start" >Qunduz oilalari</text>
+<rect x="532" y="511.4" width="52" height="13.6" rx="5" fill="#A9B8AE"/>
+<text x="558.0" y="503.4" font-size="15" font-weight="700" fill="#1F2D24" text-anchor="middle" >1</text>
+<rect x="608" y="403.0" width="52" height="122.0" rx="5" fill="#2E8B57"/>
+<text x="634.0" y="395.0" font-size="15" font-weight="700" fill="#1F2D24" text-anchor="middle" >9</text>
+<line x1="512" y1="525" x2="680" y2="525" stroke="#5E6F65" stroke-width="1.5"/>
+<text x="558.0" y="545.0" font-size="12" font-weight="400" fill="#5E6F65" text-anchor="middle" >oldin</text>
+<text x="634.0" y="545.0" font-size="12" font-weight="400" fill="#5E6F65" text-anchor="middle" >keyin</text>
+<rect x="720" y="345" width="212" height="212" rx="14" fill="#FBFCFB" stroke="#E3EAE5" stroke-width="1.5"/>
+<text x="734.0" y="373.0" font-size="15" font-weight="700" fill="#1F2D24" text-anchor="start" >Qo‘shiqchi qush turlari</text>
+<rect x="762" y="455.3" width="52" height="69.7" rx="5" fill="#A9B8AE"/>
+<text x="788.0" y="447.3" font-size="15" font-weight="700" fill="#1F2D24" text-anchor="middle" >8</text>
+<rect x="838" y="403.0" width="52" height="122.0" rx="5" fill="#2E8B57"/>
+<text x="864.0" y="395.0" font-size="15" font-weight="700" fill="#1F2D24" text-anchor="middle" >14</text>
+<line x1="742" y1="525" x2="910" y2="525" stroke="#5E6F65" stroke-width="1.5"/>
+<text x="788.0" y="545.0" font-size="12" font-weight="400" fill="#5E6F65" text-anchor="middle" >oldin</text>
+<text x="864.0" y="545.0" font-size="12" font-weight="400" fill="#5E6F65" text-anchor="middle" >keyin</text>
+</svg>

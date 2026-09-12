@@ -106,6 +106,21 @@ def finish_attempt(attempt, expired=False):
     from progress.models import ActivityLog
 
     recompute(attempt.user)
+
+    # SR-06 — o'lchov faqat kesim so'rovnomasidan tug'iladi. Dars mustahkamlash
+    # testi (QUIZ) kesimga tegmaydi, aks holda u shu kesimning diagnostika
+    # o'lchovini bekor qilib yuborardi.
+    if not attempt.questionnaire.is_diagnostic:
+        log_activity(
+            attempt.user,
+            ActivityLog.Action.LESSON_DONE,
+            object_ref=attempt.questionnaire.title,
+        )
+        from gamification.services import evaluate_badges
+
+        evaluate_badges(attempt.user)
+        return attempt, None
+
     measurement = create_measurement(attempt.user, attempt.cut, source=f"attempt:{attempt.pk}")
     build_recommendations(attempt.user, measurement)
     log_activity(

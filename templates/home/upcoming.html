@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}{{ page.title }} — BioTeacher{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl space-y-5">
+
+  <section class="card card-p sm:p-7">
+    <div class="flex items-start gap-4">
+      <span class="chip chip-lg shrink-0">{% include "partials/icon.html" with name=page.icon %}</span>
+      <div class="min-w-0">
+        <span class="pill pill-xs pill-go">Tez orada</span>
+        <h1 class="mt-2 text-[1.35rem] font-extrabold leading-tight text-slateg-900">{{ page.title }}</h1>
+        <p class="mt-2 text-[14px] leading-relaxed text-slateg-600">{{ page.lead }}</p>
+      </div>
+    </div>
+
+    {% if page.points %}
+      <div class="mt-6 rounded-xl bg-slateg-50 px-4 py-3.5">
+        <p class="text-[13px] font-bold text-slateg-900">Bu bo‘limda bo‘ladi</p>
+        <ul class="mt-2 space-y-1.5">
+          {% for point in page.points %}
+            <li class="flex items-start gap-2.5 text-[13px] leading-relaxed text-slateg-700">
+              <span class="mt-[3px] w-4 h-4 shrink-0 text-brand-600">{% include "partials/icon.html" with name="check" %}</span>
+              <span>{{ point }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+  </section>
+
+  {% if related %}
+    <section class="card card-p">
+      <h2 class="text-[15px] font-bold text-slateg-900">Hozircha shu bo‘limlardan foydalaning</h2>
+      <div class="mt-3 flex flex-wrap gap-2">
+        {% for link in related %}
+          <a href="{{ link.href }}" class="btn btn-quiet btn-sm">
+            {{ link.label }}
+            <span class="w-4 h-4 text-slateg-400">{% include "partials/icon.html" with name="arrow" %}</span>
+          </a>
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+</div>
+{% endblock %}

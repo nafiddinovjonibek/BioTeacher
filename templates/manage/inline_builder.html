@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}{% if obj %}{{ obj }}{% else %}Yangi {{ title|lower }}{% endif %}{% endblock %}
+{% block page_title %}{% if obj %}{{ title }}: {{ obj }}{% else %}Yangi {{ title|lower }}{% endif %}{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-5">
+  <div class="flex items-center gap-2 text-sm text-slateg-500">
+    <a href="{% url 'manage:crud_index' %}" class="hover:text-slateg-800">Ma'lumotlar</a><span>/</span>
+    <a href="{{ back_url }}" class="hover:text-slateg-800">{{ config.label }}</a><span>/</span>
+    <span class="text-slateg-800">{% if obj %}#{{ obj.pk }}{% else %}Yangi{% endif %}</span>
+  </div>
+
+  <form method="post" {% if multipart %}enctype="multipart/form-data"{% endif %} class="space-y-5">{% csrf_token %}
+    <div class="section">
+      <h3 class="font-semibold text-lg text-slateg-900 mb-4">1. {{ title }}</h3>
+      {% include "partials/form.html" %}
+    </div>
+
+    <div class="section">
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-1">
+        <h3 class="font-semibold text-lg text-slateg-900">2. {{ child_title }}</h3>
+        <button type="button" class="btn btn-primary btn-sm" data-add-row>+ Qo'shish</button>
+      </div>
+      <p class="text-sm text-slateg-500 mb-4">{{ hint }} Tartib — ⋮⋮ belgisidan tortib o'zgartiriladi.</p>
+
+      {{ formset.management_form }}
+      {% if formset.non_form_errors %}
+        <div class="mb-4 rounded-xl bg-rosex-50 border border-rosex-200 px-4 py-3 text-sm text-rosex-700">{{ formset.non_form_errors }}</div>
+      {% endif %}
+
+      <div id="rows" class="space-y-3">
+        {% for subform in formset %}
+          {% include "manage/_inline_row.html" with subform=subform index=forloop.counter %}
+        {% endfor %}
+      </div>
+      <p id="rows-empty" class="py-6 text-center text-sm text-slateg-500" {% if formset.forms %}hidden{% endif %}>Hali yozuv yo'q — "Qo'shish" tugmasini bosing.</p>
+
+      <template id="row-template">
+        {% include "manage/_inline_row.html" with subform=formset.empty_form index="__num__" %}
+      </template>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-3">
+      <button class="btn btn-primary">Saqlash</button>
+      <button name="_continue" value="1" class="btn btn-quiet">Saqlash va davom etish</button>
+      <a href="{{ back_url }}" class="btn btn-ghost">Bekor qilish</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  const prefix = "{{ formset.prefix }}";
+  const total = document.getElementById(`id_${prefix}-TOTAL_FORMS`);
+  const rows = document.getElementById('rows');
+  const empty = document.getElementById('rows-empty');
+  const tpl = document.getElementById('row-template');
+
+  function refresh() {
+    const visible = [...rows.querySelectorAll('[data-row]')].filter(r => !r.hidden);
+    empty.hidden = visible.length > 0;
+    visible.forEach((r, i) => { const n = r.querySelector('[data-num]'); if (n) n.textContent = i + 1; });
+  }
+  document.querySelectorAll('[data-add-row]').forEach(b => b.addEventListener('click', () => {
+    const i = +total.value;
+    const html = tpl.innerHTML.replaceAll('__prefix__', i).replaceAll('__num__', i + 1);
+    rows.insertAdjacentHTML('beforeend', html);
+    total.value = i + 1;
+    refresh();
+    rows.lastElementChild.querySelector('input:not([type=hidden]),select,textarea')?.focus();
+  }));
+  if (window.Sortable) Sortable.create(rows, { handle: '.drag-handle', animation: 150, ghostClass: 'opacity-50', onEnd: refresh });
+  rows.closest('form').addEventListener('submit', () => {
+    [...rows.querySelectorAll('[data-row]')].filter(r => !r.hidden)
+      .forEach((r, i) => { const o = r.querySelector('[data-order]'); if (o) o.value = i + 1; });
+  });
+  rows.addEventListener('click', e => {
+    const btn = e.target.closest('[data-remove]'); if (!btn) return;
+    const row = btn.closest('[data-row]');
+    const del = row.querySelector('input[name$="-DELETE"]');
+    if (del) { del.checked = true; row.hidden = true; }
+    else { row.remove(); total.value = +total.value - 1; }
+    refresh();
+  });
+  refresh();
+})();
+</script>
+{% endblock %}

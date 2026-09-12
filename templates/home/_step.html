@@ -1,0 +1,14 @@
+{% comment %}
+Rivojlanish siklining bitta qadami.
+Ishlatish: {% include "home/_step.html" with num=1 icon="clipboard" title="Diagnostika" text="..." %}
+{% endcomment %}
+<li class="lp-step">
+  <span class="lp-step-icon">
+    {% include "partials/icon.html" with name=icon %}
+    <span class="lp-step-num" aria-hidden="true">{{ num }}</span>
+  </span>
+  <div class="min-w-0">
+    <h3 class="text-[15px] font-bold leading-snug text-slateg-900">{{ title }}</h3>
+    <p class="mt-1 text-[12.5px] leading-relaxed text-slateg-600">{{ text }}</p>
+  </div>
+</li>

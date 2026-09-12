@@ -6,7 +6,7 @@ from django.utils import timezone
 
 from core.enums import Role
 
-from .models import Enrollment, Profile, StudyGroup
+from .models import Profile
 
 User = get_user_model()
 
@@ -39,17 +39,13 @@ class StyledFormMixin:
 
 
 class RegisterForm(StyledFormMixin, forms.Form):
-    """FR-01, FR-02, FR-03 — ro'yxatdan o'tish + guruh kodi."""
+    """FR-01, FR-02 — ro'yxatdan o'tish."""
 
     first_name = forms.CharField(label="Ism", max_length=80)
     last_name = forms.CharField(label="Familiya", max_length=80)
     email = forms.EmailField(label="Email")
     password1 = forms.CharField(label="Parol", widget=forms.PasswordInput)
     password2 = forms.CharField(label="Parolni takrorlang", widget=forms.PasswordInput)
-    invite_code = forms.CharField(
-        label="Guruh kodi", max_length=12, required=False,
-        help_text="Mentoringiz bergan kod. Keyinroq ham kiritishingiz mumkin.",
-    )
     consent = forms.BooleanField(
         label="Ilmiy tadqiqotda anonim ishtirok etishga roziman",
         required=False,
@@ -61,14 +57,6 @@ class RegisterForm(StyledFormMixin, forms.Form):
         if User.objects.filter(email__iexact=email).exists():
             raise forms.ValidationError("Bu email allaqachon ro'yxatdan o'tgan.")
         return email
-
-    def clean_invite_code(self):
-        code = (self.cleaned_data.get("invite_code") or "").strip().upper()
-        if not code:
-            return ""
-        if not StudyGroup.objects.filter(invite_code=code, is_active=True).exists():
-            raise forms.ValidationError("Bunday guruh kodi topilmadi.")
-        return code
 
     def clean(self):
         cleaned = super().clean()
@@ -88,19 +76,10 @@ class RegisterForm(StyledFormMixin, forms.Form):
             last_name=data["last_name"].strip(),
         )
         profile = user.profile
-        profile.role = Role.STUDENT
+        profile.role = Role.TEACHER
         if data.get("consent"):
             profile.research_consent = True
             profile.research_consent_at = timezone.now()
-        code = data.get("invite_code")
-        if code:
-            group = StudyGroup.objects.filter(invite_code=code, is_active=True).first()
-            if group:
-                profile.group = group
-                profile.otm = group.otm
-                profile.faculty = group.faculty
-                profile.course = group.course
-                Enrollment.objects.get_or_create(student=user, group=group)
         profile.save()
         return user
 
@@ -139,29 +118,3 @@ class ProfileForm(StyledFormMixin, forms.ModelForm):
             user.save(update_fields=["first_name", "last_name"])
             profile.save()
         return profile
-
-
-class JoinGroupForm(StyledFormMixin, forms.Form):
-    """FR-03 — guruhga kod orqali qo'shilish."""
-
-    invite_code = forms.CharField(label="Guruh kodi", max_length=12)
-
-    def clean_invite_code(self):
-        code = self.cleaned_data["invite_code"].strip().upper()
-        group = StudyGroup.objects.filter(invite_code=code, is_active=True).first()
-        if group is None:
-            raise forms.ValidationError("Bunday guruh kodi topilmadi yoki guruh faol emas.")
-        self.group = group
-        return code
-
-
-class StudyGroupForm(StyledFormMixin, forms.ModelForm):
-    """Mentor uchun guruh yaratish/tahrirlash (study_arm bu yerda YO'Q — FR-04)."""
-
-    class Meta:
-        model = StudyGroup
-        fields = ["name", "otm", "faculty", "course", "is_active"]
-        labels = {
-            "name": "Guruh nomi", "otm": "OTM", "faculty": "Fakultet",
-            "course": "Kurs", "is_active": "Faol",
-        }

@@ -42,8 +42,27 @@ SECRET_KEY = env(
     "django-insecure-dev-only-$uu4=6ff@06aj(&$=ujz#i5nqr4-cgekp0+42(m7o%#l0uv+5=",
 )
 DEBUG = env_bool("DJANGO_DEBUG", True)
-ALLOWED_HOSTS = [h for h in env("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1").split(",") if h]
-CSRF_TRUSTED_ORIGINS = [o for o in env("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(",") if o]
+
+# Saytning asosiy domeni; SITE_ALT_DOMAINS — shu saytga olib keladigan qo'shimcha domenlar.
+SITE_DOMAIN = env("SITE_DOMAIN", "bioteacher.uz")
+SITE_ALT_DOMAINS = [d.strip() for d in env("SITE_ALT_DOMAINS", "najo.uz").split(",") if d.strip()]
+_SITE_DOMAINS = [SITE_DOMAIN, *SITE_ALT_DOMAINS]
+
+_default_hosts = ",".join(
+    ["localhost", "127.0.0.1", *_SITE_DOMAINS, *(f"www.{d}" for d in _SITE_DOMAINS)]
+)
+_default_origins = ",".join(
+    [*(f"https://{d}" for d in _SITE_DOMAINS), *(f"https://www.{d}" for d in _SITE_DOMAINS)]
+)
+
+ALLOWED_HOSTS = [
+    h.strip() for h in env("DJANGO_ALLOWED_HOSTS", _default_hosts).split(",") if h.strip()
+]
+CSRF_TRUSTED_ORIGINS = [
+    o.strip()
+    for o in env("DJANGO_CSRF_TRUSTED_ORIGINS", _default_origins).split(",")
+    if o.strip()
+]
 
 
 INSTALLED_APPS = [
@@ -201,7 +220,7 @@ EMAIL_USE_TLS = env_bool("EMAIL_USE_TLS", True)
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", "BioTeacher <noreply@bioteacher.uz>")
 
 SITE_NAME = "BioTeacher"
-SITE_URL = env("SITE_URL", "http://127.0.0.1:8000")
+SITE_URL = env("SITE_URL", "http://127.0.0.1:8000" if DEBUG else f"https://{SITE_DOMAIN}")
 
 # NFR-09: login urinishlarini cheklash (accounts.ratelimit).
 LOGIN_RATELIMIT_ATTEMPTS = int(env("LOGIN_RATELIMIT_ATTEMPTS", "8"))

@@ -6,7 +6,7 @@
 
   <div class="section p-5">
     <p class="text-sm text-slateg-600">
-      Bu bo‘limda talabalarning ism-familiyasi ko‘rsatilmaydi — faqat anonim identifikator.
+      Bu bo‘limda foydalanuvchilarning ism-familiyasi ko‘rsatilmaydi — faqat anonim identifikator.
       Ma'lumot tajriba-sinov ishining statistik bazasi sifatida ishlatiladi.
     </p>
   </div>
@@ -50,33 +50,33 @@
 
   <section class="section">
     <div class="px-6 py-4 border-b border-slateg-200 bg-slateg-50">
-      <h3 class="font-semibold text-lg text-slateg-900">Guruhlar va bo‘linmalar</h3>
-      <p class="text-xs text-slateg-500">E — tajriba, C — nazorat. Talabalar bu belgini ko‘rmaydi.</p>
+      <h3 class="font-semibold text-lg text-slateg-900">Respondentlar va bo‘linmalar</h3>
+      <p class="text-xs text-slateg-500">E — tajriba, C — nazorat. Foydalanuvchilar bu belgini ko‘rmaydi.</p>
     </div>
     <div class="overflow-x-auto">
       <table class="w-full text-sm">
         <thead><tr class="text-left text-sm text-slateg-600 border-b border-slateg-200">
-          <th class="py-3 px-6">Guruh</th><th class="py-3 px-3">Mentor</th>
-          <th class="py-3 px-3 text-center">Talabalar</th><th class="py-3 px-3">Bo‘linma</th><th class="py-3 px-6"></th>
+          <th class="py-3 px-6">Respondent</th><th class="py-3 px-3">OTM</th>
+          <th class="py-3 px-3 text-center">Kurs</th><th class="py-3 px-3">Bo‘linma</th><th class="py-3 px-6"></th>
         </tr></thead>
         <tbody class="divide-y divide-slateg-100">
-          {% for group in groups %}
+          {% for respondent in respondents %}
             <tr>
-              <td class="py-3 px-6 text-slateg-900">{{ group.name }}</td>
-              <td class="py-3 px-3 text-slateg-600">{{ group.teacher.get_full_name|default:"—" }}</td>
-              <td class="py-3 px-3 text-center">{{ group.student_count }}</td>
+              <td class="py-3 px-6 font-mono text-slateg-900">{{ respondent.short_code }}</td>
+              <td class="py-3 px-3 text-slateg-600">{{ respondent.otm|default:"—" }}</td>
+              <td class="py-3 px-3 text-center text-slateg-600">{{ respondent.course|default:"—" }}</td>
               <td class="py-3 px-3">
                 <span class="rounded-full px-2.5 py-1 text-xs
-                  {% if group.study_arm == 'E' %}bg-brand-50 text-brand-700 border border-brand-200
-                  {% elif group.study_arm == 'C' %}bg-brand-50 text-brand-700 border border-brand-200
-                  {% else %}bg-slateg-100 text-slateg-500{% endif %}">{{ group.get_study_arm_display }}</span>
+                  {% if respondent.study_arm == 'E' %}bg-brand-50 text-brand-700 border border-brand-200
+                  {% elif respondent.study_arm == 'C' %}bg-brand-50 text-brand-700 border border-brand-200
+                  {% else %}bg-slateg-100 text-slateg-500{% endif %}">{{ respondent.get_study_arm_display }}</span>
               </td>
               <td class="py-3 px-6 text-right">
-                <a href="{% url 'research:set_arm' group.pk %}" class="text-sm text-brand-700 hover:underline">O‘zgartirish</a>
+                <a href="{% url 'research:set_arm' respondent.pk %}" class="text-sm text-brand-700 hover:underline">O‘zgartirish</a>
               </td>
             </tr>
           {% empty %}
-            <tr><td colspan="5" class="py-8 px-6 text-center text-slateg-500">Guruhlar yo‘q.</td></tr>
+            <tr><td colspan="5" class="py-8 px-6 text-center text-slateg-500">Respondentlar yo‘q.</td></tr>
           {% endfor %}
         </tbody>
       </table>

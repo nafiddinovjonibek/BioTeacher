@@ -6,7 +6,8 @@ app_name = "progress"
 
 urlpatterns = [
     path("", views.monitoring, name="monitoring"),
+    path("kuzatuv/", views.observation, name="observation"),
     path("hisobot/pdf/", views.report_pdf, name="report_pdf"),
     path("kunlik/bajarildi/", views.daily_done, name="daily_done"),
-    path("talaba/<int:user_id>/", views.student_monitoring, name="student"),
+    path("oqituvchi/<int:user_id>/", views.student_monitoring, name="student"),
 ]

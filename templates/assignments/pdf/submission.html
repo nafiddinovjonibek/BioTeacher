@@ -13,7 +13,6 @@
   <h1>{{ submission.assignment.title }}</h1>
   <p class="meta">
     {{ submission.student.get_full_name|default:submission.student.email }}
-    {% if submission.student.profile.group %} &middot; {{ submission.student.profile.group.name }}{% endif %}
     {% if submission.submitted_at %} &middot; {{ submission.submitted_at|date:"d.m.Y" }}{% endif %}
   </p>
 

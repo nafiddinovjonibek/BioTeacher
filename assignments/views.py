@@ -11,6 +11,7 @@ from django.db.models import Count, Q
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
+from django.urls import reverse
 
 from accounts.permissions import require_student_access
 from accounts.services import log_action
@@ -48,7 +49,82 @@ MODULE_META = {
         "title": "BioBilim topshiriqlari",
         "lead": "Kasbiy bilimni mustahkamlovchi amaliy topshiriqlar.",
     },
+    Module.VISUAL: {
+        "title": "Muammoli vizual keyslar",
+        "lead": "Mikrofotosurat, grafik, sxema va o'quvchi ishlari asosidagi muammoli vaziyatlar. "
+                "Tasvirni kuzating, muammoni aniqlang, tushuntiring va darsda qanday ishlatishingizni yozing.",
+    },
 }
+
+
+#: Modul kartasining ikonkasi (partials/icon.html nomlari).
+MODULE_ICONS = {
+    Module.LAB: "microscope",
+    Module.TEACHER: "users",
+    Module.DIGITAL: "globe",
+    Module.CREATIVE: "spark",
+    Module.BIOKNOWLEDGE: "book",
+    Module.VISUAL: "image",
+}
+
+#: Vizual keysni tahlil qilish bosqichlari — ro'yxat sahifasidagi qisqa yo'riqnoma.
+VISUAL_STEPS = [
+    ("Kuzating", "Tasvirdagi faktlarni izohsiz sanab chiqing."),
+    ("Muammoni toping", "Nima g'ayrioddiy? Uni savolga aylantiring."),
+    ("Tushuntiring", "Qonuniyatni tasvirdagi dalil bilan bog'lang."),
+    ("Darsga ko'chiring", "O'quvchilar uchun yo'naltiruvchi savollar tuzing."),
+]
+
+#: «Virtual laboratoriya va amaliy topshiriqlar» menyu bandi ostidagi yorliqlar.
+PRACTICE_TABS = [
+    (Module.LAB, "Laboratoriya"),
+    (Module.TEACHER, "Men — o‘qituvchi"),
+    (Module.DIGITAL, "Raqamli biologiya"),
+    (Module.CREATIVE, "Kreativ o‘qituvchi"),
+]
+
+#: Ish holati — kartadagi nishon uslubi va matni.
+SUBMISSION_STATES = {
+    Submission.Status.DRAFT: ("Qoralama", "pill-mute"),
+    Submission.Status.SELF_ASSESSED: ("O'zini baholadi", "pill-info"),
+    Submission.Status.SUBMITTED: ("Yuborilgan", "pill-go"),
+    Submission.Status.GRADED: ("Baholangan", "pill-ok"),
+    Submission.Status.RETURNED: ("Qayta ishlashga", "pill-stop"),
+}
+
+
+def _task_rows(user, assignments):
+    """Topshiriq kartalari (ish holati bilan) va ixcham hisob: jami, boshlangan, baholangan."""
+    submissions = {s.assignment_id: s for s in Submission.objects.filter(student=user)}
+    rows = []
+    for assignment in assignments:
+        submission = submissions.get(assignment.id)
+        label, tone = SUBMISSION_STATES.get(
+            submission.status if submission else None, ("Boshlanmagan", "pill-mute")
+        )
+        rows.append({
+            "a": assignment,
+            "submission": submission,
+            "label": label,
+            "tone": tone,
+            "done": bool(submission and submission.status == Submission.Status.GRADED),
+        })
+
+    done = sum(1 for row in rows if row["done"])
+    started = sum(1 for row in rows if row["submission"])
+    return rows, {
+        "total": len(rows),
+        "done": done,
+        "started": started,
+        "not_started": len(rows) - started,
+        "percent": round(done / len(rows) * 100) if rows else 0,
+    }
+
+
+def _back_url(assignment):
+    if assignment.module == Module.VISUAL:
+        return reverse("assignments:cases")
+    return reverse("assignments:module", args=[assignment.module])
 
 
 @login_required
@@ -56,20 +132,60 @@ def module_list(request, module):
     """Modul bo'yicha topshiriqlar ro'yxati."""
     if module not in Module.values:
         raise PermissionDenied("Noma'lum modul.")
+    if module == Module.VISUAL:
+        return redirect("assignments:cases")
 
-    assignments = list(Assignment.objects.filter(module=module, is_active=True))
-    submissions = {
-        s.assignment_id: s for s in Submission.objects.filter(student=request.user)
-    }
-    # Shablonda lug'atni kalit bo'yicha o'qib bo'lmaydi — obyektga biriktiramiz.
-    for assignment in assignments:
-        assignment.my_submission = submissions.get(assignment.id)
-
+    rows, stats = _task_rows(
+        request.user, Assignment.objects.filter(module=module, is_active=True).select_related("rubric")
+    )
     return render(
         request,
         "assignments/module_list.html",
-        {"module": module, "meta": MODULE_META[Module(module)], "assignments": assignments},
+        {
+            "module": module,
+            "meta": MODULE_META[Module(module)],
+            "icon": MODULE_ICONS.get(Module(module), "flask"),
+            "tabs": [
+                {"code": code.value, "label": label, "icon": MODULE_ICONS[code]} for code, label in PRACTICE_TABS
+            ],
+            "rows": rows,
+            **stats,
+        },
     )
+
+
+@login_required
+def cases(request):
+    """«Muammoli vizual keyslar» — tasvir asosidagi muammoli vaziyatlarni mustaqil tahlil qilish."""
+    assignments = list(
+        Assignment.objects.filter(module=Module.VISUAL, is_active=True)
+        .select_related("section").order_by("difficulty", "title")
+    )
+    sections = {a.section.slug: a.section for a in assignments if a.section}
+    current = request.GET.get("fan", "")
+    if current not in sections:
+        current = ""
+    rows, stats = _task_rows(request.user, assignments)
+    if current:
+        rows = [row for row in rows if row["a"].section and row["a"].section.slug == current]
+    return render(
+        request,
+        "assignments/cases.html",
+        {
+            "meta": MODULE_META[Module.VISUAL],
+            "rows": rows,
+            "sections": sorted(sections.values(), key=lambda s: (s.order, s.title)),
+            "current": current,
+            "steps": VISUAL_STEPS,
+            **stats,
+        },
+    )
+
+
+def _mark_menu(request, assignment):
+    """Vizual keys sahifalarida yon menyuda «Muammoli vizual keyslar» bandi faol ko'rinsin."""
+    if assignment.module == Module.VISUAL:
+        request.menu_page = "cases"
 
 
 @login_required
@@ -79,13 +195,14 @@ def assignment_detail(request, slug):
 
     `action=save` — qoralama, `action=submit` — yakuniy yuborish.
     """
-    assignment = get_object_or_404(Assignment, slug=slug, is_active=True)
+    assignment = get_object_or_404(Assignment.objects.select_related("section"), slug=slug, is_active=True)
+    _mark_menu(request, assignment)
     submission, _ = Submission.objects.get_or_create(
         assignment=assignment, student=request.user
     )
 
     if request.method == "POST" and not submission.is_editable:
-        messages.error(request, "Bu ish allaqachon yuborilgan. Tahrirlash uchun mentordan ruxsat so'rang.")
+        messages.error(request, "Bu ish allaqachon yuborilgan. Tahrirlash uchun administratordan ruxsat so'rang.")
         return redirect("assignments:submission", pk=submission.pk)
 
     form = StepAnswerForm(
@@ -127,6 +244,7 @@ def assignment_detail(request, slug):
             "file_form": file_form,
             "steps": assignment.steps(),
             "meta": MODULE_META[Module(assignment.module)],
+            "back_url": _back_url(assignment),
         },
     )
 
@@ -139,6 +257,7 @@ def self_assess(request, pk):
     )
     if submission.student_id != request.user.pk:
         raise PermissionDenied("Bu ish sizga tegishli emas.")
+    _mark_menu(request, submission.assignment)
 
     rubric = submission.assignment.rubric
     existing = {
@@ -180,6 +299,7 @@ def submission_detail(request, pk):
         Submission.objects.select_related("assignment__rubric", "student"), pk=pk
     )
     require_student_access(request.user, submission.student)  # NFR-12
+    _mark_menu(request, submission.assignment)
 
     consent_form = None
     if submission.student_id == request.user.pk:
@@ -240,16 +360,11 @@ def submission_pdf(request, pk):
 
 @login_required
 def gallery(request):
-    """FR-36 — ijodiy galereya: faqat rozilik bergan ishlar, o'z guruhi ichida."""
-    profile = request.user.profile
+    """FR-36 — ijodiy galereya: faqat rozilik berilgan ishlar."""
     queryset = Submission.objects.filter(
         is_public=True,
         status__in=[Submission.Status.SUBMITTED, Submission.Status.GRADED],
     ).select_related("assignment", "student")
-    if profile.group_id:
-        queryset = queryset.filter(student__profile__group_id=profile.group_id)
-    else:
-        queryset = queryset.filter(student=request.user)
     return render(request, "assignments/gallery.html", {"submissions": queryset[:60]})
 
 
@@ -293,18 +408,12 @@ def competency(request):
 
 @login_required
 def grade(request, pk):
-    """FR-55 — mentor rubrika bo'yicha baholaydi."""
+    """FR-55 — admin rubrika bo'yicha baholaydi."""
     submission = get_object_or_404(
         Submission.objects.select_related("assignment__rubric", "student"), pk=pk
     )
     profile = getattr(request.user, "profile", None)
-    is_mentor = (
-        request.user.is_superuser
-        or (profile and profile.is_teacher
-            and getattr(submission.student.profile, "group", None)
-            and submission.student.profile.group.teacher_id == request.user.pk)
-    )
-    if not is_mentor:
+    if not bool(profile and profile.is_admin):
         raise PermissionDenied("Bu ishni baholash huquqingiz yo'q.")
 
     existing = {
@@ -327,7 +436,7 @@ def grade(request, pk):
         recompute(submission.student)
         notify_graded(submission)
         log_action(request, "submission.grade", f"{submission.pk}")
-        messages.success(request, "Baho qo'yildi va talabaga xabar yuborildi.")
+        messages.success(request, "Baho qo'yildi va muallifga xabar yuborildi.")
         return redirect("assignments:queue")
 
     self_scores = {s.criterion_id: s for s in submission.scores.filter(scorer=Score.Scorer.SELF)}
@@ -347,23 +456,22 @@ def grade(request, pk):
 def queue(request):
     """FR-54 — tekshirish navbati."""
     profile = getattr(request.user, "profile", None)
-    if not (request.user.is_superuser or (profile and profile.is_teacher)):
-        raise PermissionDenied("Faqat mentorlar uchun.")
+    if not (profile and profile.is_admin):
+        raise PermissionDenied("Faqat administrator uchun.")
 
-    queryset = Submission.objects.filter(status=Submission.Status.SUBMITTED)
-    if not request.user.is_superuser:
-        queryset = queryset.filter(student__profile__group__teacher=request.user)
-    queryset = queryset.select_related("assignment", "student", "student__profile__group")
+    queryset = Submission.objects.filter(status=Submission.Status.SUBMITTED).select_related(
+        "assignment", "student", "student__profile"
+    )
     return render(request, "assignments/queue.html", {"submissions": queryset.order_by("submitted_at")})
 
 
 @login_required
 def reopen(request, pk):
-    """Mentor qayta yuborishga ruxsat beradi (TZ 6.3)."""
+    """Admin qayta yuborishga ruxsat beradi (TZ 6.3)."""
     submission = get_object_or_404(Submission, pk=pk)
     profile = getattr(request.user, "profile", None)
-    if not (request.user.is_superuser or (profile and profile.is_teacher)):
-        raise PermissionDenied("Faqat mentorlar uchun.")
+    if not (profile and profile.is_admin):
+        raise PermissionDenied("Faqat administrator uchun.")
     submission.reopen_allowed = True
     submission.status = Submission.Status.RETURNED
     submission.save(update_fields=["reopen_allowed", "status", "updated_at"])

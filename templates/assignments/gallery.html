@@ -4,7 +4,7 @@
 {% block content %}
 <div class="">
   <p class="text-sm text-slateg-600">
-    Guruhdoshlaringiz o‘z <strong>roziligi bilan</strong> ulashgan ishlar. Baholar va reyting ko‘rsatilmaydi —
+    Boshqa o‘qituvchilar o‘z <strong>roziligi bilan</strong> ulashgan ishlar. Baholar va reyting ko‘rsatilmaydi —
     maqsad taqqoslash emas, g‘oya almashish.
   </p>
   <div class="mt-5 grid sm:grid-cols-2 gap-4">
@@ -17,7 +17,7 @@
             <p class="mt-2 text-sm text-slateg-600">{{ row.text|truncatewords:40 }}</p>
           {% endif %}
         {% endfor %}
-        <p class="mt-3 text-xs text-slateg-500">{{ s.student.get_full_name|default:"Talaba" }}</p>
+        <p class="mt-3 text-xs text-slateg-500">{{ s.student.get_full_name|default:"O‘qituvchi" }}</p>
       </div>
     {% empty %}
       <p class="text-sm text-slateg-500">Hozircha galereyada ish yo‘q. Birinchi bo‘lib ishingizni ulashishingiz mumkin.</p>

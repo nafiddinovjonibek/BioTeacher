@@ -12,12 +12,14 @@
         · {{ submission.submitted_at|date:"d.m.Y H:i" }}</p>
     </div>
     {% if submission.self_percent is not None %}
-      <p class="mt-2 text-sm text-slateg-600">Talabaning o‘z bahosi: <strong>{{ submission.self_percent|floatformat:0 }}%</strong></p>
+      <p class="mt-2 text-sm text-slateg-600">Muallifning o‘z bahosi: <strong>{{ submission.self_percent|floatformat:0 }}%</strong></p>
     {% endif %}
   </div>
 
+  {% include "assignments/_visual.html" with a=submission.assignment compact=True %}
+
   <div class="section space-y-5">
-    <h3 class="font-semibold text-lg text-slateg-900">Talaba javobi</h3>
+    <h3 class="font-semibold text-lg text-slateg-900">Muallif javobi</h3>
     {% for row in submission.answer_rows %}
       <div class="rounded-xl bg-slateg-50 p-4">
         <p class="text-sm text-slateg-600">{{ row.label }}</p>

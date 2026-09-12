@@ -51,7 +51,7 @@
     </section>
   {% endif %}
 
-  {% if not can_edit and profile.is_teacher %}
+  {% if not can_edit and profile.is_admin %}
     <a href="{% url 'goals:review' goal.pk %}" class="inline-flex btn btn-primary">
       Izoh qoldirish / tasdiqlash
     </a>

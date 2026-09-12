@@ -1,43 +1,94 @@
 {% extends "base.html" %}
+{% load static %}
+
 {% block public %}
 <div class="min-h-full lg:grid lg:grid-cols-2">
-  <div class="on-dark hidden lg:flex flex-col justify-between bg-slateg-900 text-slateg-400 p-12">
-    <a href="{% url 'home:landing' %}" class="flex items-center gap-3">
-      <span class="grid place-items-center w-11 h-11 rounded-xl bg-brand-700 text-white text-2xl"></span>
-      <span class="font-semibold text-white text-lg">BioTeacher</span>
+
+  {# =================== Chap panel: fotosurat =================== #}
+  <div class="auth-art on-dark hidden lg:flex flex-col justify-between p-12 text-white">
+    <span class="auth-art-bg" aria-hidden="true"
+          style="background-image:url('{% static "img/auth-hero.webp" %}')"></span>
+
+    <a href="{% url 'home:landing' %}" class="relative z-10 flex items-center gap-3">
+      <span class="grid place-items-center w-11 h-11 rounded-xl bg-brand-600 text-white">
+        <span class="w-6 h-6">{% include "partials/icon.html" with name="leaf" %}</span>
+      </span>
+      <span class="font-extrabold text-white text-lg">BioTeacher</span>
     </a>
-    <div class="max-w-md">
-      <h2 class="font-semibold text-3xl text-white leading-snug">
+
+    <div class="relative z-10 max-w-md">
+      <h2 class="text-[1.75rem] font-extrabold leading-snug text-white">
         O‘qituvchi bo‘lish — bilim to‘plash emas,<br>o‘zini muntazam qurish jarayoni.
       </h2>
-      <p class="mt-5 text-slateg-500 leading-relaxed">
+      <p class="mt-4 text-[0.95rem] leading-relaxed text-white/75">
         Platforma sizning motivatsiya, bilim, faoliyat, refleksiya va kreativlik
         ko‘rsatkichlaringizni o‘lchaydi hamda har bir qadamda nima qilish kerakligini aytadi.
       </p>
-      <div class="mt-8 grid grid-cols-5 gap-2 text-center text-[11px]">
-        {% for c in "MOT COG ACT REF CRE"|slice:":19"|make_list %}{% endfor %}
-        <div class="rounded-lg bg-white/5 py-3"><span class="block text-lg"></span>MOT</div>
-        <div class="rounded-lg bg-white/5 py-3"><span class="block text-lg">🧠</span>COG</div>
-        <div class="rounded-lg bg-white/5 py-3"><span class="block text-lg">🛠</span>ACT</div>
-        <div class="rounded-lg bg-white/5 py-3"><span class="block text-lg">🔍</span>REF</div>
-        <div class="rounded-lg bg-white/5 py-3"><span class="block text-lg"></span>CRE</div>
+
+      <div class="mt-7 grid grid-cols-5 gap-2">
+        {% include "accounts/_channel.html" with code="MOT" icon="flame" %}
+        {% include "accounts/_channel.html" with code="COG" icon="book" %}
+        {% include "accounts/_channel.html" with code="ACT" icon="clipboard" %}
+        {% include "accounts/_channel.html" with code="REF" icon="pen" %}
+        {% include "accounts/_channel.html" with code="CRE" icon="spark" %}
       </div>
     </div>
-    <p class="text-xs text-slateg-600">PhD tadqiqoti doirasidagi tajriba-sinov vositasi</p>
+
+    <p class="relative z-10 text-[12px] text-white/55">
+      PhD tadqiqoti doirasidagi tajriba-sinov vositasi
+    </p>
   </div>
 
+
+  {# =================== O'ng panel: forma =================== #}
   <div class="flex items-center justify-center px-6 py-12 bg-slateg-50">
     <div class="w-full max-w-md">
-      <a href="{% url 'home:landing' %}" class="lg:hidden mb-8 flex items-center gap-3">
-        <span class="grid place-items-center w-10 h-10 rounded-xl bg-brand-700 text-white text-xl"></span>
-        <span class="font-semibold text-slateg-900">BioTeacher</span>
+      <a href="{% url 'home:landing' %}" class="lg:hidden mb-8 flex items-center gap-2.5">
+        <span class="grid place-items-center w-10 h-10 rounded-xl bg-brand-600 text-white">
+          <span class="w-5 h-5">{% include "partials/icon.html" with name="leaf" %}</span>
+        </span>
+        <span class="font-extrabold text-slateg-900">BioTeacher</span>
       </a>
+
       {% include "partials/messages.html" %}
-      <div class="bg-white rounded-2xl border border-slateg-200 shadow-sm p-7">
+
+      <div class="bg-white rounded-2xl border border-slateg-200 p-7"
+           style="box-shadow:0 1px 2px rgba(11,43,24,.04),0 8px 24px -12px rgba(11,43,24,.10)">
         {% block auth_content %}{% endblock %}
       </div>
+
       {% block auth_footer %}{% endblock %}
     </div>
   </div>
 </div>
+{% endblock %}
+
+
+{% block head %}
+<style>
+  /* Chap panel — to'q fotosurat; matn oq, shuning uchun ustiga gradient parda. */
+  .auth-art { position: relative; overflow: hidden; isolation: isolate; background: #071E11; }
+  .auth-art-bg {
+    position: absolute; inset: 0; z-index: -2;
+    background-size: cover; background-position: center center;
+  }
+  /* Spiral o'rtada turadi: parda yuqori va pastda quyuq, o'rtada shaffofroq —
+     logotip, sarlavha va izoh o'qiladi, rasmning o'zi ham ko'rinib turadi. */
+  .auth-art::before {
+    content: ""; position: absolute; inset: 0; z-index: -1;
+    background:
+      linear-gradient(180deg, rgba(4,18,10,.88) 0%, rgba(5,24,13,.42) 32%,
+                              rgba(5,24,13,.55) 58%, rgba(4,18,10,.92) 100%),
+      linear-gradient(90deg, rgba(4,18,10,.45) 0%, rgba(4,18,10,0) 45%);
+  }
+
+  .auth-chip {
+    display: flex; flex-direction: column; align-items: center; gap: .35rem;
+    border-radius: 12px; padding: .6rem .25rem;
+    background: rgba(255,255,255,.10); border: 1px solid rgba(255,255,255,.14);
+    backdrop-filter: blur(4px);
+  }
+  .auth-chip svg { width: 1.05rem; height: 1.05rem; color: #A9DBBB; }
+  .auth-chip span { font-size: 10.5px; font-weight: 800; letter-spacing: .05em; color: rgba(255,255,255,.85); }
+</style>
 {% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="max-w-xl mx-auto">
+  <div class="section">
+    <p class="text-slateg-800">
+      <strong>{{ config.singular|capfirst }}:</strong> {{ obj }}
+    </p>
+    <p class="mt-3 text-sm text-slateg-600">
+      {% if action == 'archive' %}
+        Yozuv arxivga o'tadi va sahifalarda ko'rinmaydi. Uni "Arxiv" bo'limidan tiklash yoki butunlay o'chirish mumkin.
+      {% elif action == 'void' %}
+        O'lchov bekor qilingan deb belgilanadi (void) va statistika/eksportga kirmaydi. Yozuvning o'zi saqlanib qoladi (TZ 6.3).
+      {% elif action == 'purge' %}
+        Yozuv bazadan <strong class="text-rosex-600">butunlay</strong> o'chiriladi. Bu amalni qaytarib bo'lmaydi.
+      {% else %}
+        Yozuv va unga bog'liq barcha ma'lumotlar <strong class="text-rosex-600">butunlay</strong> o'chiriladi. Bu amalni qaytarib bo'lmaydi.
+      {% endif %}
+    </p>
+    <form method="post" class="mt-5 space-y-4">{% csrf_token %}
+      {% if action == 'void' %}
+        <div>
+          <label class="block text-sm font-medium text-slateg-700 mb-1.5">Sabab</label>
+          <input type="text" name="reason" maxlength="250" class="field" placeholder="Masalan: xato kiritilgan">
+        </div>
+      {% endif %}
+      <div class="flex gap-3">
+        <button class="btn {% if action == 'archive' %}btn-primary{% else %}btn-primary bg-rosex-600{% endif %}">{{ title }}</button>
+        <a href="{{ back_url }}" class="btn btn-quiet">Bekor qilish</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

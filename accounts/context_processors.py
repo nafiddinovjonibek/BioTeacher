@@ -8,19 +8,6 @@ komponent ballari ham shu yerdan beriladi.
 from core.enums import Component, level_for
 
 
-# Bo'lim slugiga mos ikonka. Yangi bo'lim qo'shilsa shu yerga bitta qator.
-SECTION_ICONS = {
-    "hujayra-biologiyasi": "microscope",
-    "genetika": "dna",
-    "ekologiya": "globe",
-    "metodika": "users",
-    "zoologiya": "paw",
-    "botanika": "leaf",
-    "anatomiya": "user",
-    "mikrobiologiya": "atom",
-}
-
-
 def current_profile(request):
     user = getattr(request, "user", None)
     if user is None or not user.is_authenticated:
@@ -41,17 +28,27 @@ def current_profile(request):
             "code": code, "name": name, "wash": wash, "step": step, "hint": hint,
         }
 
-    # Yon paneldagi "Bo'limlar" ro'yxati.
-    from content.models import Section
+    # Tekshirish navbati belgisi — faqat admin rejimida hisoblanadi.
+    if profile.is_admin:
+        from assignments.models import Submission
 
-    sections = []
-    for section in Section.objects.filter(is_active=True).order_by("order", "title"):
-        section.icon_name = SECTION_ICONS.get(section.slug, "leaf")
-        sections.append(section)
+        data["review_count"] = Submission.objects.filter(status=Submission.Status.SUBMITTED).count()
+
+    from notifications.models import Notification
+
+    from .menu import active_sections, rail_menu
+
+    # Yon paneldagi "Fanlar" ichma-ich ro'yxati.
+    sections = active_sections()
     data["rail_sections"] = sections
+    badges = {
+        "review_count": data.get("review_count", 0),
+        "unread_notifications": Notification.objects.filter(user=user, read_at__isnull=True).count(),
+    }
+    data["rail_menu"] = rail_menu(badges, sections, request)
 
-    # Rels faqat talabaga oʻlchov koʻrsatadi; mentor va tadqiqotchida oʻz bali yoʻq.
-    if profile.is_student or user.is_superuser:
+    # Yon panelda oʻz oʻlchovlari — adminning oʻz bali yoʻq.
+    if not profile.is_admin:
         scores = current_scores(user)
         data["rail_scores"] = [
             {

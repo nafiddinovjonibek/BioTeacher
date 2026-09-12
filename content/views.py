@@ -21,7 +21,7 @@ TOPIC_IMAGES = {
     "faol-talim-metodlari": "img/topic-teaching.jpg",
 }
 
-# Mavzu kartasidagi ikonka — bo'lim slugiga qarab tanlanadi.
+# Mavzu kartasidagi ikonka — fan slugiga qarab tanlanadi.
 TOPIC_ICONS = {
     "hujayra-biologiyasi": "microscope",
     "genetika": "dna",
@@ -32,7 +32,7 @@ TOPIC_ICONS = {
 
 @login_required
 def index(request):
-    """FR-18 — bo'limlar va mavzular ierarxiyasi + o'zlashtirish holati."""
+    """FR-18 — fanlar va mavzular ierarxiyasi + o'zlashtirish holati."""
     progress = {p.lesson_id: p for p in LessonProgress.objects.filter(user=request.user)}
     passed_ids = {
         lesson_id for lesson_id, row in progress.items()
@@ -72,7 +72,7 @@ def index(request):
 
 @login_required
 def section_detail(request, slug):
-    """Bo'lim sahifasi — mavzular va ularning o'zlashtirish holati."""
+    """Fan sahifasi — mavzular va ularning o'zlashtirish holati."""
     section = get_object_or_404(
         Section.objects.prefetch_related("topics__lessons"), slug=slug, is_active=True
     )

@@ -139,5 +139,5 @@ def create_for_submission(request, submission_id):
 @login_required
 def detail(request, pk):
     entry = get_object_or_404(ReflectionEntry.objects.select_related("user"), pk=pk)
-    require_student_access(request.user, entry.user)  # FR-42 — faqat talaba va mentori
+    require_student_access(request.user, entry.user)  # FR-42 — faqat muallif va admin
     return render(request, "reflection/detail.html", {"entry": entry})

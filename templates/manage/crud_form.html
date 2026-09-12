@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}{% if is_new %}Yangi {{ config.singular }}{% else %}{{ config.singular|capfirst }} — tahrirlash{% endif %}{% endblock %}
+{% block page_title %}{% if is_new %}Yangi {{ config.singular }}{% else %}{{ obj }}{% endif %}{% endblock %}
+{% block content %}
+<div class="max-w-3xl mx-auto space-y-5">
+  <div class="flex items-center gap-2 text-sm text-slateg-500">
+    <a href="{% url 'manage:crud_index' %}" class="hover:text-slateg-800">Ma'lumotlar</a>
+    <span>/</span>
+    <a href="{{ back_url }}" class="hover:text-slateg-800">{{ config.label }}</a>
+    <span>/</span>
+    <span class="text-slateg-800">{% if is_new %}Yangi{% else %}#{{ obj.pk }}{% endif %}</span>
+  </div>
+
+  {% if config.note %}
+    <div class="rounded-2xl border border-amberx-200 bg-amberx-50 p-4 text-sm text-amberx-700">{{ config.note }}</div>
+  {% endif %}
+
+  <form method="post" {% if multipart %}enctype="multipart/form-data"{% endif %} class="section">{% csrf_token %}
+    {% include "partials/form.html" %}
+    <div class="mt-6 flex flex-wrap items-center gap-3">
+      <button class="btn btn-primary">Saqlash</button>
+      <button name="_continue" value="1" class="btn btn-quiet">Saqlash va davom etish</button>
+      {% if is_new %}<button name="_addanother" value="1" class="btn btn-quiet">Saqlash va yana qo'shish</button>{% endif %}
+      <a href="{{ back_url }}" class="btn btn-ghost">Bekor qilish</a>
+      {% if not is_new and config.can_delete %}
+        <a href="{% url 'manage:crud_delete' config.key obj.pk %}" class="ml-auto text-sm text-rosex-600 hover:underline">
+          {% if config.soft_delete %}Arxivlash{% else %}O'chirish{% endif %}
+        </a>
+      {% endif %}
+    </div>
+  </form>
+
+  {% if not is_new and config.children %}
+    <div class="section">
+      <h3 class="font-semibold text-lg text-slateg-900">Bog'liq yozuvlar</h3>
+      <div class="mt-3 flex flex-wrap gap-2">
+        {% for label, child_key, fk in config.children %}
+          <a href="{% url 'manage:crud_list' child_key %}?{{ fk }}={{ obj.pk }}" class="btn btn-quiet btn-sm">{{ label }}</a>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

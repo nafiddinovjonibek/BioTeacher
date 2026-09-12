@@ -15,8 +15,8 @@ urlpatterns = [
     # Eski manzil — kabinetga koʻchdi (2026-09, redesign).
     path("profil/", RedirectView.as_view(pattern_name="home:cabinet"), name="profile"),
     path("profil/tahrir/", views.profile_edit, name="profile_edit"),
-    path("guruhga-qoshilish/", views.join_group, name="join_group"),
     path("rozilik/", views.consent, name="consent"),
+    path("rol/", views.switch_role, name="switch_role"),
     path("parol/tiklash/", views.PasswordResetView.as_view(), name="password_reset"),
     path("parol/tiklash/yuborildi/", views.PasswordResetDoneView.as_view(),
          name="password_reset_done"),

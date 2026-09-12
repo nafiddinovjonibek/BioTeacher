@@ -15,7 +15,7 @@ Windows Task Scheduler misoli (har kuni 08:00):
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
-from assignments.models import GroupAssignment, Submission
+from assignments.models import AssignedTask, Submission
 from goals.models import Goal
 from notifications.models import NotificationType
 from notifications.services import notify
@@ -92,33 +92,34 @@ class Command(BaseCommand):
     # --------------------------------------------------------- topshiriqlar
 
     def _assignment_deadlines(self):
-        """FR-15 — guruhga tayinlangan topshiriq muddati."""
+        """FR-15 — tayinlangan topshiriq muddati."""
+        from accounts.services import learner_queryset
+
         now = timezone.now()
         limit = now + timezone.timedelta(days=REMIND_DAYS_BEFORE)
-        assigned = GroupAssignment.objects.filter(
+        assigned = AssignedTask.objects.filter(
             deadline__isnull=False, deadline__gte=now, deadline__lte=limit
-        ).select_related("assignment", "group")
+        ).select_related("assignment")
 
         self.stdout.write(self.style.MIGRATE_HEADING("Topshiriq muddatlari"))
         count = 0
-        for group_assignment in assigned:
+        students = list(learner_queryset())
+        for task in assigned:
             done = set(
                 Submission.objects.filter(
-                    assignment=group_assignment.assignment,
+                    assignment=task.assignment,
                     status__in=[Submission.Status.SUBMITTED, Submission.Status.GRADED],
                 ).values_list("student_id", flat=True)
             )
-            for enrollment in group_assignment.group.enrollments.filter(
-                is_active=True
-            ).select_related("student"):
-                if enrollment.student_id in done:
+            for student in students:
+                if student.pk in done:
                     continue
                 count += self._send(
-                    enrollment.student,
+                    student,
                     NotificationType.DEADLINE,
-                    f"Muddat yaqin: {group_assignment.assignment.title}",
-                    f"Topshirish muddati — {group_assignment.deadline:%d.%m.%Y %H:%M}.",
-                    f"/topshiriqlar/{group_assignment.assignment.slug}/",
+                    f"Muddat yaqin: {task.assignment.title}",
+                    f"Topshirish muddati — {task.deadline:%d.%m.%Y %H:%M}.",
+                    f"/topshiriqlar/{task.assignment.slug}/",
                 )
 
         if count == 0:
@@ -129,19 +130,15 @@ class Command(BaseCommand):
 
     def _weekly_digest(self):
         """FR-65 — haftalik rivojlanish xulosasi."""
-        from django.contrib.auth import get_user_model
-
+        from accounts.services import learner_queryset
         from core.enums import Component, level_for
         from progress.models import ActivityLog
 
-        User = get_user_model()
         week_ago = timezone.now() - timezone.timedelta(days=7)
 
         self.stdout.write(self.style.MIGRATE_HEADING("Haftalik xulosa"))
         count = 0
-        students = User.objects.filter(
-            is_active=True, profile__role="STUDENT", profile__onboarding_done=True
-        ).select_related("profile")
+        students = learner_queryset().filter(profile__onboarding_done=True)
 
         for student in students:
             activities = ActivityLog.objects.filter(user=student, created_at__gte=week_ago)
@@ -174,5 +171,5 @@ class Command(BaseCommand):
             )
 
         if count == 0:
-            self.stdout.write("  (xulosa yuboriladigan talaba yo'q)")
+            self.stdout.write("  (xulosa yuboriladigan foydalanuvchi yo'q)")
         return count

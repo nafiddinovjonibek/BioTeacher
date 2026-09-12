@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+{% block title %}{% if obj %}{{ obj.title }}{% else %}Yangi test{% endif %}{% endblock %}
+{% block page_title %}{% if obj %}Testni tahrirlash{% else %}Yangi test / anketa{% endif %}{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-5">
+  <div class="flex items-center gap-2 text-sm text-slateg-500">
+    <a href="{% url 'manage:crud_index' %}" class="hover:text-slateg-800">Ma'lumotlar</a><span>/</span>
+    <a href="{{ back_url }}" class="hover:text-slateg-800">So'rovnomalar</a><span>/</span>
+    <span class="text-slateg-800">{% if obj %}#{{ obj.pk }}{% else %}Yangi{% endif %}</span>
+  </div>
+
+  <form method="post" id="quiz-form" class="space-y-5">{% csrf_token %}
+    <input type="hidden" name="questions_json" id="questions_json">
+
+    <div class="section">
+      <h3 class="font-semibold text-lg text-slateg-900">1. Test haqida</h3>
+      <p class="mt-1 mb-4 text-sm text-slateg-500">
+        <strong>Bilim testi</strong> va <strong>dars testi</strong>da har savolga variantlar va bitta to'g'ri javob bo'ladi.
+        <strong>Likert anketa</strong>da variant yo'q — foydalanuvchi 1–5 shkalada baholaydi.
+      </p>
+      <div class="grid sm:grid-cols-2 gap-x-5">
+        {% for field in form %}
+          <div class="{% if field.name in 'description instruction title' %}sm:col-span-2{% endif %} mb-4">
+            {% if field.field.widget.input_type == 'checkbox' %}
+              <label class="flex items-center gap-3 cursor-pointer mt-7">
+                <input type="checkbox" name="{{ field.name }}" id="{{ field.id_for_label }}" {% if field.value %}checked{% endif %}
+                       class="w-4 h-4 rounded border-slateg-300 text-brand-600">
+                <span class="text-sm text-slateg-700">{{ field.label }}</span>
+              </label>
+            {% else %}
+              <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-slateg-700 mb-1.5">{{ field.label }}{% if field.field.required %}<span class="text-rosex-600"> *</span>{% endif %}</label>
+              {{ field }}
+              {% if field.help_text %}<p class="mt-1 text-xs text-slateg-500">{{ field.help_text }}</p>{% endif %}
+            {% endif %}
+            {% for error in field.errors %}<p class="mt-1 text-xs text-rosex-600">{{ error }}</p>{% endfor %}
+          </div>
+        {% endfor %}
+      </div>
+      {% if form.non_field_errors %}
+        <div class="rounded-xl bg-rosex-50 border border-rosex-200 px-4 py-3 text-sm text-rosex-700">{{ form.non_field_errors }}</div>
+      {% endif %}
+    </div>
+
+    <div class="section">
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+        <div>
+          <h3 class="font-semibold text-lg text-slateg-900">2. Savollar <span id="q-count" class="text-slateg-400 font-normal"></span></h3>
+          <p class="text-sm text-slateg-500">
+            Har savol uchun ikki belgi majburiy (TZ 6.3):
+            <strong>komponent</strong> — savol qaysi ko'nikmani o'lchaydi (natija shu komponent baliga qo'shiladi);
+            <strong>Bloom darajasi</strong> — savol qanchalik chuqur fikrlashni talab qiladi (1 — oddiy eslash … 6 — yaratish).
+          </p>
+        </div>
+        <button type="button" class="btn btn-primary btn-sm" data-add-question>+ Savol qo'shish</button>
+      </div>
+
+      {% if question_errors %}
+        <div class="mb-4 rounded-xl bg-rosex-50 border border-rosex-200 px-4 py-3 text-sm text-rosex-700">
+          {% for e in question_errors %}<p>{{ e }}</p>{% endfor %}
+        </div>
+      {% endif %}
+
+      <div id="questions" class="space-y-4"></div>
+      <p id="q-empty" class="py-8 text-center text-sm text-slateg-500">Hali savol yo'q — "Savol qo'shish" tugmasini bosing.</p>
+      <div class="mt-4 flex justify-end">
+        <button type="button" class="btn btn-quiet btn-sm" data-add-question>+ Savol qo'shish</button>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-3">
+      <button class="btn btn-primary">Saqlash</button>
+      <button name="_continue" value="1" class="btn btn-quiet">Saqlash va davom etish</button>
+      <a href="{{ back_url }}" class="btn btn-ghost">Bekor qilish</a>
+    </div>
+  </form>
+</div>
+
+{{ questions_json|json_script:"initial-questions" }}
+{{ components|json_script:"component-choices" }}
+{{ bloom_levels|json_script:"bloom-choices" }}
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  const LIKERT = "{{ likert_kind }}";
+  const state = JSON.parse(document.getElementById('initial-questions').textContent) || [];
+  const COMPONENTS = JSON.parse(document.getElementById('component-choices').textContent);
+  const BLOOM = JSON.parse(document.getElementById('bloom-choices').textContent);
+  const kindSelect = document.getElementById('id_kind');
+  const list = document.getElementById('questions');
+  const empty = document.getElementById('q-empty');
+  const counter = document.getElementById('q-count');
+
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const isLikert = () => kindSelect.value === LIKERT;
+
+  function newQuestion() {
+    return { id: null, text: '', component: COMPONENTS[1][0], bloom_level: 1, reverse_scored: false,
+             explanation: '', choices: [ {id:null,text:'',is_correct:true}, {id:null,text:'',is_correct:false},
+                                        {id:null,text:'',is_correct:false}, {id:null,text:'',is_correct:false} ] };
+  }
+
+  function options(pairs, selected) {
+    return pairs.map(([v, l]) => `<option value="${esc(v)}" ${String(v)===String(selected)?'selected':''}>${esc(l)}</option>`).join('');
+  }
+
+  function choicesHtml(q, qi) {
+    return `
+      <div class="mt-3 space-y-2" data-choices>
+        <p class="text-xs font-medium text-slateg-600">Javob variantlari — to'g'risini chap tomondagi doira bilan belgilang</p>
+        ${q.choices.map((c, ci) => `
+          <div class="flex items-center gap-2">
+            <input type="radio" name="correct-${qi}" ${c.is_correct?'checked':''} data-correct="${ci}" class="w-4 h-4 text-brand-600" title="To'g'ri javob">
+            <input type="text" value="${esc(c.text)}" data-choice="${ci}" placeholder="${ci+1}-variant" class="field flex-1">
+            <button type="button" data-del-choice="${ci}" class="text-slateg-400 hover:text-rosex-600 px-1" title="Variantni o'chirish">✕</button>
+          </div>`).join('')}
+        <button type="button" data-add-choice class="text-sm text-brand-700 hover:underline">+ variant</button>
+      </div>`;
+  }
+
+  function render() {
+    const likert = isLikert();
+    list.innerHTML = state.map((q, qi) => `
+      <div class="rounded-2xl border border-slateg-200 bg-slateg-50 p-4" data-q="${qi}">
+        <div class="flex items-start gap-3">
+          <span class="mt-2 flex items-center gap-1 shrink-0">
+            <span class="drag-handle cursor-grab text-slateg-300 hover:text-slateg-600 select-none px-0.5" title="Tortib tartibni o'zgartiring">⋮⋮</span>
+            <span class="grid place-items-center w-7 h-7 rounded-full bg-brand-600 text-white text-xs font-bold">${qi+1}</span>
+          </span>
+          <div class="flex-1 min-w-0">
+            <textarea data-f="text" rows="2" placeholder="Savol matni" class="field">${esc(q.text)}</textarea>
+            <div class="mt-3 grid sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-medium text-slateg-600 mb-1">Komponent — savol nimani o'lchaydi?</label>
+                <select data-f="component" class="field">${options(COMPONENTS, q.component)}</select>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slateg-600 mb-1">Bloom darajasi — fikrlash chuqurligi</label>
+                <select data-f="bloom_level" class="field">${options(BLOOM, q.bloom_level)}</select>
+              </div>
+              ${likert ? `<label class="sm:col-span-2 flex items-center gap-2 text-sm text-slateg-700 px-1">
+                  <input type="checkbox" data-f="reverse_scored" ${q.reverse_scored?'checked':''} class="w-4 h-4 rounded text-brand-600">
+                  Teskari baholanadi <span class="text-xs text-slateg-500">("Men … qilmayman" tipidagi savol: 5 ball = 1 ball)</span></label>` : ''}
+            </div>
+            ${likert ? '' : choicesHtml(q, qi)}
+            <input type="text" data-f="explanation" value="${esc(q.explanation)}" placeholder="Izoh / to'g'ri javob sharhi (ixtiyoriy)" class="field mt-3 text-sm">
+          </div>
+          <div class="flex flex-col gap-1 shrink-0">
+            <button type="button" data-move="-1" class="text-slateg-400 hover:text-slateg-800 px-1" title="Yuqoriga">▲</button>
+            <button type="button" data-move="1" class="text-slateg-400 hover:text-slateg-800 px-1" title="Pastga">▼</button>
+            <button type="button" data-del class="text-slateg-400 hover:text-rosex-600 px-1" title="Savolni o'chirish">✕</button>
+          </div>
+        </div>
+      </div>`).join('');
+    empty.hidden = state.length > 0;
+    counter.textContent = state.length ? `(${state.length})` : '';
+  }
+
+  list.addEventListener('input', e => {
+    const card = e.target.closest('[data-q]'); if (!card) return;
+    const q = state[+card.dataset.q];
+    if (e.target.dataset.f) {
+      q[e.target.dataset.f] = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+    } else if (e.target.dataset.choice !== undefined) {
+      q.choices[+e.target.dataset.choice].text = e.target.value;
+    }
+  });
+  list.addEventListener('change', e => {
+    const card = e.target.closest('[data-q]'); if (!card) return;
+    const q = state[+card.dataset.q];
+    if (e.target.dataset.correct !== undefined) {
+      q.choices.forEach((c, i) => c.is_correct = i === +e.target.dataset.correct);
+    }
+  });
+  list.addEventListener('click', e => {
+    const btn = e.target.closest('button'); if (!btn) return;
+    const card = btn.closest('[data-q]'); if (!card) return;
+    const qi = +card.dataset.q, q = state[qi];
+    if (btn.hasAttribute('data-del')) { state.splice(qi, 1); }
+    else if (btn.dataset.move) {
+      const to = qi + (+btn.dataset.move);
+      if (to < 0 || to >= state.length) return;
+      [state[qi], state[to]] = [state[to], state[qi]];
+    }
+    else if (btn.hasAttribute('data-add-choice')) { q.choices.push({id:null,text:'',is_correct:false}); }
+    else if (btn.dataset.delChoice !== undefined) {
+      q.choices.splice(+btn.dataset.delChoice, 1);
+      if (q.choices.length && !q.choices.some(c => c.is_correct)) q.choices[0].is_correct = true;
+    } else return;
+    render();
+  });
+  document.querySelectorAll('[data-add-question]').forEach(b => b.addEventListener('click', () => {
+    state.push(newQuestion()); render();
+    list.lastElementChild?.querySelector('textarea')?.focus();
+  }));
+  kindSelect.addEventListener('change', render);
+  if (window.Sortable) Sortable.create(list, {
+    handle: '.drag-handle', animation: 150, ghostClass: 'opacity-50',
+    onEnd: e => { if (e.oldIndex === e.newIndex) return; const [q] = state.splice(e.oldIndex, 1); state.splice(e.newIndex, 0, q); render(); }
+  });
+  document.getElementById('quiz-form').addEventListener('submit', () => {
+    document.getElementById('questions_json').value = JSON.stringify(state);
+  });
+  render();
+})();
+</script>
+{% endblock %}

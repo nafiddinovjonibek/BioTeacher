@@ -1,0 +1,35 @@
+{% comment %}
+Ichki ro'yxatli band («Fanlar» yoki admin qo'shgan ichki bandlar). Bandning o'z sahifasi
+bo'lsa — nomi havola, qolgan qismi (o'q) ro'yxatni ochadi-yopadi.
+Ochiq/yopiq holat cookie'da saqlanadi (base.html'dagi skript); faol band ichida bo'lsa — doim ochiq.
+{% endcomment %}
+<details class="rail-tree" data-rail-tree="{{ item.cookie }}"{% if item.open %} open{% endif %}>
+  <summary class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium cursor-pointer select-none
+                  {% if item.active %}bg-brand-600 text-white{% else %}text-slateg-300 hover:bg-white/5 hover:text-white{% endif %}">
+    <span class="shrink-0 w-[19px] h-[19px] grid place-items-center {% if not item.active %}text-brand-300{% endif %}">
+      {% include "partials/icon.html" with name=item.icon %}
+    </span>
+    {% if item.href %}
+      <a href="{{ item.href }}"{% if item.active %} aria-current="page"{% endif %}{% if item.external %} target="_blank" rel="noopener"{% endif %}
+         class="flex-1 min-w-0 hover:underline underline-offset-2"><span class="rail-label block leading-snug">{{ item.label }}</span></a>
+    {% else %}
+      <span class="rail-label flex-1 min-w-0 leading-snug">{{ item.label }}</span>
+    {% endif %}
+    <span class="rail-tree-chevron shrink-0 w-4 h-4 {% if item.active %}text-white/80{% else %}text-slateg-500{% endif %}">
+      {% include "partials/icon.html" with name="chevron" %}
+    </span>
+  </summary>
+  <div class="mt-0.5 mb-1 ml-[1.35rem] pl-3 border-l border-white/10 space-y-0.5">
+    {% for child in item.children %}
+      <a href="{{ child.href }}"
+         {% if child.active %}aria-current="page"{% endif %}{% if child.external %} target="_blank" rel="noopener"{% endif %}
+         class="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-[13px]
+           {% if child.active %}bg-brand-600 text-white font-medium{% else %}text-slateg-400 hover:bg-white/5 hover:text-white{% endif %}">
+        <span class="shrink-0 w-4 h-4 {% if not child.active %}text-brand-300{% endif %}">
+          {% include "partials/icon.html" with name=child.icon %}
+        </span>
+        <span class="rail-label flex-1 min-w-0 leading-snug">{{ child.label }}</span>
+      </a>
+    {% endfor %}
+  </div>
+</details>

@@ -1,4 +1,4 @@
-"""accounts yordamchi servislari: audit, IP, email, login rate-limit."""
+"""accounts yordamchi servislari: audit, IP, email, login rate-limit, foydalanuvchi tanlash."""
 
 import logging
 import time
@@ -9,9 +9,20 @@ from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.urls import reverse
 
-from .models import AuditLog, EmailVerification
+from core.enums import Role
+
+from .models import AuditLog, EmailVerification, User, has_role_q
 
 audit_logger = logging.getLogger("bioteacher.audit")
+
+
+def learner_queryset():
+    """O'qituvchi roli berilgan barcha faol foydalanuvchilar (hozir admin rejimida bo'lsa ham)."""
+    return (
+        User.objects.filter(has_role_q(Role.TEACHER), is_active=True, profile__is_deleted=False)
+        .select_related("profile")
+        .order_by("first_name", "last_name", "email")
+    )
 
 
 def client_ip(request):

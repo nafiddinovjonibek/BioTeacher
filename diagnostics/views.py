@@ -9,6 +9,7 @@ from django.http import HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect, render
 
 from accounts.services import log_action
+from core.enums import CUT_ORDER, Cut, level_for
 
 from .models import Attempt, Choice, Measurement, Question, Questionnaire
 from .services import finish_attempt, get_or_start_attempt, result_context, save_answer
@@ -22,22 +23,111 @@ LIKERT_LABELS = [
 ]
 
 
+#: Kartadagi ikonka va qisqa sarlavha — so'rovnoma turiga qarab.
+#: Modeldagi to'liq nom ("Boshlang'ich diagnostika: ...") kesim sarlavhasini
+#: takrorlaydi, shuning uchun kartada qisqasi ko'rsatiladi.
+KIND_ICONS = {
+    Questionnaire.Kind.LIKERT: "pen",
+    Questionnaire.Kind.TEST: "clipboard",
+}
+KIND_TITLES = {
+    Questionnaire.Kind.LIKERT: "O'z-o'zini baholash anketasi",
+    Questionnaire.Kind.TEST: "Kasbiy bilim testi",
+}
+
+
+def _attempt_state(attempt):
+    """Kartadagi holat: nishon matni, uslub va tugma yozuvi."""
+    if attempt is None:
+        return {"label": "Boshlanmagan", "tone": "pill-mute", "cta": "Boshlash", "done": False}
+    if attempt.is_finished:
+        return {"label": "Yakunlangan", "tone": "pill-ok", "cta": "Natijani ko'rish", "done": True}
+    if attempt.is_expired or attempt.status == Attempt.Status.EXPIRED:
+        return {"label": "Vaqti tugagan", "tone": "pill-stop", "cta": "Qayta boshlash", "done": False}
+    return {"label": "Jarayonda", "tone": "pill-go", "cta": "Davom ettirish", "done": False}
+
+
 @login_required
 def index(request):
-    """Mavjud so'rovnomalar ro'yxati va foydalanuvchi holati."""
-    questionnaires = Questionnaire.objects.filter(is_active=True).order_by("cut", "kind")
+    """Kesimlar bo'yicha diagnostika ro'yxati va foydalanuvchining joriy holati."""
+    # Dars mustahkamlash testlari (QUIZ) bu yerda ko'rsatilmaydi — ular
+    # BioBilim darsining ichida yechiladi (FR-20).
+    questionnaires = Questionnaire.objects.filter(
+        is_active=True, kind__in=Questionnaire.DIAGNOSTIC_KINDS
+    ).order_by("cut", "kind")
+
     attempts = {
         a.questionnaire_id: a
-        for a in Attempt.objects.filter(user=request.user).order_by("started_at")
+        for a in Attempt.objects.filter(user=request.user)
+        .select_related("questionnaire")
+        .order_by("started_at")
     }
-    measurements = Measurement.objects.filter(user=request.user, is_void=False).order_by("created_at")
+    measurements = list(
+        Measurement.objects.filter(user=request.user, is_void=False).order_by("created_at")
+    )
+    by_cut = {m.cut: m for m in measurements}
+
+    # Kesimlar CUT_ORDER bo'yicha guruhlanadi: boshlang'ich → chorak → yakuniy.
+    blocks = []
+    for cut in CUT_ORDER:
+        rows = []
+        for questionnaire in questionnaires:
+            if questionnaire.cut != cut:
+                continue
+            attempt = attempts.get(questionnaire.pk)
+            rows.append({
+                "q": questionnaire,
+                "attempt": attempt,
+                "icon": KIND_ICONS.get(questionnaire.kind, "clipboard"),
+                "title": KIND_TITLES.get(questionnaire.kind, questionnaire.title),
+                "count": questionnaire.question_count or questionnaire.questions.count(),
+                "state": _attempt_state(attempt),
+            })
+        if not rows:
+            continue
+        done = sum(1 for row in rows if row["state"]["done"])
+        blocks.append({
+            "cut": cut,
+            "label": Cut(cut).label,
+            "rows": rows,
+            "done": done,
+            "total": len(rows),
+            "measurement": by_cut.get(cut),
+        })
+
+    # Joriy kesim — birinchi tugallanmagani; hammasi tugagan bo'lsa oxirgisi.
+    current = next((b for b in blocks if b["done"] < b["total"]), blocks[-1] if blocks else None)
+    if current:
+        current["is_current"] = True
+        started = any(row["attempt"] is not None for row in current["rows"])
+        if current["done"] == current["total"]:
+            current["cta"] = "Barcha kesimlar yakunlangan"
+        else:
+            current["cta"] = (
+                f"{current['label']} kesimni davom ettirish" if started
+                else f"{current['label']} kesimni boshlash"
+            )
+        # Tugma birinchi tugallanmagan so'rovnomaga olib boradi.
+        current["next_slug"] = next(
+            (row["q"].slug for row in current["rows"] if not row["state"]["done"]),
+            current["rows"][0]["q"].slug,
+        )
+
+    latest = measurements[-1] if measurements else None
     return render(
         request,
         "diagnostics/index.html",
         {
-            "questionnaires": questionnaires,
-            "attempts": attempts,
+            "blocks": blocks,
+            "current": current,
             "measurements": measurements,
+            "latest": latest,
+            "level": level_for(latest.sdi) if latest else None,
+            "components": result_context(latest)["rows"] if latest else None,
+            "recommendations": (
+                latest.recommendations.filter(is_active=True) if latest else None
+            ),
+            "ring_offset": round(264 * (1 - (latest.sdi / 100 if latest else 0)), 1),
         },
     )
 
@@ -151,17 +241,24 @@ def result(request, attempt_id):
     if not attempt.is_finished:
         return redirect("diagnostics:take", attempt_id=attempt.pk)
 
+    if not attempt.questionnaire.is_diagnostic:
+        # Dars testining natijasi darsning o'zida ko'rsatiladi (FR-20).
+        lesson = attempt.questionnaire.lessons.filter(is_active=True).first()
+        if lesson:
+            return redirect(
+                "content:lesson",
+                section_slug=lesson.topic.section.slug,
+                topic_slug=lesson.topic.slug,
+                lesson_slug=lesson.slug,
+            )
+        return redirect("content:index")
+
+    # Faqat SHU urinishdan tug'ilgan o'lchov — boshqasiga tushib ketmasin.
     measurement = (
         Measurement.objects.filter(user=attempt.user, source=f"attempt:{attempt.pk}")
         .order_by("-created_at")
         .first()
     )
-    if measurement is None:
-        measurement = (
-            Measurement.objects.filter(user=attempt.user, is_void=False)
-            .order_by("-created_at")
-            .first()
-        )
     if measurement is None:
         messages.warning(request, "Natija hali hisoblanmadi.")
         return redirect("diagnostics:index")

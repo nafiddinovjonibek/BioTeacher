@@ -1,14 +1,14 @@
 {% extends "base.html" %}
-{% block title %}{{ group.name }} — analitika{% endblock %}
-{% block page_title %}{{ group.name }} — guruh analitikasi{% endblock %}
+{% block title %}Analitika{% endblock %}
+{% block page_title %}Umumiy analitika{% endblock %}
 {% block content %}
 <div class="">
-  <a href="{% url 'teacher:group_detail' group.pk %}" class="text-sm text-slateg-500 hover:text-slateg-800">← Guruhga qaytish</a>
+  <a href="{% url 'manage:students' %}" class="text-sm text-slateg-500 hover:text-slateg-800">← O‘qituvchilar</a>
 
   {% if sdi %}
     <div class="grid sm:grid-cols-4 gap-4">
       <div class="section">
-        <p class="text-sm text-slateg-600">Talabalar</p>
+        <p class="text-sm text-slateg-600">Foydalanuvchilar</p>
         <p class="mt-2 font-semibold text-3xl text-slateg-900">{{ sdi.n }}</p>
       </div>
       <div class="section">
@@ -26,15 +26,15 @@
     </div>
   {% else %}
     <div class="rounded-2xl border border-amberx-200 bg-amberx-50 p-5 text-sm text-amberx-700">
-      Hali hech bir talaba diagnostikadan o‘tmagan — analitika bo‘sh.
+      Hali hech kim diagnostikadan o‘tmagan — analitika bo‘sh.
     </div>
   {% endif %}
 
   {% if weakest %}
     <div class="rounded-2xl border border-amberx-200 bg-amberx-50 p-5">
-      <p class="text-xs text-amberx-600">Guruhning eng zaif komponenti</p>
+      <p class="text-xs text-amberx-600">Eng zaif komponent</p>
       <p class="mt-1 font-semibold text-xl text-amberx-700">{{ weakest.label }} — {{ weakest.mean }}%</p>
-      <p class="mt-1 text-sm text-amberx-700">Guruh darsini shu yo‘nalishga qaratish samarali bo‘ladi.</p>
+      <p class="mt-1 text-sm text-amberx-700">Darsni shu yo‘nalishga qaratish samarali bo‘ladi.</p>
     </div>
   {% endif %}
 
@@ -70,8 +70,8 @@
 
   {% if at_risk %}
     <section class="rounded-2xl border border-rosex-200 bg-rosex-50 p-6">
-      <h3 class="font-semibold text-lg text-rosex-700">Xavf guruhi (SDI &lt; {{ risk_threshold }}%)</h3>
-      <p class="mt-1 text-sm text-rosex-700">Bu talabalarga individual e'tibor kerak.</p>
+      <h3 class="font-semibold text-lg text-rosex-700">Xavf ostida (SDI &lt; {{ risk_threshold }}%)</h3>
+      <p class="mt-1 text-sm text-rosex-700">Bu foydalanuvchilarga individual e'tibor kerak.</p>
       <div class="mt-4 space-y-2">
         {% for row in at_risk %}
           <a href="{% url 'progress:student' row.student.pk %}" class="flex items-center justify-between rounded-xl bg-white border border-rosex-200 px-4 py-3 hover:border-rosex-200">
@@ -93,7 +93,7 @@
     data: {
       labels: [{% for c in components %}"{{ c.label|escapejs }}"{% if not forloop.last %},{% endif %}{% endfor %}],
       datasets: [{
-        label: 'Guruh o‘rtachasi',
+        label: 'O‘rtacha',
         data: [{% for c in components %}{{ c.mean }}{% if not forloop.last %},{% endif %}{% endfor %}],
         backgroundColor: '#16a34a', borderRadius: 6, barThickness: 36,
       }]

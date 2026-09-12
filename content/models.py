@@ -1,5 +1,5 @@
 """
-content — "BioBilim" moduli: Bo'lim → Mavzu → Dars → Material (FR-18..FR-21).
+content — "BioBilim" moduli: Fan → Mavzu → Dars → Material (FR-18..FR-21).
 """
 
 from django.conf import settings
@@ -13,7 +13,7 @@ from core.models import SoftDeleteModel, TimeStampedModel
 class Section(SoftDeleteModel):
     """FR-18 — eng yuqori daraja (masalan: "Hujayra biologiyasi")."""
 
-    title = models.CharField("bo'lim", max_length=200)
+    title = models.CharField("fan", max_length=200)
     slug = models.SlugField(max_length=100, unique=True)
     description = models.TextField("tavsif", blank=True)
     icon = models.CharField("emoji", max_length=8, default="📚")
@@ -21,8 +21,8 @@ class Section(SoftDeleteModel):
     is_active = models.BooleanField(default=True)
 
     class Meta:
-        verbose_name = "bo'lim"
-        verbose_name_plural = "bo'limlar"
+        verbose_name = "fan"
+        verbose_name_plural = "fanlar"
         ordering = ["order", "title"]
 
     def __str__(self):
@@ -30,7 +30,7 @@ class Section(SoftDeleteModel):
 
 
 class Topic(SoftDeleteModel):
-    """FR-18 — bo'lim ichidagi mavzu."""
+    """FR-18 — fan ichidagi mavzu."""
 
     section = models.ForeignKey(Section, on_delete=models.CASCADE, related_name="topics")
     title = models.CharField("mavzu", max_length=200)

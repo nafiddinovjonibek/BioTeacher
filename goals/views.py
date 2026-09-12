@@ -161,14 +161,10 @@ def goal_close(request, pk):
 
 @login_required
 def goal_review(request, pk):
-    """FR-17 — mentor maqsadga izoh qoldiradi va tasdiqlaydi."""
-    goal = get_object_or_404(Goal.objects.select_related("user__profile__group"), pk=pk)
+    """FR-17 — admin maqsadga izoh qoldiradi va tasdiqlaydi."""
+    goal = get_object_or_404(Goal.objects.select_related("user__profile"), pk=pk)
     profile = getattr(request.user, "profile", None)
-    is_mentor = request.user.is_superuser or (
-        profile and profile.is_teacher
-        and getattr(goal.user.profile, "group", None)
-        and goal.user.profile.group.teacher_id == request.user.pk
-    )
+    is_mentor = bool(profile and profile.is_admin)
     if not is_mentor:
         from django.core.exceptions import PermissionDenied
 
@@ -197,7 +193,7 @@ def goal_review(request, pk):
             url=f"/maqsadlar/{goal.pk}/",
         )
         log_action(request, "goal.review", goal.title, approved=goal.mentor_approved)
-        messages.success(request, "Izoh saqlandi va talabaga xabar yuborildi.")
+        messages.success(request, "Izoh saqlandi va muallifga xabar yuborildi.")
         return redirect("goals:detail", pk=goal.pk)
 
     return render(request, "goals/review.html", {"goal": goal})

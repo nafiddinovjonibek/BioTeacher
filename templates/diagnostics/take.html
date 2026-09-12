@@ -1,30 +1,59 @@
 {% extends "base.html" %}
-{% block title %}{{ attempt.questionnaire.title }}{% endblock %}
-{% block page_title %}{{ attempt.questionnaire.title }}{% endblock %}
+{% load static %}
+{% block title %}{{ attempt.questionnaire.title }} — BioTeacher{% endblock %}
+
+{% block content_wrap_class %}w-full{% endblock %}
 
 {% block content %}
-<div class="max-w-3xl mx-auto">
+<div class="grid gap-4 lg:grid-cols-3 items-start">
 
-  <div class="sticky top-16 z-20 -mx-4 sm:-mx-6 lg:-mx-10 px-4 sm:px-6 lg:px-10 py-3 bg-slateg-50/95 backdrop-blur border-b border-slateg-200">
-    {% include "diagnostics/_progress.html" %}
-    {% if attempt.deadline %}
-      <p class="mt-2 text-xs text-slateg-500">Vaqt limiti: {{ attempt.questionnaire.time_limit_minutes }} daqiqa
-        (tugash vaqti {{ attempt.deadline|time:"H:i" }})</p>
-    {% endif %}
-  </div>
+  {# =================== Chap ustun: savollar =================== #}
+  <div class="lg:col-span-2 min-w-0 space-y-4">
 
-  {% if attempt.questionnaire.instruction %}
-    <div class="mt-6 rounded-2xl border border-brand-200 bg-brand-50 p-5 text-sm text-brand-900 leading-relaxed">
-      {{ attempt.questionnaire.instruction|linebreaksbr }}
+    {# ---- Sarlavha ---- #}
+    <section class="pagehero take-hero">
+      <span class="pagehero-bg" aria-hidden="true"
+            style="background-image:url('{% static "img/promo-micro.jpg" %}')"></span>
+
+      <div class="pagehero-in px-6 py-5 sm:px-7 sm:py-6 max-w-[26rem]">
+        <p class="flex flex-wrap items-center gap-2 text-[12px] font-semibold text-brand-700">
+          <span class="pill pill-xs pill-ok">{{ attempt.questionnaire.get_cut_display }} kesim</span>
+          <span class="pill pill-xs pill-mute metric">{{ total }} savol</span>
+          {% if attempt.questionnaire.time_limit_minutes %}
+            <span class="pill pill-xs pill-go metric">{{ attempt.questionnaire.time_limit_minutes }} daqiqa</span>
+          {% endif %}
+        </p>
+
+        <h1 class="mt-2.5 text-[1.3rem] sm:text-[1.5rem] font-extrabold leading-[1.25] text-forest-900">
+          {{ attempt.questionnaire.title }}
+        </h1>
+
+        {% if attempt.questionnaire.instruction %}
+          <p class="mt-2.5 text-[0.85rem] leading-relaxed text-slateg-600">
+            {{ attempt.questionnaire.instruction|linebreaksbr }}
+          </p>
+        {% endif %}
+      </div>
+    </section>
+
+    {# ---- Mobil uchun: yuqorida turadigan ixcham hisob ---- #}
+    <div class="lg:hidden sticky top-2 z-20">
+      <div class="sidecard px-4 py-2.5 flex items-center gap-3">
+        <div class="bar bar-thin flex-1">
+          <span id="m-bar" style="width: {{ attempt.progress_percent }}%"></span>
+        </div>
+        <span id="m-count" class="text-[12px] font-bold text-slateg-700 metric shrink-0">
+          {{ attempt.answered_count }}/{{ total }}
+        </span>
+      </div>
     </div>
-  {% endif %}
 
-  <div class="mt-6 space-y-4">
+    {# ---- Savollar ---- #}
     {% for question in questions %}
-      <div class="section" id="q{{ question.pk }}">
+      <article class="qcard" id="q{{ question.pk }}">
         <div class="flex items-start gap-3">
-          <span class="grid place-items-center w-7 h-7 rounded-lg bg-slateg-100 text-xs font-semibold text-slateg-600 shrink-0">{{ forloop.counter }}</span>
-          <p class="flex-1 text-slateg-900 leading-relaxed">{{ question.text }}</p>
+          <span class="qnum" data-num="q{{ question.pk }}">{{ forloop.counter }}</span>
+          <p class="flex-1 text-[15px] leading-relaxed text-slateg-900 font-medium">{{ question.text }}</p>
         </div>
 
         {% if attempt.questionnaire.is_likert %}
@@ -37,10 +66,9 @@
                       hx-target="#progress-box" hx-swap="outerHTML"
                       onclick="markChoice(this)"
                       data-group="q{{ question.pk }}"
-                      class="choice rounded-xl border px-2 py-3 text-center text-xs transition
-                        border-slateg-200 hover:border-brand-300 hover:bg-brand-50">
-                <span class="block text-base font-semibold text-slateg-800">{{ value }}</span>
-                <span class="block mt-0.5 text-[11px] text-slateg-500 leading-tight">{{ label }}</span>
+                      class="choice choice-scale">
+                <span class="block text-[15px] font-bold text-slateg-800">{{ value }}</span>
+                <span class="block mt-0.5 text-[11px] leading-tight text-slateg-500">{{ label }}</span>
               </button>
             {% endfor %}
           </div>
@@ -54,40 +82,182 @@
                       hx-target="#progress-box" hx-swap="outerHTML"
                       onclick="markChoice(this)"
                       data-group="q{{ question.pk }}"
-                      class="choice w-full text-left rounded-xl border border-slateg-200 px-4 py-3 text-sm transition hover:border-brand-300 hover:bg-brand-50">
-                {{ choice.text }}
+                      class="choice choice-option">
+                <span class="choice-dot" aria-hidden="true"></span>
+                <span class="flex-1 text-[14px] leading-snug">{{ choice.text }}</span>
               </button>
             {% endfor %}
           </div>
         {% endif %}
-      </div>
+      </article>
     {% endfor %}
+
+    {# ---- Mobil yakunlash ---- #}
+    <form method="post" action="{% url 'diagnostics:finish' attempt.pk %}" class="lg:hidden">{% csrf_token %}
+      <button class="btn btn-primary btn-wide">Yakunlash va natijani ko‘rish</button>
+      <p class="mt-2 text-center text-[12px] text-slateg-500">
+        Javoblaringiz avtomatik saqlanmoqda — sahifani yopsangiz ham yo‘qolmaydi.
+      </p>
+    </form>
   </div>
 
-  <form method="post" action="{% url 'diagnostics:finish' attempt.pk %}" class="mt-8">{% csrf_token %}
-    <button class="btn btn-primary btn-wide">
-      Yakunlash va natijani ko‘rish
-    </button>
-    <p class="mt-2 text-center text-xs text-slateg-500">Javoblaringiz avtomatik saqlanmoqda — sahifani yopsangiz ham yo‘qolmaydi.</p>
-  </form>
+
+  {# =================== O'ng ustun: holat va yakunlash =================== #}
+  <aside class="hidden lg:block lg:sticky lg:top-4">
+    <section class="sidecard px-5 py-4 flex flex-col">
+      <h2 class="flex items-center gap-2.5 text-[15px] font-bold text-slateg-900">
+        <span class="grid place-items-center w-7 h-7 rounded-lg bg-brand-600 text-white shrink-0">
+          <span class="w-4 h-4">{% include "partials/icon.html" with name="clipboard" %}</span>
+        </span>
+        Javob berildi
+      </h2>
+
+      <div class="mt-3">{% include "diagnostics/_progress.html" %}</div>
+
+      {% if attempt.deadline %}
+        <div class="mt-3 rounded-xl bg-white/70 border border-slateg-200 px-3 py-2.5 text-center"
+             data-deadline="{{ attempt.deadline|date:'c' }}">
+          <p class="text-[11px] text-slateg-500">Qolgan vaqt</p>
+          <p id="countdown" class="text-[1.05rem] font-extrabold text-slateg-900 metric leading-tight">
+            {{ attempt.deadline|time:"H:i" }} gacha
+          </p>
+        </div>
+      {% endif %}
+
+      <form method="post" action="{% url 'diagnostics:finish' attempt.pk %}" class="mt-3">{% csrf_token %}
+        <button class="btn btn-primary btn-wide">Yakunlash</button>
+      </form>
+
+      <p class="mt-2.5 text-[11px] leading-snug text-center text-slateg-500">
+        Javoblar avtomatik saqlanadi — sahifani yopsangiz ham yo‘qolmaydi.
+        Yakunlash uchun barcha savollarga javob bering.
+      </p>
+
+      <a href="{% url 'diagnostics:index' %}"
+         class="mt-3 inline-flex items-center justify-center gap-1.5 text-[12px] font-semibold text-slateg-600 hover:text-brand-700">
+        Keyinroq davom ettirish
+      </a>
+    </section>
+  </aside>
 </div>
 {% endblock %}
 
+
+{% block head %}
+<style>
+  /* Test sahifasida sarlavha past bo'lsin — diqqat savollarda.
+     Karta past bo'lgani uchun rasm matnga yaqin keladi: parda kengaytirildi. */
+  .take-hero { min-height: 0; }
+  .take-hero::after {
+    background: linear-gradient(96deg,
+      rgba(247,252,249,.96) 0%, rgba(245,252,248,.94) 42%,
+      rgba(242,251,246,.72) 58%, rgba(240,250,244,.18) 72%,
+      rgba(240,250,244,0) 82%);
+  }
+
+  /* ---------- Savol kartasi ---------- */
+  .qcard {
+    background: #fff; border: 1px solid var(--line); border-radius: 16px;
+    padding: 1.15rem 1.25rem;
+    box-shadow: 0 1px 2px rgba(11,43,24,.04), 0 8px 24px -12px rgba(11,43,24,.10);
+    scroll-margin-top: 1rem;
+  }
+  .qnum {
+    display: grid; place-items: center; flex: none;
+    width: 1.75rem; height: 1.75rem; border-radius: 9px;
+    background: #EDF2EF; color: #5E6F65;
+    font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums;
+    transition: background .18s, color .18s;
+  }
+  /* Javob berilgan savol raqami yashil bo'ladi — sahifada mo'ljal beradi. */
+  .qnum.is-done { background: var(--brand); color: #fff; }
+
+  /* ---------- Variantlar ---------- */
+  .choice {
+    border: 1px solid #D7E2DA; background: #fff; cursor: pointer;
+    transition: border-color .15s, background .15s, box-shadow .15s;
+  }
+  .choice:hover { border-color: #A9DBBB; background: #F7FBF8; }
+
+  .choice-scale { border-radius: 12px; padding: .6rem .35rem; text-align: center; }
+  .choice-option {
+    display: flex; align-items: center; gap: .7rem; width: 100%;
+    border-radius: 12px; padding: .7rem .9rem; text-align: left; color: #2A3B31;
+  }
+  .choice-dot {
+    flex: none; width: 1.05rem; height: 1.05rem; border-radius: 50%;
+    border: 2px solid #C7D3CB; transition: border-color .15s, box-shadow .15s;
+  }
+
+  /* Tanlangan variant */
+  .choice.is-picked {
+    border-color: var(--brand); background: #EAF6EE;
+    box-shadow: 0 0 0 3px rgba(23,132,63,.12);
+  }
+  .choice.is-picked .choice-dot { border-color: var(--brand); box-shadow: inset 0 0 0 3px var(--brand); }
+  .choice.is-picked span { color: #116A33; }
+</style>
+{% endblock %}
+
+
 {% block scripts %}
 <script>
-  const ACTIVE = ['border-brand-700','bg-brand-50','ring-2','ring-brand-200'];
-  function markChoice(el){
-    document.querySelectorAll('[data-group="'+el.dataset.group+'"]').forEach(b => b.classList.remove(...ACTIVE));
-    el.classList.add(...ACTIVE);
-  }
-  // Oldin berilgan javoblarni sahifa yuklanganda belgilash
-  const answered = {{ answered_map|safe }};
-  document.querySelectorAll('.choice').forEach(btn => {
-    const qid = btn.dataset.group.slice(1);
-    if (!(qid in answered)) return;
-    const vals = JSON.parse(btn.getAttribute('hx-vals'));
-    const picked = vals.value ?? vals.choice_id;
-    if (String(picked) === String(answered[qid])) btn.classList.add(...ACTIVE);
-  });
+  (function () {
+    const answered = {{ answered_map|safe }};
+
+    function refreshNum(group) {
+      const badge = document.querySelector('[data-num="' + group + '"]');
+      if (badge) badge.classList.add('is-done');
+    }
+
+    window.markChoice = function (el) {
+      const group = el.dataset.group;
+      document.querySelectorAll('[data-group="' + group + '"]')
+        .forEach(b => b.classList.remove('is-picked'));
+      el.classList.add('is-picked');
+      refreshNum(group);
+    };
+
+    // Sahifa yuklanganda oldin berilgan javoblarni belgilaymiz.
+    document.querySelectorAll('.choice').forEach(btn => {
+      const qid = btn.dataset.group.slice(1);
+      if (!(qid in answered)) return;
+      const vals = JSON.parse(btn.getAttribute('hx-vals'));
+      const picked = vals.value ?? vals.choice_id;
+      if (String(picked) === String(answered[qid])) {
+        btn.classList.add('is-picked');
+        refreshNum(btn.dataset.group);
+      }
+    });
+
+    // htmx javobdan keyin o'ng ustundagi halqani yangilaydi; mobil chiziqni
+    // ham o'sha ma'lumotdan olamiz.
+    document.body.addEventListener('htmx:afterSwap', function (e) {
+      const box = document.getElementById('progress-box');
+      if (!box || e.detail.target.id !== 'progress-box') return;
+      const done = Number(box.dataset.answered), total = Number(box.dataset.total);
+      const bar = document.getElementById('m-bar');
+      const count = document.getElementById('m-count');
+      if (bar) bar.style.width = (total ? Math.round(done / total * 100) : 0) + '%';
+      if (count) count.textContent = done + '/' + total;
+    });
+
+    // Qolgan vaqt — faqat ko'rsatkich; vaqt tugashini server hal qiladi.
+    const box = document.querySelector('[data-deadline]');
+    const out = document.getElementById('countdown');
+    if (box && out) {
+      const end = new Date(box.dataset.deadline).getTime();
+      const tick = () => {
+        const left = Math.max(0, Math.floor((end - Date.now()) / 1000));
+        const m = String(Math.floor(left / 60)).padStart(2, '0');
+        const s = String(left % 60).padStart(2, '0');
+        out.textContent = m + ':' + s;
+        if (left <= 60) out.classList.add('text-rosex-700');
+        if (left === 0) { out.textContent = 'Vaqt tugadi'; clearInterval(timer); }
+      };
+      tick();
+      const timer = setInterval(tick, 1000);
+    }
+  })();
 </script>
 {% endblock %}

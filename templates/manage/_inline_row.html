@@ -1,0 +1,34 @@
+{# Inline quruvchi qatori: bitta bola-yozuv formasi. #}
+<div class="rounded-2xl border border-slateg-200 bg-slateg-50 p-4" data-row>
+  {% for hidden in subform.hidden_fields %}{{ hidden }}{% endfor %}
+  <div class="flex items-start gap-3">
+    <span class="mt-2 flex items-center gap-1 shrink-0">
+      <span class="drag-handle cursor-grab text-slateg-300 hover:text-slateg-600 select-none px-0.5" title="Tortib tartibni o'zgartiring">⋮⋮</span>
+      <span class="grid place-items-center w-7 h-7 rounded-full bg-brand-600 text-white text-xs font-bold" data-num>{{ index }}</span>
+    </span>
+    <div class="flex-1 grid sm:grid-cols-2 gap-x-4">
+      {% for field in subform.visible_fields %}
+        {% if field.name == 'DELETE' %}
+          <input type="checkbox" name="{{ field.html_name }}" id="{{ field.id_for_label }}" hidden {% if field.value %}checked{% endif %}>
+        {% elif field.name == 'ORDER' %}
+          <input type="hidden" name="{{ field.html_name }}" id="{{ field.id_for_label }}" data-order value="{{ field.value|default_if_none:'' }}">
+        {% else %}
+          <div class="mb-3 {% if field.field.widget.input_type == 'textarea' or field.name in 'body summary text description' %}sm:col-span-2{% endif %}">
+            {% if field.field.widget.input_type == 'checkbox' %}
+              <label class="flex items-center gap-2 cursor-pointer mt-6">
+                <input type="checkbox" name="{{ field.html_name }}" id="{{ field.id_for_label }}" {% if field.value %}checked{% endif %}
+                       class="w-4 h-4 rounded border-slateg-300 text-brand-600">
+                <span class="text-sm text-slateg-700">{{ field.label }}</span>
+              </label>
+            {% else %}
+              <label for="{{ field.id_for_label }}" class="block text-xs font-medium text-slateg-600 mb-1">{{ field.label }}</label>
+              {{ field }}
+            {% endif %}
+            {% for error in field.errors %}<p class="mt-1 text-xs text-rosex-600">{{ error }}</p>{% endfor %}
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+    <button type="button" data-remove class="text-slateg-400 hover:text-rosex-600 px-1 mt-2" title="O'chirish">✕</button>
+  </div>
+</div>

@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% load manage_extras %}
+{% block title %}{{ config.label }}{% endblock %}
+{% block page_title %}{{ config.label }}{% endblock %}
+{% block content %}
+<div class="space-y-5">
+  <a href="{% url 'manage:crud_index' %}" class="text-sm text-slateg-500 hover:text-slateg-800">← Ma'lumotlar boshqaruvi</a>
+
+  {% if config.note %}
+    <div class="rounded-2xl border border-amberx-200 bg-amberx-50 p-4 text-sm text-amberx-700">{{ config.note }}</div>
+  {% endif %}
+
+  <section class="section">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <form method="get" class="flex flex-wrap items-center gap-2">
+        {% for name, value in filters.items %}<input type="hidden" name="{{ name }}" value="{{ value }}">{% endfor %}
+        {% if show_deleted %}<input type="hidden" name="deleted" value="1">{% endif %}
+        {% if config.search %}
+          <input type="search" name="q" value="{{ query }}" placeholder="Qidirish…" class="field w-64">
+          <button class="btn btn-quiet btn-sm">Qidirish</button>
+        {% endif %}
+      </form>
+      <div class="flex items-center gap-2">
+        {% if config.soft_delete %}
+          <a href="{% qs_without 'deleted' 'page' %}" class="btn btn-sm {% if not show_deleted %}btn-primary{% else %}btn-quiet{% endif %}">Faol</a>
+          <a href="{% qs_set deleted='1' page='' %}" class="btn btn-sm {% if show_deleted %}btn-primary{% else %}btn-quiet{% endif %}">Arxiv ({{ deleted_count }})</a>
+        {% endif %}
+        {% if config.can_add and not show_deleted %}
+          {% if config.builder_kind %}
+            <a href="{% url 'manage:builder_new' config.builder_kind %}{{ config.builder_query }}" class="btn btn-primary btn-sm">+ Yangi {{ config.singular }}</a>
+            <a href="{{ add_url }}" class="btn btn-quiet btn-sm" title="Faqat asosiy maydonlar">Oddiy forma</a>
+          {% else %}
+            <a href="{{ add_url }}" class="btn btn-primary btn-sm">+ Yangi {{ config.singular }}</a>
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+
+    {% if filter_labels %}
+      <div class="mt-3 flex flex-wrap items-center gap-2 text-xs">
+        <span class="text-slateg-500">Filtr:</span>
+        {% for name, label in filter_labels %}
+          <span class="inline-flex items-center gap-1 rounded-full bg-brand-50 border border-brand-200 px-2.5 py-1 text-brand-800">
+            {{ name }} = {{ label }}
+            <a href="{% qs_without name 'page' %}" class="text-brand-600 hover:text-brand-900" title="Filtrni olib tashlash">×</a>
+          </span>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </section>
+
+  <section class="section">
+    {% csrf_token %}
+    <p class="text-xs text-slateg-500 mb-3">Jami: {{ page.paginator.count }} ta</p>
+    <div class="overflow-x-auto">
+      <table class="datatable" id="crud-table">
+        <thead><tr>
+          {% if config.orderable and not show_deleted %}<th class="w-8"></th>{% endif %}
+          <th class="w-12">#</th>
+          {% for label, accessor in config.columns %}<th>{{ label }}</th>{% endfor %}
+          <th class="text-right">Amallar</th>
+        </tr></thead>
+        <tbody>
+          {% for obj in page %}
+            <tr data-id="{{ obj.pk }}">
+              {% if config.orderable and not show_deleted %}
+                <td class="drag-handle cursor-grab text-slateg-300 hover:text-slateg-600 select-none" title="Tartibni o'zgartirish uchun torting">⋮⋮</td>
+              {% endif %}
+              <td class="text-xs text-slateg-400">{{ obj.pk }}</td>
+              {% for label, accessor in config.columns %}
+                <td class="text-slateg-800">{% cell obj accessor %}</td>
+              {% endfor %}
+              <td class="text-right whitespace-nowrap text-sm">
+                {% if show_deleted %}
+                  <form method="post" action="{% url 'manage:crud_restore' config.key obj.pk %}" class="inline">{% csrf_token %}
+                    <button class="text-brand-700 hover:underline">Tiklash</button>
+                  </form>
+                  <a href="{% url 'manage:crud_purge' config.key obj.pk %}" class="ml-3 text-rosex-600 hover:underline">Butunlay o'chirish</a>
+                {% else %}
+                  {% for label, child_key, fk in config.children %}
+                    <a href="{% url 'manage:crud_list' child_key %}?{{ fk }}={{ obj.pk }}" class="text-slateg-600 hover:underline mr-3">{{ label }}</a>
+                  {% endfor %}
+                  {% if config.can_edit %}
+                    {% if config.builder_kind %}
+                      <a href="{% url 'manage:builder_edit' config.builder_kind obj.pk %}" class="text-brand-700 hover:underline">Tahrirlash</a>
+                    {% else %}
+                      <a href="{% url 'manage:crud_edit' config.key obj.pk %}{% if filters %}{% qs_without 'page' 'q' %}{% endif %}" class="text-brand-700 hover:underline">Tahrirlash</a>
+                    {% endif %}
+                  {% endif %}
+                  {% if config.can_delete %}
+                    <a href="{% url 'manage:crud_delete' config.key obj.pk %}" class="ml-3 text-rosex-600 hover:underline">
+                      {% if config.delete_mode == 'void' %}Bekor qilish{% elif config.soft_delete %}Arxivlash{% else %}O'chirish{% endif %}
+                    </a>
+                  {% endif %}
+                {% endif %}
+              </td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="{{ config.columns|length|add:3 }}" class="py-8 text-center text-slateg-500">Yozuv yo'q.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% if config.orderable and not show_deleted %}
+      <p class="mt-3 text-xs text-slateg-500" id="reorder-hint">⋮⋮ belgisidan tortib qatorlar tartibini o'zgartiring — darhol saqlanadi.</p>
+    {% endif %}
+
+    {% if page.paginator.num_pages > 1 %}
+      <div class="mt-4 flex items-center justify-between text-sm text-slateg-600">
+        <span>{{ page.number }} / {{ page.paginator.num_pages }}-sahifa</span>
+        <div class="flex gap-2">
+          {% if page.has_previous %}<a href="{% qs_set page=page.previous_page_number %}" class="btn btn-quiet btn-sm">← Oldingi</a>{% endif %}
+          {% if page.has_next %}<a href="{% qs_set page=page.next_page_number %}" class="btn btn-quiet btn-sm">Keyingi →</a>{% endif %}
+        </div>
+      </div>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if config.orderable and not show_deleted %}
+<script>
+(function () {
+  const tbody = document.querySelector('#crud-table tbody');
+  const hint = document.getElementById('reorder-hint');
+  if (!tbody || !window.Sortable) return;
+  const csrf = document.querySelector('[name=csrfmiddlewaretoken]').value;
+  Sortable.create(tbody, {
+    handle: '.drag-handle', animation: 150, ghostClass: 'bg-brand-50',
+    onEnd: function () {
+      const ids = [...tbody.querySelectorAll('tr[data-id]')].map(tr => +tr.dataset.id);
+      fetch("{% url 'manage:crud_reorder' config.key %}", {
+        method: 'POST', credentials: 'same-origin',
+        headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrf},
+        body: JSON.stringify({ids})
+      }).then(r => r.json()).then(d => {
+        hint.textContent = d.ok ? 'Tartib saqlandi' : 'Xato: ' + (d.error || '');
+        hint.className = 'mt-3 text-xs ' + (d.ok ? 'text-brand-700' : 'text-rosex-600');
+      }).catch(() => { hint.textContent = 'Saqlashda xato'; hint.className = 'mt-3 text-xs text-rosex-600'; });
+    }
+  });
+})();
+</script>
+{% endif %}
+{% endblock %}

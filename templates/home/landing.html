@@ -1,78 +1,256 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}BioTeacher — o'z-o'zini rivojlantirish platformasi{% endblock %}
 
 {% block public %}
-<div class="min-h-full bg-slateg-50">
-  <header class="border-b border-slateg-200 bg-white/80 backdrop-blur sticky top-0 z-30">
-    <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-      <a href="/" class="flex items-center gap-3">
-        <span class="grid place-items-center w-10 h-10 rounded-xl bg-brand-700 text-white text-xl"></span>
-        <span class="font-semibold text-slateg-900">BioTeacher</span>
+<div class="min-h-full bg-white">
+
+  {# =================== Yuqori panel =================== #}
+  <header class="lp-nav">
+    <div class="lp-wrap h-16 flex items-center justify-between gap-4">
+      <a href="/" class="flex items-center gap-2.5 shrink-0">
+        <span class="grid place-items-center w-9 h-9 rounded-xl bg-brand-600 text-white">
+          <span class="w-5 h-5">{% include "partials/icon.html" with name="leaf" %}</span>
+        </span>
+        <span class="font-extrabold text-slateg-900">BioTeacher</span>
       </a>
-      <nav class="flex items-center gap-2 text-sm">
-        <a href="{% url 'home:about' %}" class="hidden sm:block px-4 py-2 text-slateg-600 hover:text-slateg-900">Loyiha haqida</a>
-        <a href="{% url 'accounts:login' %}" class="px-4 py-2 text-slateg-700 hover:text-slateg-900">Kirish</a>
-        <a href="{% url 'accounts:register' %}" class="btn btn-primary">Ro‘yxatdan o‘tish</a>
+
+      <nav class="flex items-center gap-1.5 text-sm">
+        <a href="{% url 'home:about' %}"
+           class="hidden sm:block px-3.5 py-2 rounded-lg font-medium text-slateg-600 hover:text-slateg-900 hover:bg-slateg-100">
+          Loyiha haqida
+        </a>
+        <a href="{% url 'accounts:login' %}"
+           class="px-3.5 py-2 rounded-lg font-medium text-slateg-700 hover:text-slateg-900 hover:bg-slateg-100">
+          Kirish
+        </a>
+        <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-sm">Ro‘yxatdan o‘tish</a>
       </nav>
     </div>
   </header>
 
-  <section class="max-w-6xl mx-auto px-6 py-16 sm:py-24">
-    <div class="max-w-3xl mx-auto">
-      <p class="inline-flex items-center gap-2 rounded-full bg-brand-50 border border-brand-200 px-3 py-1 text-xs text-brand-700">
-        PhD tadqiqoti · tajriba-sinov vositasi
-      </p>
-      <h1 class="mt-6 font-semibold text-4xl sm:text-5xl leading-tight text-slateg-900">
-        Bo‘lajak biologiya o‘qituvchisining<br class="hidden sm:block">
-        <span class="text-brand-700">o‘zini rivojlantirish tizimi</span>
-      </h1>
-      <p class="mt-6 text-lg text-slateg-600 leading-relaxed">
-        Bu test sayti emas. Bu — <strong>diagnostika → maqsad → faoliyat → baholash → refleksiya →
-        monitoring</strong> siklini yopadigan va sizning o‘sishingizni raqamlarda ko‘rsatadigan tizim.
-      </p>
-      <div class="mt-8 flex flex-wrap gap-3">
-        <a href="{% url 'accounts:register' %}" class="btn btn-primary">Boshlash</a>
-        <a href="{% url 'home:about' %}" class="rounded-xl border border-slateg-300 bg-white px-6 py-3 text-slateg-800 hover:border-slateg-400">Qanday ishlaydi?</a>
-      </div>
-    </div>
-  </section>
 
-  <section class="max-w-6xl mx-auto px-6 pb-16">
-    <h2 class="font-semibold text-2xl text-slateg-900">Nima o‘lchanadi</h2>
-    <p class="mt-2 text-slateg-600">Beshta komponent, bitta integral indeks — SDI.</p>
-    <div class="mt-8 grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
-      {% for c in components %}
-        <div class="section p-5">
-          <p class="font-mono text-xs text-brand-700">{{ c.code }}</p>
-          <p class="mt-2 font-medium text-slateg-900">{{ c.label }}</p>
-          <p class="mt-2 text-sm text-slateg-600 leading-relaxed">{{ c.description }}</p>
+  {# =================== Hero =================== #}
+  <section class="lp-hero">
+    <span class="lp-hero-bg" aria-hidden="true"
+          style="background-image:url('{% static "img/landing-hero.webp" %}')"></span>
+
+    <div class="lp-wrap relative z-10 py-20 sm:py-28 lg:py-32">
+      <div class="max-w-2xl">
+        <p class="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1
+                  text-[12px] font-semibold text-brand-100 backdrop-blur">
+          <span class="w-3.5 h-3.5">{% include "partials/icon.html" with name="flask" %}</span>
+          PhD tadqiqoti · tajriba-sinov vositasi
+        </p>
+
+        <h1 class="mt-5 text-[2.1rem] sm:text-[3rem] lg:text-[3.4rem] font-extrabold leading-[1.1] text-white">
+          Bo‘lajak biologiya o‘qituvchisining
+          <span class="text-brand-300">o‘zini rivojlantirish tizimi</span>
+        </h1>
+
+        <p class="mt-5 max-w-xl text-[1rem] sm:text-[1.05rem] leading-relaxed text-white/80">
+          Bu test sayti emas. Bu — diagnostikadan monitoringgacha bo‘lgan siklni yopadigan va
+          sizning o‘sishingizni raqamlarda ko‘rsatadigan tizim.
+        </p>
+
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href="{% url 'accounts:register' %}" class="btn btn-primary">
+            Boshlash
+            <span class="w-4 h-4">{% include "partials/icon.html" with name="arrow" %}</span>
+          </a>
+          <a href="{% url 'home:about' %}" class="btn lp-btn-ghost">Qanday ishlaydi?</a>
         </div>
-      {% endfor %}
-    </div>
-  </section>
 
-  <section class="on-dark bg-slateg-900 text-slateg-400">
-    <div class="max-w-6xl mx-auto px-6 py-16">
-      <h2 class="font-semibold text-2xl text-white">Rivojlanish sikli</h2>
-      <div class="mt-8 grid sm:grid-cols-3 lg:grid-cols-6 gap-4 text-sm">
-        {% for step in "Diagnostika,Maqsad,Faoliyat,Baholash,Refleksiya,Monitoring"|slice:":200" %}{% endfor %}
-        <div class="rounded-xl bg-white/5 p-4"><span class="block text-2xl mb-2"></span>Diagnostika</div>
-        <div class="rounded-xl bg-white/5 p-4"><span class="block text-2xl mb-2"></span>Maqsad</div>
-        <div class="rounded-xl bg-white/5 p-4"><span class="block text-2xl mb-2"></span>Faoliyat</div>
-        <div class="rounded-xl bg-white/5 p-4"><span class="block text-2xl mb-2"></span>Baholash</div>
-        <div class="rounded-xl bg-white/5 p-4"><span class="block text-2xl mb-2"></span>Refleksiya</div>
-        <div class="rounded-xl bg-white/5 p-4"><span class="block text-2xl mb-2"></span>Monitoring</div>
+        <dl class="mt-12 grid grid-cols-3 gap-6 max-w-lg">
+          <div>
+            <dt class="text-[2rem] font-extrabold text-white metric leading-none">5</dt>
+            <dd class="mt-1.5 text-[12px] leading-snug text-white/65">o‘lchanadigan komponent</dd>
+          </div>
+          <div>
+            <dt class="text-[2rem] font-extrabold text-white metric leading-none">4</dt>
+            <dd class="mt-1.5 text-[12px] leading-snug text-white/65">diagnostika kesimi</dd>
+          </div>
+          <div>
+            <dt class="text-[2rem] font-extrabold text-white metric leading-none">SDI</dt>
+            <dd class="mt-1.5 text-[12px] leading-snug text-white/65">yagona integral indeks</dd>
+          </div>
+        </dl>
       </div>
-      <p class="mt-8 text-sm text-slateg-500 max-w-2xl leading-relaxed">
-        Har bir siklda tizim sizning eng zaif komponentingizni aniqlaydi va keyingi topshiriqlarni
-        aynan shunga yo‘naltiradi. Reyting jadvali yo‘q — siz faqat o‘zingizning kechagi natijangiz
-        bilan taqqoslanasiz.
-      </p>
     </div>
   </section>
 
-  <footer class="max-w-6xl mx-auto px-6 py-10 text-sm text-slateg-500">
-    BioTeacher — Self-Development Platform · Ma’lumotlar anonim tahlil qilinadi.
+
+  {# =================== Rivojlanish sikli =================== #}
+  <section class="lp-wrap py-16 sm:py-20">
+    <p class="text-[12px] font-bold uppercase tracking-wider text-brand-700">Qanday ishlaydi</p>
+    <h2 class="mt-2 text-[1.6rem] sm:text-[2rem] font-extrabold leading-tight text-slateg-900">
+      Rivojlanish sikli
+    </h2>
+    <p class="mt-2 max-w-2xl text-[15px] leading-relaxed text-slateg-600">
+      Olti qadam bir aylanani yopadi. Har aylanishda tizim eng zaif komponentingizni aniqlaydi va
+      keyingi topshiriqlarni aynan shunga yo‘naltiradi.
+    </p>
+
+    <ol class="mt-8 grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+      {% include "home/_step.html" with num=1 icon="clipboard" title="Diagnostika" text="Anketa va bilim testi — beshta komponent bo‘yicha boshlang‘ich o‘lchov." %}
+      {% include "home/_step.html" with num=2 icon="target" title="Maqsad" text="Eng zaif yo‘nalish bo‘yicha aniq, o‘lchanadigan shaxsiy maqsad." %}
+      {% include "home/_step.html" with num=3 icon="flask" title="Faoliyat" text="Laboratoriya, dars loyihasi, keys va ijodiy topshiriqlar." %}
+      {% include "home/_step.html" with num=4 icon="check" title="Baholash" text="Rubrika bo‘yicha o‘zini baholash va mentor bahosi." %}
+      {% include "home/_step.html" with num=5 icon="pen" title="Refleksiya" text="Har bir ishdan keyin: nima bo‘ldi, nima ish bermadi, keyin nima o‘zgaradi." %}
+      {% include "home/_step.html" with num=6 icon="chart" title="Monitoring" text="O‘sish chizig‘i, profil radari va muzlatilgan kesim o‘lchovlari." %}
+    </ol>
+  </section>
+
+
+  {# =================== Nima o'lchanadi =================== #}
+  <section class="bg-slateg-50 border-y border-slateg-200">
+    <div class="lp-wrap py-16 sm:py-20">
+      <p class="text-[12px] font-bold uppercase tracking-wider text-brand-700">O‘lchov</p>
+      <h2 class="mt-2 text-[1.6rem] sm:text-[2rem] font-extrabold leading-tight text-slateg-900">
+        Nima o‘lchanadi
+      </h2>
+      <p class="mt-2 max-w-2xl text-[15px] leading-relaxed text-slateg-600">
+        Beshta komponent va ulardan hisoblanadigan bitta integral indeks — SDI.
+      </p>
+
+      <div class="mt-8 grid sm:grid-cols-2 lg:grid-cols-5 gap-3">
+        {% for c in components %}
+          <article class="lp-card">
+            <span class="lp-code metric">{{ c.code }}</span>
+            <h3 class="mt-2.5 text-[15px] font-bold leading-snug text-slateg-900">{{ c.label }}</h3>
+            <p class="mt-1.5 text-[12.5px] leading-relaxed text-slateg-600">{{ c.description }}</p>
+          </article>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+
+  {# =================== Reyting yo'q =================== #}
+  <section class="lp-wrap py-16 sm:py-20">
+    <div class="lp-quote">
+      <div class="relative z-10 max-w-2xl">
+        <span class="grid place-items-center w-11 h-11 rounded-xl bg-white/15 text-white">
+          <span class="w-5 h-5">{% include "partials/icon.html" with name="shield" %}</span>
+        </span>
+        <h2 class="mt-4 text-[1.5rem] sm:text-[1.85rem] font-extrabold leading-tight text-white">
+          Bu yerda reyting jadvali yo‘q
+        </h2>
+        <p class="mt-3 text-[15px] leading-relaxed text-white/75">
+          Siz boshqalar bilan emas, faqat o‘zingizning kechagi natijangiz bilan
+          taqqoslanasiz. O‘z-o‘zini rivojlantirishning mezoni tashqi raqobat emas, ichki o‘sish.
+        </p>
+        <a href="{% url 'accounts:register' %}" class="btn lp-btn-light mt-6">
+          Ro‘yxatdan o‘tish
+          <span class="w-4 h-4">{% include "partials/icon.html" with name="arrow" %}</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+
+  {# =================== Footer =================== #}
+  <footer class="border-t border-slateg-200">
+    <div class="lp-wrap py-8 flex flex-wrap items-center justify-between gap-3 text-[13px] text-slateg-500">
+      <p>BioTeacher — Self-Development Platform · Ma’lumotlar anonim tahlil qilinadi.</p>
+      <nav class="flex gap-4">
+        <a href="{% url 'home:about' %}" class="hover:text-slateg-800">Loyiha haqida</a>
+        <a href="{% url 'accounts:login' %}" class="hover:text-slateg-800">Kirish</a>
+      </nav>
+    </div>
   </footer>
 </div>
+{% endblock %}
+
+
+{% block head %}
+<style>
+  .lp-wrap { max-width: 76rem; margin: 0 auto; padding-left: 1.5rem; padding-right: 1.5rem; }
+
+  .lp-nav {
+    position: sticky; top: 0; z-index: 30;
+    background: rgba(255,255,255,.88); backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+  }
+
+  /* ---------- Hero ----------
+     Fotosurat to'q, shuning uchun matn oq. Ustidagi gradient chapdan o'ngga
+     ochiladi: sarlavha kontrasti rasmning yorug' joylarida ham saqlanadi. */
+  .lp-hero { position: relative; overflow: hidden; isolation: isolate; background: #071E11; }
+  .lp-hero-bg {
+    position: absolute; inset: 0; z-index: -2;
+    background-size: cover; background-position: center 65%;
+  }
+  .lp-hero::before {
+    content: ""; position: absolute; inset: 0; z-index: -1;
+    background:
+      linear-gradient(92deg, rgba(4,18,10,.92) 0%, rgba(5,24,13,.82) 38%,
+                             rgba(6,30,17,.55) 62%, rgba(6,30,17,.30) 100%),
+      linear-gradient(180deg, rgba(4,18,10,.35) 0%, rgba(4,18,10,0) 30%);
+  }
+
+  .lp-btn-ghost {
+    background: rgba(255,255,255,.10); color: #fff;
+    border-color: rgba(255,255,255,.30); backdrop-filter: blur(6px);
+  }
+  .lp-btn-ghost:hover { background: rgba(255,255,255,.18); border-color: rgba(255,255,255,.45); }
+
+  .lp-btn-light { background: #fff; color: #0E5228; }
+  .lp-btn-light:hover { background: #EAF6EE; }
+
+  /* ---------- Sikl qadamlari va kartalar ---------- */
+  .lp-step {
+    display: flex; gap: .9rem; align-items: flex-start;
+    background: #fff; border: 1px solid var(--line); border-radius: 14px;
+    padding: 1.05rem 1.15rem;
+    transition: border-color .18s, box-shadow .18s, transform .18s;
+  }
+  .lp-step:hover {
+    border-color: #A9DBBB; transform: translateY(-2px);
+    box-shadow: 0 2px 6px rgba(11,43,24,.06), 0 18px 36px -16px rgba(11,43,24,.18);
+  }
+  .lp-step-icon {
+    display: grid; place-items: center; flex: none;
+    width: 2.4rem; height: 2.4rem; border-radius: 12px;
+    background: #EAF6EE; color: var(--brand-dark); position: relative;
+  }
+  .lp-step-icon svg { width: 1.1rem; height: 1.1rem; }
+  .lp-step-num {
+    position: absolute; top: -.35rem; right: -.35rem;
+    display: grid; place-items: center; width: 1.15rem; height: 1.15rem;
+    border-radius: 50%; background: var(--brand); color: #fff;
+    font-size: 10px; font-weight: 800; font-variant-numeric: tabular-nums;
+  }
+
+  .lp-card {
+    background: #fff; border: 1px solid var(--line); border-radius: 14px;
+    padding: 1.05rem 1.15rem;
+    transition: border-color .18s, box-shadow .18s, transform .18s;
+  }
+  .lp-card:hover {
+    border-color: #A9DBBB; transform: translateY(-2px);
+    box-shadow: 0 2px 6px rgba(11,43,24,.06), 0 18px 36px -16px rgba(11,43,24,.18);
+  }
+  .lp-code {
+    display: inline-block; padding: .1rem .5rem; border-radius: 999px;
+    background: #EAF6EE; color: #116A33; font-size: 11px; font-weight: 800;
+    letter-spacing: .04em;
+  }
+
+  /* ---------- Yakuniy chaqiruv ---------- */
+  .lp-quote {
+    position: relative; overflow: hidden; border-radius: 20px;
+    padding: 2.5rem 2rem;
+    background: linear-gradient(120deg, #0B2B18 0%, #123A22 55%, #0E5228 100%);
+  }
+  .lp-quote::after {
+    content: ""; position: absolute; right: -4rem; bottom: -5rem;
+    width: 18rem; height: 18rem; border-radius: 50%;
+    background: rgba(63,170,108,.18);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lp-step:hover, .lp-card:hover { transform: none; }
+  }
+</style>
 {% endblock %}

@@ -1,4 +1,4 @@
-"""Landing va talaba dashboard'i (TZ 7.2)."""
+"""Landing va o'qituvchi dashboard'i (TZ 7.2)."""
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
@@ -32,16 +32,13 @@ def about(request):
 @login_required
 def dashboard(request):
     """
-    TZ 7.2 — talaba dashboard'i.
+    TZ 7.2 — o'qituvchining shaxsiy dashboard'i.
 
-    Mentor/tadqiqotchi uchun o'z kabinetiga yo'naltiriladi.
+    Admin boshqaruv paneliga yo'naltiriladi.
     """
     profile = getattr(request.user, "profile", None)
-    if profile is not None:
-        if profile.is_teacher:
-            return redirect("teacher:groups")
-        if profile.is_researcher:
-            return redirect("research:dashboard")
+    if profile is not None and profile.is_admin:
+        return redirect("manage:students")
 
     import json
 
@@ -89,6 +86,70 @@ def dashboard(request):
         }
     )
     return render(request, "home/dashboard.html", context)
+
+
+# Menyuda bor, lekin hali tayyorlanayotgan bo'limlar. Bo'lim tayyor bo'lganda
+# `accounts.menu.PAGES` dagi URL'i almashtiriladi va shu yerdan o'chiriladi.
+# related — (url nomi, argument, yorliq): hozir foydalanish mumkin bo'lgan yaqin bo'limlar.
+UPCOMING = {
+    "ai-sokratik": {
+        "title": "AI-sokratik",
+        "icon": "bot",
+        "lead": "Sokratik suhbat usulidagi sun’iy intellekt yordamchisi. U tayyor javob bermaydi — "
+                "yo‘naltiruvchi savollar orqali mavzuni o‘zingiz tahlil qilib, xulosaga kelishingizga yordam beradi.",
+        "points": [
+            "Mavzu yoki muammoni tanlaysiz — yordamchi savollar bilan fikringizni chuqurlashtiradi.",
+            "Mulohazangizdagi bo‘shliqlarni ko‘rsatadi, yechimni esa sizga qoldiradi.",
+            "Suhbat yakunidagi xulosani refleksiya kundaligiga saqlash mumkin bo‘ladi.",
+        ],
+        "related": [("content:index", None, "Mavzular"), ("reflection:journal", None, "Refleksiya kundaligi")],
+    },
+    "3d-simulyatsiyalar": {
+        "title": "3D simulyatsiyalar",
+        "icon": "box",
+        "lead": "Hujayra, organlar tizimi va biologik jarayonlarning interaktiv 3D modellari: "
+                "aylantirib, qismlarga ajratib, jarayonni bosqichma-bosqich kuzatib o‘rganasiz.",
+        "points": [
+            "Modelni istalgan tomondan ko‘rish va qismlarini alohida ajratish.",
+            "Har bir simulyatsiyaga bog‘langan kuzatish topshirig‘i.",
+        ],
+        "related": [("content:index", None, "Mavzular"), ("assignments:module", "LAB", "Virtual laboratoriya")],
+    },
+    "tajriba-uchastkasi": {
+        "title": "Maktab o‘quv-tajriba uchastkasi resurslari",
+        "icon": "sprout",
+        "lead": "Maktab o‘quv-tajriba uchastkasida amaliy mashg‘ulot o‘tkazish uchun metodik materiallar: "
+                "tajriba rejalari, kuzatuv kundaliklari, fenologik taqvim va yo‘riqnomalar.",
+        "points": [
+            "Mavsum va sinf bo‘yicha saralangan tajriba rejalari.",
+            "Yuklab olinadigan kuzatuv kundaligi va yo‘riqnoma shablonlari.",
+        ],
+        "related": [("assignments:module", "LAB", "Virtual laboratoriya"), ("content:index", None, "Mavzular")],
+    },
+}
+
+# Tayyor bo'lgan bo'limlar: eski «tez orada» manzili yangi sahifaga olib boradi (saqlangan havolalar ishlasin).
+READY = {
+    "vizual-keyslar": "assignments:cases",
+}
+
+
+@login_required
+def upcoming(request, slug):
+    """Menyudagi hali tayyorlanayotgan bo'lim — nima bo'lishi va hozir qayerga borish mumkinligi."""
+    from django.http import Http404
+    from django.urls import reverse
+
+    if slug in READY:
+        return redirect(READY[slug])
+    page = UPCOMING.get(slug)
+    if page is None:
+        raise Http404
+    related = [
+        {"href": reverse(name, args=[arg] if arg else None), "label": label}
+        for name, arg, label in page["related"]
+    ]
+    return render(request, "home/upcoming.html", {"page": page, "related": related})
 
 
 @login_required

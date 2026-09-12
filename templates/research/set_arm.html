@@ -1,11 +1,11 @@
 {% extends "base.html" %}
-{% block title %}Tadqiqot guruhi{% endblock %}
-{% block page_title %}{{ group.name }} — tadqiqot bo‘linmasi{% endblock %}
+{% block title %}Tadqiqot bo‘linmasi{% endblock %}
+{% block page_title %}{{ profile.short_code }} — tadqiqot bo‘linmasi{% endblock %}
 {% block content %}
 <div class="max-w-xl mx-auto">
   <div class="section">
     <p class="text-sm text-slateg-600">
-      Guruhni tajriba (E) yoki nazorat (C) bo‘linmasiga biriktiring. Bu belgi talabalarga ko‘rinmaydi.
+      Respondentni tajriba (E) yoki nazorat (C) bo‘linmasiga biriktiring. Bu belgi foydalanuvchiga ko‘rinmaydi.
     </p>
     <form method="post" class="mt-5">{% csrf_token %}
       {% include "partials/form.html" %}

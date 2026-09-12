@@ -1,0 +1,18 @@
+{# Yon panel guruhlari (bloklar) — tartibi va nomlari «Menyu tartibi» sahifasida sozlanadi. #}
+{% for group in groups %}
+  <div data-rail-group="{{ group.code }}"{% if group.title %} role="group" aria-label="{{ group.title }}"{% endif %}
+       class="{% if not forloop.first %}mt-3 pt-3 border-t border-white/10{% endif %}">
+    {% if group.title %}
+      <p class="mb-1.5 px-3 text-[12.5px] font-bold leading-snug text-sun-300">
+        {% if group.badge %}<span class="mr-1 inline-block rounded-[5px] bg-sun-300 px-1.5 py-px align-[1px] text-[10px] font-extrabold uppercase tracking-wide text-forest-950">{{ group.badge }}</span>{% endif %}{{ group.text }}
+      </p>
+    {% endif %}
+    {% for item in group.items %}
+      {% if item.children %}
+        {% include "partials/rail_tree.html" %}
+      {% else %}
+        {% include "partials/rail_item.html" with href=item.href external=item.external active=item.active icon=item.icon label=item.label hint=item.hint badge=item.badge %}
+      {% endif %}
+    {% endfor %}
+  </div>
+{% endfor %}

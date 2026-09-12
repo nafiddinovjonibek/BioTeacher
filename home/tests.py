@@ -10,7 +10,6 @@ from django.core.management import call_command
 from django.test import TestCase
 from django.urls import reverse
 
-from accounts.models import Enrollment, StudyGroup
 from assignments.models import Assignment, Submission
 from content.models import Lesson
 from core.enums import Cut, Module, Role, StudyArm
@@ -53,25 +52,17 @@ class SeededPagesTests(TestCase):
     def setUpTestData(cls):
         call_command("seed_demo", verbosity=0)
 
-        cls.mentor = User.objects.create_user("mentor-smoke@test.uz", "parol12345")
-        cls.mentor.profile.role = Role.TEACHER
-        cls.mentor.profile.save()
+        cls.admin = User.objects.create_user("admin-smoke@test.uz", "parol12345")
+        cls.admin.profile.role = Role.ADMIN
+        cls.admin.profile.onboarding_done = True
+        cls.admin.profile.save()
 
-        cls.group = StudyGroup.objects.create(
-            name="Smoke guruh", teacher=cls.mentor, study_arm=StudyArm.EXPERIMENTAL
-        )
-
-        cls.student = User.objects.create_user("talaba-smoke@test.uz", "parol12345")
+        cls.student = User.objects.create_user("oqituvchi-smoke@test.uz", "parol12345")
         cls.student.first_name, cls.student.last_name = "Aziza", "Karimova"
         cls.student.save()
-        cls.student.profile.group = cls.group
+        cls.student.profile.study_arm = StudyArm.EXPERIMENTAL
         cls.student.profile.onboarding_done = True
         cls.student.profile.save()
-        Enrollment.objects.create(student=cls.student, group=cls.group)
-
-        cls.researcher = User.objects.create_user("tadqiqot-smoke@test.uz", "parol12345")
-        cls.researcher.profile.role = Role.RESEARCHER
-        cls.researcher.profile.save()
 
         # Talaba uchun ma'lumot: o'lchov, maqsad, refleksiya, yuborilgan ish.
         Measurement.objects.create(user=cls.student, cut=Cut.INITIAL,
@@ -116,7 +107,6 @@ class SeededPagesTests(TestCase):
             reverse("home:dashboard"),
             reverse("home:cabinet"),
             reverse("accounts:profile_edit"),
-            reverse("accounts:join_group"),
             reverse("accounts:consent"),
             reverse("diagnostics:index"),
             reverse("goals:list"),
@@ -142,6 +132,9 @@ class SeededPagesTests(TestCase):
             reverse("reflection:create_free"),
             reverse("reflection:detail", args=[self.reflection.pk]),
             reverse("progress:monitoring"),
+            reverse("progress:observation"),
+            *[reverse("home:upcoming", args=[slug])
+              for slug in ["ai-sokratik", "vizual-keyslar", "3d-simulyatsiyalar", "tajriba-uchastkasi"]],
             reverse("gamification:achievements"),
             reverse("notifications:inbox"),
             reverse("notifications:settings"),
@@ -180,16 +173,14 @@ class SeededPagesTests(TestCase):
         self.client.force_login(fresh)
         self.assert_ok(reverse("accounts:onboarding"))
 
-    # ------------------------------------------------------------ mentor
+    # ------------------------------------------------------------- admin
 
-    def test_teacher_pages(self):
-        self.client.force_login(self.mentor)
+    def test_admin_pages(self):
+        self.client.force_login(self.admin)
         for url in [
-            reverse("teacher:groups"),
-            reverse("teacher:group_create"),
-            reverse("teacher:group_detail", args=[self.group.pk]),
-            reverse("teacher:analytics", args=[self.group.pk]),
-            reverse("teacher:announce", args=[self.group.pk]),
+            reverse("manage:students"),
+            reverse("manage:analytics"),
+            reverse("manage:announce"),
             reverse("assignments:queue"),
             reverse("assignments:grade", args=[self.submission.pk]),
             reverse("progress:student", args=[self.student.pk]),
@@ -199,29 +190,38 @@ class SeededPagesTests(TestCase):
             with self.subTest(url=url):
                 self.assert_ok(url)
 
-    def test_teacher_dashboard_redirects_to_cabinet(self):
-        self.client.force_login(self.mentor)
-        self.assertRedirects(reverse("home:dashboard") and
-                             self.client.get(reverse("home:dashboard")),
-                             reverse("teacher:groups"))
+    def test_admin_dashboard_redirects_to_panel(self):
+        self.client.force_login(self.admin)
+        self.assertRedirects(self.client.get(reverse("home:dashboard")),
+                             reverse("manage:students"))
 
-    # --------------------------------------------------------- tadqiqotchi
-
-    def test_researcher_pages(self):
-        self.client.force_login(self.researcher)
+    def test_admin_research_pages(self):
+        self.client.force_login(self.admin)
         for url in [
             reverse("research:dashboard"),
             reverse("research:statistics"),
             reverse("research:export"),
-            reverse("research:set_arm", args=[self.group.pk]),
+            reverse("research:set_arm", args=[self.student.profile.pk]),
         ]:
             with self.subTest(url=url):
                 self.assert_ok(url)
 
-    def test_researcher_dashboard_redirect(self):
-        self.client.force_login(self.researcher)
-        self.assertRedirects(self.client.get(reverse("home:dashboard")),
-                             reverse("research:dashboard"))
+    # ------------------------------------------- o'qituvchi CRUD qilolmaydi
+
+    def test_teacher_cannot_open_admin_pages(self):
+        self.client.force_login(self.student)
+        for url in [
+            reverse("manage:students"),
+            reverse("manage:analytics"),
+            reverse("manage:announce"),
+            reverse("research:dashboard"),
+            reverse("research:export"),
+            reverse("assignments:queue"),
+            reverse("assignments:grade", args=[self.submission.pk]),
+            reverse("goals:review", args=[self.goal.pk]),
+        ]:
+            with self.subTest(url=url):
+                self.assertEqual(self.client.get(url).status_code, 403)
 
 
 class TemplateHygieneTests(TestCase):

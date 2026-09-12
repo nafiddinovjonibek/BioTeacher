@@ -8,7 +8,6 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from accounts.models import Enrollment, StudyGroup
 from core.enums import Role
 from reflection.models import ReflectionEntry
 
@@ -95,15 +94,13 @@ class GoalMentorReviewTests(TestCase):
 
     def setUp(self):
         self.mentor = User.objects.create_user("mentor-maqsad@test.uz", "parol12345")
-        self.mentor.profile.role = Role.TEACHER
+        self.mentor.profile.role = Role.ADMIN
+        self.mentor.profile.onboarding_done = True
         self.mentor.profile.save()
-        self.group = StudyGroup.objects.create(name="M-guruh", teacher=self.mentor)
 
         self.student = User.objects.create_user("talaba-maqsad@test.uz", "parol12345")
-        self.student.profile.group = self.group
         self.student.profile.onboarding_done = True
         self.student.profile.save()
-        Enrollment.objects.create(student=self.student, group=self.group)
 
         self.goal = make_goal(self.student)
 
@@ -142,9 +139,9 @@ class GoalMentorReviewTests(TestCase):
         response = self.client.get(reverse("goals:review", args=[self.goal.pk]))
         self.assertEqual(response.status_code, 403)
 
-    def test_foreign_mentor_cannot_review(self):
-        stranger = User.objects.create_user("begona-mentor@test.uz", "parol12345")
-        stranger.profile.role = Role.TEACHER
+    def test_other_teacher_cannot_review(self):
+        stranger = User.objects.create_user("begona-oqituvchi@test.uz", "parol12345")
+        stranger.profile.onboarding_done = True
         stranger.profile.save()
         self.client.force_login(stranger)
         response = self.client.get(reverse("goals:review", args=[self.goal.pk]))

@@ -1,0 +1,306 @@
+{% extends "base.html" %}
+{% block title %}Menyu tartibi{% endblock %}
+{% block page_title %}Menyu tartibi{% endblock %}
+{% block content %}
+<div class="max-w-5xl mx-auto space-y-5">
+  <div class="rounded-2xl border border-brand-200 bg-brand-50 p-4 text-sm text-brand-900 leading-relaxed">
+    <strong>⋮⋮</strong> belgisidan tortib <strong>bloklar</strong> va <strong>bandlar</strong> joyini o'zgartiring — bandni boshqa blokka ham
+    tortib o'tkazish mumkin. Nomni o'zgartirish uchun ustiga bosing, yozing va <kbd class="px-1 rounded bg-white border">Enter</kbd> bosing.
+    <strong>＋</strong> — ichki band, <strong>✎</strong> — sahifa, havola va ikonkani o'zgartirish, 🗑 — o'chirish.
+    Hammasi darhol saqlanadi va barcha foydalanuvchilarda shunday ko'rinadi.
+  </div>
+  {% csrf_token %}
+
+  <div class="flex flex-wrap items-center justify-between gap-2">
+    <h2 class="text-lg font-bold text-slateg-900">O'qituvchi menyusi</h2>
+    <div class="flex items-center gap-4">
+      <form method="post" action="{% url 'manage:menu_reset' 'groups' %}">{% csrf_token %}
+        <button class="text-xs text-slateg-500 hover:text-slateg-800 hover:underline">Bloklar tartibini tiklash</button>
+      </form>
+      <form method="post" action="{% url 'manage:menu_reset' 'all' %}"
+            onsubmit="return confirm('O‘qituvchi menyusi to‘liq standart holatga qaytadi: qo‘shilgan bloklar va bandlar o‘chadi. Davom etasizmi?')">{% csrf_token %}
+        <button class="text-xs text-rosex-600 hover:underline">Butun menyuni tiklash</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="grid lg:grid-cols-2 gap-5" id="group-list">
+    {% for group in teacher_groups %}
+      {% include "manage/_menu_card.html" with group=group draggable=True %}
+    {% endfor %}
+  </div>
+
+  <form method="post" action="{% url 'manage:menu_group_add' %}"
+        class="flex flex-wrap items-center gap-2 rounded-2xl border-2 border-dashed border-slateg-300 bg-white/60 p-4">
+    {% csrf_token %}
+    <span class="chip chip-sm shrink-0">{% include "partials/icon.html" with name="plus" %}</span>
+    <label for="new-block" class="sr-only">Yangi blok nomi</label>
+    <input id="new-block" name="title" maxlength="60" placeholder="Yangi blok nomi, masalan: 5-blok: Loyiha ishlari"
+           class="field flex-1 min-w-[12rem]">
+    <button class="btn btn-primary">Blok qo‘shish</button>
+  </form>
+
+  <div class="grid lg:grid-cols-2 gap-5">
+    {% include "manage/_menu_card.html" with group=sections_card draggable=False %}
+  </div>
+
+  <h2 class="pt-4 text-lg font-bold text-slateg-900">Admin menyusi</h2>
+  <div class="grid lg:grid-cols-2 gap-5">
+    {% for group in admin_groups %}
+      {% include "manage/_menu_card.html" with group=group draggable=False %}
+    {% endfor %}
+  </div>
+</div>
+
+{# ---------------- Band qo'shish / tahrirlash oynasi ---------------- #}
+<dialog id="item-dialog" aria-labelledby="item-dialog-title"
+        class="w-[min(34rem,calc(100vw-2rem))] rounded-2xl p-0 shadow-lift backdrop:bg-forest-950/50">
+  <form method="post" action="{% url 'manage:menu_item_save' %}" class="p-5 sm:p-6 space-y-4">
+    {% csrf_token %}
+    <input type="hidden" name="key"><input type="hidden" name="group"><input type="hidden" name="parent">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <h2 id="item-dialog-title" class="text-lg font-bold text-slateg-900" data-dialog-title>Band qo‘shish</h2>
+        <p class="mt-0.5 text-[12px] text-slateg-500" data-dialog-parent hidden></p>
+      </div>
+      <button type="button" class="icon-btn" data-dialog-close aria-label="Yopish">{% include "partials/icon.html" with name="x" %}</button>
+    </div>
+
+    <label class="block">
+      <span class="text-[13px] font-semibold text-slateg-800">Qayerga olib boradi</span>
+      <select name="page" class="field mt-1" data-page-select>
+        {% for audience, groups in page_choices.items %}
+          {% for heading, options in groups %}
+            <optgroup label="{{ heading }}" data-audience="{{ audience }}">
+              {% for value, text in options %}<option value="{{ value }}">{{ text }}</option>{% endfor %}
+            </optgroup>
+          {% endfor %}
+        {% endfor %}
+        <option value="">Boshqa havola (URL)…</option>
+      </select>
+      <span class="mt-1 block text-[11px] text-slateg-500" data-locked-note hidden>Bu band doim «Menyu tartibi» sahifasiga olib boradi.</span>
+    </label>
+
+    <label class="block" data-url-field>
+      <span class="text-[13px] font-semibold text-slateg-800">Havola</span>
+      <input name="url" maxlength="300" class="field mt-1" placeholder="/biobilim/fan/botanika/ yoki https://…">
+      <span class="mt-1 block text-[11px] text-slateg-500">Sayt ichidagi yo‘l «/» bilan, tashqi sayt «https://» bilan boshlansin — u yangi oynada ochiladi.</span>
+    </label>
+
+    <div class="grid sm:grid-cols-2 gap-3">
+      <label class="block">
+        <span class="text-[13px] font-semibold text-slateg-800">Nomi</span>
+        <input name="label" maxlength="60" class="field mt-1" data-label-input>
+      </label>
+      <label class="block">
+        <span class="text-[13px] font-semibold text-slateg-800">Izoh <span class="font-normal text-slateg-500">(ixtiyoriy)</span></span>
+        <input name="hint" maxlength="60" class="field mt-1" placeholder="Nom ostidagi kichik yozuv">
+      </label>
+    </div>
+
+    <fieldset>
+      <legend class="text-[13px] font-semibold text-slateg-800">Ikonka</legend>
+      <div class="mt-1.5 grid grid-cols-6 sm:grid-cols-9 gap-1.5">
+        <label class="icon-tile" title="Sahifaning o‘z ikonkasi">
+          <input type="radio" name="icon" value="" class="sr-only"><span class="text-[10px] font-semibold">Avto</span>
+        </label>
+        {% for name in icons %}
+          <label class="icon-tile" title="{{ name }}">
+            <input type="radio" name="icon" value="{{ name }}" class="sr-only" aria-label="{{ name }}">
+            <span class="w-4 h-4">{% include "partials/icon.html" with name=name %}</span>
+          </label>
+        {% endfor %}
+      </div>
+    </fieldset>
+
+    <div class="flex justify-end gap-2 pt-1">
+      <button type="button" class="btn btn-quiet" data-dialog-close>Bekor qilish</button>
+      <button class="btn btn-primary">Saqlash</button>
+    </div>
+  </form>
+</dialog>
+
+{{ menu_data|json_script:"menu-data" }}
+{% endblock %}
+
+{% block head %}
+<style>
+  .icon-btn {
+    display: grid; place-items: center; width: 1.85rem; height: 1.85rem; border-radius: 8px;
+    color: #7E8F85; transition: background .15s, color .15s;
+  }
+  .icon-btn svg { width: 1rem; height: 1rem; }
+  .icon-btn:hover { background: #EDF2EF; color: #12261A; }
+  .icon-btn-danger:hover { background: #FDEEEC; color: #C0392B; }
+  .icon-tile {
+    display: grid; place-items: center; height: 2.25rem; border: 1px solid #E1E9E4; border-radius: 10px;
+    cursor: pointer; color: #42544A; transition: background .15s, border-color .15s;
+  }
+  .icon-tile:hover { border-color: #A9DBBB; }
+  .icon-tile:has(input:checked) { background: #17843F; border-color: #17843F; color: #fff; }
+  .icon-tile:has(input:focus-visible) { outline: 2px solid #17843F; outline-offset: 2px; }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  const csrf = document.querySelector('[name=csrfmiddlewaretoken]').value;
+  const DATA = JSON.parse(document.getElementById('menu-data').textContent);
+  const URLS = {
+    reorder: "{% url 'manage:menu_reorder' %}",
+    rename: "{% url 'manage:menu_rename' %}",
+    sections: "{% url 'manage:crud_reorder' 'sections' %}",
+  };
+
+  function post(url, body) {
+    return fetch(url, {
+      method: 'POST', credentials: 'same-origin',
+      headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrf},
+      body: JSON.stringify(body),
+    }).then(r => r.json());
+  }
+  function flash(card, ok, text) {
+    const s = card.querySelector('[data-status]');
+    s.textContent = text || (ok ? 'Saqlandi ✓' : 'Xato');
+    s.className = 'shrink-0 text-xs ' + (ok ? 'text-brand-700' : 'text-rosex-600');
+  }
+  const directKeys = list => [...list.querySelectorAll(':scope > li[data-key]')].map(li => li.dataset.key);
+  const renumber = list => list.querySelectorAll(':scope > li [data-pos]').forEach((el, i) => el.textContent = i + 1);
+
+  if (window.Sortable) {
+    // ---- blok bandlari: shu menyudagi bloklar orasida ham ko'chiriladi
+    document.querySelectorAll('[data-items]').forEach(list => {
+      const card = list.closest('[data-card]');
+      const isSections = card.dataset.card === 'sections';
+      Sortable.create(list, {
+        group: isSections ? 'sections' : 'menu-' + card.dataset.audience,
+        handle: '.item-handle', animation: 150, ghostClass: 'opacity-50',
+        onEnd: evt => {
+          const toList = evt.to, toCard = toList.closest('[data-card]');
+          renumber(toList);
+          if (evt.from !== evt.to) {
+            renumber(evt.from);
+            toList.querySelector(':scope > [data-empty]')?.remove();
+            // Ko'chgan bandning tugmalari endi yangi blokka tegishli.
+            evt.item.querySelectorAll('[data-group]').forEach(el => el.dataset.group = toCard.dataset.card);
+            if (DATA.items[evt.item.dataset.key]) DATA.items[evt.item.dataset.key].group = toCard.dataset.card;
+          }
+          const keys = directKeys(toList);
+          const req = isSections
+            ? post(URLS.sections, {ids: keys.map(Number)})
+            : post(URLS.reorder, {group: toCard.dataset.card, keys});
+          req.then(d => flash(toCard, d.ok)).catch(() => flash(toCard, false));
+        },
+      });
+    });
+
+    // ---- ichki bandlar — faqat o'z ota bandi ichida
+    document.querySelectorAll('[data-children]').forEach(list => {
+      const card = list.closest('[data-card]');
+      Sortable.create(list, {
+        group: 'children-' + list.dataset.parent,
+        handle: '.child-handle', animation: 150, ghostClass: 'opacity-50',
+        onEnd: () => post(URLS.reorder, {parent: list.dataset.parent, keys: directKeys(list)})
+          .then(d => flash(card, d.ok)).catch(() => flash(card, false)),
+      });
+    });
+
+    // ---- bloklar tartibi
+    const groupList = document.getElementById('group-list');
+    Sortable.create(groupList, {
+      handle: '.card-handle', animation: 200, ghostClass: 'opacity-50',
+      onEnd: () => {
+        const codes = [...groupList.querySelectorAll(':scope > [data-card]')].map(c => c.dataset.card);
+        post(URLS.reorder, {group: '__groups__', keys: codes})
+          .then(d => groupList.querySelectorAll(':scope > [data-card]').forEach(c => flash(c, d.ok)))
+          .catch(() => {});
+      },
+    });
+  }
+
+  // ---- nomlarni joyida tahrirlash (Enter yoki fokus chiqqanda saqlanadi, Esc — bekor)
+  document.querySelectorAll('[data-rename]').forEach(input => {
+    const card = input.closest('[data-card]');
+    input.dataset.saved = input.value;
+    const save = () => {
+      if (input.value === input.dataset.saved) return;
+      post(URLS.rename, {kind: input.dataset.rename, key: input.dataset.renameKey, label: input.value})
+        .then(d => {
+          if (!d.ok) { flash(card, false, d.error || 'Xato'); input.value = input.dataset.saved; return; }
+          input.value = d.label; input.dataset.saved = d.label;
+          if (DATA.items[input.dataset.renameKey]) DATA.items[input.dataset.renameKey].label = d.label;
+          flash(card, true);
+        })
+        .catch(() => { flash(card, false); input.value = input.dataset.saved; });
+    };
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+      if (e.key === 'Escape') { input.value = input.dataset.saved; input.blur(); }
+    });
+    input.addEventListener('blur', save);
+  });
+
+  // ---- band qo'shish / tahrirlash oynasi
+  const dialog = document.getElementById('item-dialog');
+  const form = dialog.querySelector('form');
+  const pageSelect = form.elements.page;
+
+  function syncPage() {
+    const page = pageSelect.value;
+    form.querySelector('[data-url-field]').hidden = page !== '';
+    form.elements.url.required = page === '';
+    form.elements.label.required = page === '';
+    const def = DATA.pages[page];
+    form.elements.label.placeholder = def ? def.label + ' (standart)' : 'Menyudagi nomi';
+  }
+  function openDialog({title, group, parent = '', values = {}}) {
+    form.reset();
+    form.elements.key.value = values.key || '';
+    form.elements.group.value = group;
+    form.elements.parent.value = parent;
+    const audience = document.querySelector('[data-card="' + CSS.escape(group) + '"]')?.dataset.audience || 'teacher';
+    form.querySelectorAll('optgroup[data-audience]').forEach(og => {
+      const off = og.dataset.audience !== audience;
+      og.hidden = off; og.disabled = off;
+    });
+    const firstPage = form.querySelector('optgroup[data-audience="' + audience + '"] option');
+    pageSelect.value = 'page' in values ? values.page : (firstPage ? firstPage.value : '');
+    pageSelect.disabled = !!values.locked;
+    form.querySelector('[data-locked-note]').hidden = !values.locked;
+    form.elements.url.value = values.url || '';
+    form.elements.label.value = values.label || '';
+    form.elements.hint.value = values.hint || '';
+    const icon = form.querySelector('input[name=icon][value="' + CSS.escape(values.icon || '') + '"]');
+    (icon || form.querySelector('input[name=icon][value=""]')).checked = true;
+
+    dialog.querySelector('[data-dialog-title]').textContent = title;
+    const parentNote = dialog.querySelector('[data-dialog-parent]');
+    const p = parent && DATA.items[parent];
+    parentNote.hidden = !p;
+    if (p) parentNote.textContent = '«' + (p.label || (DATA.pages[p.page] || {}).label || p.url) + '» bandining ichiga';
+    syncPage();
+    dialog.showModal();
+    (values.key ? form.elements.label : pageSelect).focus();
+  }
+
+  pageSelect.addEventListener('change', syncPage);
+  dialog.addEventListener('click', e => { if (e.target === dialog) dialog.close(); });
+  document.addEventListener('click', e => {
+    const add = e.target.closest('[data-item-add]');
+    if (add) {
+      const parent = add.dataset.parent || '';
+      openDialog({title: parent ? 'Ichki band qo‘shish' : 'Band qo‘shish', group: add.dataset.group, parent});
+      return;
+    }
+    const edit = e.target.closest('[data-item-edit]');
+    if (edit) {
+      const values = DATA.items[edit.dataset.itemEdit];
+      if (values) openDialog({title: 'Bandni tahrirlash', group: values.group, values});
+      return;
+    }
+    if (e.target.closest('[data-dialog-close]')) dialog.close();
+  });
+})();
+</script>
+{% endblock %}

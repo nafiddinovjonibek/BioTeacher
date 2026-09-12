@@ -5,7 +5,7 @@ from .models import (
     CompetencyCheck,
     CompetencyItem,
     Criterion,
-    GroupAssignment,
+    AssignedTask,
     Rubric,
     Score,
     Submission,
@@ -66,5 +66,5 @@ class CompetencyItemAdmin(admin.ModelAdmin):
 
 admin.site.register(Criterion)
 admin.site.register(SubmissionFile)
-admin.site.register(GroupAssignment)
+admin.site.register(AssignedTask)
 admin.site.register(CompetencyCheck)
