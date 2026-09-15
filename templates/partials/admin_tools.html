@@ -1,0 +1,28 @@
+{% comment %}
+Administrator uchun tezkor boshqaruv (faqat admin rejimida include qilinadi).
+  key   — CRUD reyestri kaliti (accounts/crud.py)
+  obj   — yozuv berilsa: «Tahrirlash / O'chirish» tugmachalari; berilmasa: «+ Qo'shish» paneli
+  label — yangi yozuv nomi («Yangi keys»)
+  query — CRUD'ga uzatiladigan filtr, «&» bilan tugaydi (masalan: "module=LAB&")
+  back  — o'chirilgach qaytiladigan sahifa (standart: joriy sahifa)
+Saqlagach yoki o'chirgach admin shu sahifaga qaytadi (?next=).
+{% endcomment %}
+{% if obj %}
+<div class="admin-tools">
+  <a href="{% url 'manage:crud_edit' key obj.pk %}?next={{ request.get_full_path|urlencode }}" class="admin-tool" title="Tahrirlash" aria-label="Tahrirlash: {{ obj }}">
+    {% include "partials/icon.html" with name="pen" %}
+  </a>
+  <a href="{% url 'manage:crud_delete' key obj.pk %}?next={% if back %}{{ back|urlencode }}{% else %}{{ request.get_full_path|urlencode }}{% endif %}" class="admin-tool is-danger" title="O‘chirish" aria-label="O‘chirish: {{ obj }}">
+    {% include "partials/icon.html" with name="trash" %}
+  </a>
+</div>
+{% else %}
+<div class="flex flex-wrap items-center gap-2 rounded-2xl border border-dashed border-brand-300 bg-brand-50 px-4 py-2.5">
+  <span class="w-4 h-4 shrink-0 text-brand-700">{% include "partials/icon.html" with name="shield" %}</span>
+  <span class="mr-auto text-[13px] font-semibold text-brand-900">Administrator rejimi — bu bo‘lim ma’lumotlarini qo‘shing, tahrirlang yoki o‘chiring</span>
+  <a href="{% url 'manage:crud_create' key %}?{{ query }}next={{ request.get_full_path|urlencode }}" class="btn btn-primary btn-sm">
+    <span class="w-4 h-4">{% include "partials/icon.html" with name="plus" %}</span> {{ label }}
+  </a>
+  <a href="{% url 'manage:crud_list' key %}{% if query %}?{{ query }}{% endif %}" class="btn btn-quiet btn-sm">Jadval ko‘rinishi</a>
+</div>
+{% endif %}

@@ -121,6 +121,11 @@ def _task_rows(user, assignments):
     }
 
 
+def _is_admin(user):
+    profile = getattr(user, "profile", None)
+    return bool(profile and profile.is_admin)
+
+
 def _back_url(assignment):
     if assignment.module == Module.VISUAL:
         return reverse("assignments:cases")
@@ -149,6 +154,7 @@ def module_list(request, module):
                 {"code": code.value, "label": label, "icon": MODULE_ICONS[code]} for code, label in PRACTICE_TABS
             ],
             "rows": rows,
+            "is_admin": _is_admin(request.user),
             **stats,
         },
     )
@@ -177,6 +183,7 @@ def cases(request):
             "sections": sorted(sections.values(), key=lambda s: (s.order, s.title)),
             "current": current,
             "steps": VISUAL_STEPS,
+            "is_admin": _is_admin(request.user),
             **stats,
         },
     )

@@ -53,7 +53,7 @@ PAGES = {
     "socratic": {"url": "home:upcoming", "arg": "ai-sokratik", "label": "AI-sokratik", "icon": "bot"},
     "cases": {"url": "assignments:cases", "label": "Muammoli vizual keyslar", "icon": "image",
               "hint": "mustaqil tahlil qilish"},
-    "sim3d": {"url": "home:upcoming", "arg": "3d-simulyatsiyalar", "label": "3D simulyatsiyalar", "icon": "box"},
+    "sim3d": {"url": "development:simulations", "label": "3D simulyatsiyalar", "icon": "box"},
     # Boshqa amaliy modullar (pedagog, raqamli, kreativ) shu sahifadagi yorliqlarda ham bor.
     "lab": {"url": "assignments:module", "arg": "LAB", "label": "Virtual laboratoriya va amaliy topshiriqlar",
             "icon": "microscope", "ns": "assignments"},
@@ -62,7 +62,7 @@ PAGES = {
     "creative": {"url": "assignments:module", "arg": "KREATIV", "label": "Kreativ o‘qituvchi", "icon": "spark"},
     "gallery": {"url": "assignments:gallery", "label": "Ijodiy galereya", "icon": "image"},
     "competency": {"url": "assignments:competency", "label": "Kompetensiya checklisti", "icon": "check"},
-    "plot": {"url": "home:upcoming", "arg": "tajriba-uchastkasi", "label": "Maktab o‘quv-tajriba uchastkasi resurslari",
+    "plot": {"url": "development:plot", "label": "Maktab o‘quv-tajriba uchastkasi resurslari",
              "icon": "sprout"},
     "journal": {"url": "reflection:journal", "label": "Refleksiya kundaligi", "icon": "pen"},
     "observation": {"url": "progress:observation", "label": "Kuzatuv varaqasi", "icon": "eye",

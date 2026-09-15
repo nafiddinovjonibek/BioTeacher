@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}{{ resource.title }} — Tajriba uchastkasi{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto space-y-5">
+  <div class="no-print flex flex-wrap items-center justify-between gap-3">
+    <a href="{% url 'development:plot' %}" class="text-sm text-slateg-500 hover:text-slateg-800">← Tajriba uchastkasi resurslari</a>
+    <div class="flex flex-wrap gap-2">
+      <button type="button" onclick="window.print()" class="btn btn-quiet btn-sm">
+        <span class="w-4 h-4">{% include "partials/icon.html" with name="download" %}</span> Chop etish / PDF
+      </button>
+      {% if is_admin %}
+        {% url 'development:plot' as list_url %}
+        <a href="{% url 'manage:crud_edit' 'plot_resources' resource.pk %}?next={{ request.get_full_path|urlencode }}" class="btn btn-quiet btn-sm">
+          <span class="w-4 h-4">{% include "partials/icon.html" with name="pen" %}</span> Tahrirlash
+        </a>
+        <a href="{% url 'manage:crud_delete' 'plot_resources' resource.pk %}?next={{ list_url|urlencode }}" class="btn btn-quiet btn-sm text-rosex-600">
+          <span class="w-4 h-4">{% include "partials/icon.html" with name="trash" %}</span> O‘chirish
+        </a>
+      {% endif %}
+    </div>
+  </div>
+
+  <article class="section sm:p-7">
+    <div class="flex items-start gap-4">
+      <span class="chip chip-lg shrink-0">{% include "partials/icon.html" with name=resource.icon %}</span>
+      <div class="min-w-0">
+        <p class="text-[11px] font-semibold uppercase tracking-wide text-slateg-500">{{ resource.get_kind_display }}</p>
+        <h1 class="mt-1 text-[1.35rem] font-extrabold leading-tight text-slateg-900">{{ resource.title }}</h1>
+        <p class="mt-2 text-[14px] leading-relaxed text-slateg-600">{{ resource.summary }}</p>
+      </div>
+    </div>
+
+    <dl class="mt-5 grid grid-cols-2 sm:grid-cols-3 gap-2 text-[13px]">
+      <div class="rounded-xl bg-slateg-50 px-3 py-2"><dt class="text-[11px] text-slateg-500">Mavsum</dt><dd class="font-semibold text-slateg-900">{{ resource.get_season_display }}</dd></div>
+      {% if resource.grade %}<div class="rounded-xl bg-slateg-50 px-3 py-2"><dt class="text-[11px] text-slateg-500">Sinf</dt><dd class="font-semibold text-slateg-900">{{ resource.grade }}</dd></div>{% endif %}
+      {% if resource.duration %}<div class="rounded-xl bg-slateg-50 px-3 py-2"><dt class="text-[11px] text-slateg-500">Davomiyligi</dt><dd class="font-semibold text-slateg-900">{{ resource.duration }}</dd></div>{% endif %}
+    </dl>
+
+    {% if resource.image %}
+      <img src="{{ resource.image.url }}" alt="{{ resource.title }}" class="mt-5 w-full rounded-xl border border-slateg-200">
+    {% endif %}
+
+    <div class="mt-6 space-y-4 text-[14px] leading-relaxed text-slateg-800">
+      {% for block in resource.blocks %}
+        <div>
+          {% if block.heading %}<h2 class="mb-1 text-[13px] font-extrabold uppercase tracking-wide text-brand-700">{{ block.heading }}</h2>{% endif %}
+          <p>{% for line in block.lines %}{{ line }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</p>
+        </div>
+      {% endfor %}
+    </div>
+
+    {% if resource.file or resource.url %}
+      <div class="no-print mt-6 flex flex-wrap gap-2 border-t border-slateg-200 pt-5">
+        {% if resource.file %}
+          <a href="{{ resource.file.url }}" class="btn btn-primary btn-sm" download>
+            <span class="w-4 h-4">{% include "partials/icon.html" with name="download" %}</span> Yuklab olish: {{ resource.file_name|truncatechars:40 }}
+          </a>
+        {% endif %}
+        {% if resource.url %}
+          <a href="{{ resource.url }}" target="_blank" rel="noopener" class="btn btn-quiet btn-sm">
+            <span class="w-4 h-4">{% include "partials/icon.html" with name="link" %}</span> Qo‘shimcha manba ↗
+          </a>
+        {% endif %}
+      </div>
+    {% endif %}
+  </article>
+
+  {% if related %}
+    <section class="no-print">
+      <h2 class="text-[15px] font-bold text-slateg-900">Shu turdagi boshqa resurslar</h2>
+      <div class="mt-3 grid gap-2">
+        {% for other in related %}
+          <a href="{% url 'development:plot_resource' other.slug %}" class="card flex items-center justify-between gap-3 px-4 py-3">
+            <span class="min-w-0 text-[13px] font-semibold text-slateg-900">{{ other.title }}</span>
+            <span class="shrink-0 text-[12px] text-slateg-500">{{ other.get_season_display }}</span>
+          </a>
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block head %}
+<style>
+  @media print {
+    .no-print, aside, nav, header { display: none !important; }
+  }
+</style>
+{% endblock %}

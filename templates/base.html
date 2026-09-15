@@ -153,6 +153,17 @@
     .btn-wide { width:100%; }
     .btn-sm { padding:.42rem .8rem; font-size:.875rem; border-radius:9px; }
 
+    /* ---------- Admin: kartadagi tahrirlash / o'chirish (partials/admin_tools.html) ---------- */
+    .admin-tools { position:absolute; top:.5rem; right:.5rem; z-index:2; display:flex; gap:.3rem; }
+    .admin-tool {
+      display:grid; place-items:center; width:1.9rem; height:1.9rem; border-radius:8px;
+      background:rgba(255,255,255,.96); color:#2A3B31; border:1px solid #D7E2DA;
+      box-shadow:0 1px 3px rgba(11,43,24,.12); transition:background .15s, color .15s, border-color .15s;
+    }
+    .admin-tool svg { width:.95rem; height:.95rem; }
+    .admin-tool:hover { border-color:#A9DBBB; color:#116A33; }
+    .admin-tool.is-danger:hover { border-color:#F4C7C0; background:#FDEEEC; color:#C0392B; }
+
     /* ---------- Formalar ---------- */
     .field {
       width:100%; background:#fff; border:1px solid #D7E2DA; border-radius:10px;

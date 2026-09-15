@@ -54,12 +54,18 @@
   </div>
 
 
+  {% if is_admin %}
+    {% with query="module="|add:module|add:"&" %}
+      {% include "partials/admin_tools.html" with key="practice_tasks" label="Yangi topshiriq" %}
+    {% endwith %}
+  {% endif %}
+
   {# =================== Topshiriqlar =================== #}
   {% if rows %}
     <div class="panel">
       <div class="grid lg:grid-cols-2 gap-3">
         {% for row in rows %}
-          <article class="task-card{% if row.done %} is-done{% endif %}">
+          <article class="task-card{% if row.done %} is-done{% endif %}{% if is_admin %} has-admin{% endif %}">
             <a href="{% url 'assignments:detail' row.a.slug %}" class="task-link">
               <div class="flex items-start gap-2.5">
                 <h3 class="text-[15px] font-bold text-slateg-900 leading-snug min-w-0 flex-1">
@@ -94,6 +100,7 @@
                 </span>
               </div>
             </a>
+            {% if is_admin %}{% include "partials/admin_tools.html" with key="practice_tasks" obj=row.a %}{% endif %}
           </article>
         {% endfor %}
       </div>
@@ -103,7 +110,7 @@
       <span class="chip chip-lg mx-auto">{% include "partials/icon.html" with name=icon %}</span>
       <p class="mt-3 font-semibold text-slateg-900">Bu modulda hali topshiriq yo‘q</p>
       <p class="mt-1 text-sm text-slateg-600">
-        Administrator <code>python manage.py seed_demo</code> buyrug‘ini bajarishi kerak.
+        Administrator «Ma’lumotlar → 3-blok → Virtual laboratoriya va amaliy topshiriqlar» bo‘limida yangi topshiriq qo‘shishi mumkin.
       </p>
     </section>
   {% endif %}
@@ -115,7 +122,7 @@
 <style>
   /* ---------- Topshiriq kartasi ---------- */
   .task-card {
-    background: #fff; border: 1px solid #E6EDE9; border-radius: 14px;
+    position: relative; background: #fff; border: 1px solid #E6EDE9; border-radius: 14px;
     transition: border-color .18s, box-shadow .18s, transform .18s;
   }
   .task-card:hover {
@@ -125,6 +132,9 @@
   .task-card:focus-within { border-color: #A9DBBB; }
   /* Baholangan ish — yengil yashil yuza, ro'yxatda darrov ajraladi. */
   .task-card.is-done { background: #F7FCF9; border-color: #C6E4D2; }
+  /* Admin tugmachalari o'ng yuqori burchakda — holat nishoni ular ostida qolmasin. */
+  .task-card.has-admin .task-link > div:first-child { padding-right: 4.6rem; }
+  .task-card .admin-tools { top: .8rem; right: .8rem; }
 
   .task-link { display: flex; flex-direction: column; height: 100%; padding: 1rem 1.1rem; }
 

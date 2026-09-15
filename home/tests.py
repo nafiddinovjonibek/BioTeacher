@@ -133,8 +133,10 @@ class SeededPagesTests(TestCase):
             reverse("reflection:detail", args=[self.reflection.pk]),
             reverse("progress:monitoring"),
             reverse("progress:observation"),
-            *[reverse("home:upcoming", args=[slug])
-              for slug in ["ai-sokratik", "vizual-keyslar", "3d-simulyatsiyalar", "tajriba-uchastkasi"]],
+            reverse("home:upcoming", args=["ai-sokratik"]),
+            reverse("assignments:cases"),
+            reverse("development:simulations"),
+            reverse("development:plot"),
             reverse("gamification:achievements"),
             reverse("notifications:inbox"),
             reverse("notifications:settings"),

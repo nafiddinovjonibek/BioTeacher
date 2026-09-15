@@ -12,6 +12,7 @@ from django.http import Http404, JsonResponse
 from django.views.decorators.http import require_POST
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils.http import url_has_allowed_host_and_scheme
 
 from .crud import get_config, grouped
 from .forms_manage import BaseManageForm, manage_formfield
@@ -44,7 +45,34 @@ def _form_class(config):
         config.model, form=BaseManageForm, fields=fields, formfield_callback=manage_formfield
     )
     form_cls.slug_from = config.slug_from
+    if config.limit_choices:
+        form_cls = _limit_choices(form_cls, config.limit_choices)
     return form_cls
+
+
+def _limit_choices(form_cls, limits):
+    """Tanlov maydonlarida faqat ruxsat etilgan qiymatlar qoladi (bo'sh variant saqlanadi)."""
+    allowed = {name: {str(v) for v in values} for name, values in limits.items()}
+
+    class LimitedForm(form_cls):
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            for name, values in allowed.items():
+                if name in self.fields:
+                    self.fields[name].choices = [
+                        (value, label) for value, label in self.fields[name].choices
+                        if value == "" or str(value) in values
+                    ]
+
+    return LimitedForm
+
+
+def _next_url(request):
+    """`?next=/…` — yozuv sayt sahifasidan tahrirlansa, saqlagach o'sha sahifaga qaytiladi."""
+    url = request.GET.get("next", "")
+    if url and url_has_allowed_host_and_scheme(url, allowed_hosts={request.get_host()}):
+        return url
+    return ""
 
 
 def _active_filters(request, config):
@@ -58,6 +86,15 @@ def _list_url(config, filters=None):
         from urllib.parse import urlencode
         url += "?" + urlencode(filters)
     return url
+
+
+def _site_url(config, filters):
+    """«Saytda ko'rish» havolasi. Amaliy topshiriqlar sahifasi modul argumenti bilan ochiladi."""
+    if not config.site_url:
+        return ""
+    if config.site_url == "assignments:module":
+        return reverse(config.site_url, args=[filters.get("module") or "LAB"])
+    return reverse(config.site_url)
 
 
 def _object_or_404(config, pk, deleted=False):
@@ -129,6 +166,7 @@ def crud_list(request, key):
             ),
             "add_url": reverse("manage:crud_create", args=[config.key])
             + ("?" + request.GET.urlencode() if filters else ""),
+            "site_url": _site_url(config, filters),
         },
     )
 
@@ -140,7 +178,7 @@ def _render_form(request, config, form, obj=None):
         request,
         "manage/crud_form.html",
         {"config": config, "form": form, "obj": obj, "is_new": obj is None,
-         "back_url": _list_url(config, _active_filters(request, config)),
+         "back_url": _next_url(request) or _list_url(config, _active_filters(request, config)),
          "multipart": form.is_multipart()},
     )
 
@@ -153,8 +191,11 @@ def crud_create(request, key):
         return redirect("manage:crud_list", key=key)
 
     form_cls = _form_class(config)
-    initial = {k: v for k, v in _active_filters(request, config).items() if "__" not in k}
-    form = form_cls(request.POST or None, request.FILES or None, initial=initial)
+    filters = _active_filters(request, config)
+    initial = config.initial(filters) if config.initial else {}
+    initial.update({k: v for k, v in filters.items() if "__" not in k})
+    form = form_cls(request.POST or None, request.FILES or None, initial=initial,
+                    instance=config.model(**config.defaults))
     if request.method == "POST" and form.is_valid():
         obj = form.save()
         log_action(request, f"manage.{config.key}.create", str(obj)[:200])
@@ -163,7 +204,7 @@ def crud_create(request, key):
             return redirect("manage:crud_edit", key=key, pk=obj.pk)
         if request.POST.get("_addanother"):
             return redirect(request.get_full_path())
-        return redirect(_list_url(config, _active_filters(request, config)))
+        return redirect(_next_url(request) or _list_url(config, filters))
     return _render_form(request, config, form)
 
 
@@ -182,8 +223,8 @@ def crud_edit(request, key, pk):
         log_action(request, f"manage.{config.key}.update", str(obj)[:200])
         messages.success(request, f"{config.singular.capitalize()} saqlandi: {obj}")
         if request.POST.get("_continue"):
-            return redirect("manage:crud_edit", key=key, pk=obj.pk)
-        return redirect(_list_url(config, _active_filters(request, config)))
+            return redirect(request.get_full_path())
+        return redirect(_next_url(request) or _list_url(config, _active_filters(request, config)))
     return _render_form(request, config, form, obj)
 
 
@@ -218,13 +259,13 @@ def crud_delete(request, key, pk):
             obj.delete()
         log_action(request, f"manage.{config.key}.{action}", label)
         messages.success(request, f"{config.singular.capitalize()} — {title.lower()} bajarildi.")
-        return redirect(_list_url(config, _active_filters(request, config)))
+        return redirect(_next_url(request) or _list_url(config, _active_filters(request, config)))
 
     return render(
         request,
         "manage/crud_confirm.html",
         {"config": config, "obj": obj, "action": action, "title": title,
-         "back_url": _list_url(config, _active_filters(request, config))},
+         "back_url": _next_url(request) or _list_url(config, _active_filters(request, config))},
     )
 
 

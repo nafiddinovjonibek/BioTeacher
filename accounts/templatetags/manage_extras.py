@@ -50,6 +50,8 @@ def cell(obj, accessor):
         return f"{value:.1f}".rstrip("0").rstrip(".")
     if isinstance(value, models.Model):
         return str(value)
+    if accessor.endswith("picture_url"):
+        return format_html('<img src="{}" alt="" class="h-10 w-14 rounded-md border border-slateg-200 bg-white object-contain">', value)
     text = str(value)
     if len(text) > MAX_TEXT:
         return format_html('<span title="{}">{}…</span>', text, text[:MAX_TEXT])

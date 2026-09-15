@@ -41,6 +41,10 @@ class ModelConfig:
     note: str = ""                        # sahifa tepasidagi izoh
     builder_kind: str | None = None       # sodda quruvchi (accounts.builders) mavjud bo'lsa
     builder_query: str = ""               # quruvchiga uzatiladigan query (masalan: "?kind=TEST")
+    defaults: dict = field(default_factory=dict)       # yangi yozuvga formada ko'rinmaydigan qiymatlar
+    initial: object = None                # callable(filters) -> dict: formaning boshlang'ich qiymatlari
+    limit_choices: dict = field(default_factory=dict)  # {maydon: [ruxsat etilgan qiymatlar]}
+    site_url: str = ""                    # yozuvlar saytda ko'rinadigan sahifa (url nomi)
 
     @property
     def label(self):
@@ -79,6 +83,7 @@ class ModelConfig:
 
 GROUPS = [
     ("kontent", "Kontent (BioBilim)", "book"),
+    ("rivojlantirish", "3-blok: O‘z-o‘zini rivojlantirish", "sprout"),
     ("diagnostika", "Diagnostika", "clipboard"),
     ("topshiriqlar", "Topshiriqlar va baholash", "flask"),
     ("rivojlanish", "Rivojlanish sozlamalari", "trophy"),
@@ -115,6 +120,8 @@ def _build():
         Score, Submission, SubmissionFile,
     )
     from content.models import Lesson, LessonProgress, Material, Section, Topic
+    from core.enums import Component, Module
+    from development.models import PlotResource, Simulation
     from diagnostics.models import (
         Answer, Attempt, Choice, Measurement, Question, Questionnaire, Recommendation,
         ScoringWeights,
@@ -159,6 +166,67 @@ def _build():
         fields=["lesson", "kind", "title", "body", "url", "file"],
         columns=[("Material", "title"), ("Turi", "get_kind_display"), ("Dars", "lesson"), ("Tartib", "order")],
         search=["title", "lesson__title"], filters=["lesson"], select_related=["lesson"],
+    ))
+
+    # ------------------------------------------- 3-blok: o'z-o'zini rivojlantirish
+    # Menyudagi to'rt band. Keyslar va amaliy topshiriqlar — Assignment'ning bo'laklari:
+    # modul/turi yashirin yoki cheklangan, shunda yozuv kerakli sahifada chiqadi.
+    register(ModelConfig(
+        key="visual_cases", site_url="assignments:cases", model=Assignment, group="rivojlantirish", icon="image",
+        title="Muammoli vizual keyslar", singular_label="vizual keys",
+        base_filter={"module": Module.VISUAL},
+        defaults={"module": Module.VISUAL, "kind": Assignment.Kind.VISUAL},
+        initial=lambda filters: {
+            "component": Component.COG,
+            "rubric": Rubric.objects.filter(slug="vizual-tahlil").values_list("pk", flat=True).first(),
+        },
+        fields=["title", "section", "image", "image_alt", "context_note", "body", "reference_solution",
+                "component", "bloom_level", "rubric", "estimated_minutes", "difficulty", "allow_files",
+                "is_active"],
+        columns=[("Keys", "title"), ("Fan", "section"), ("Tasvir", "picture_url"),
+                 ("Murak.", "difficulty"), ("Faol", "is_active")],
+        search=["title", "slug", "body"], filters=["section"], slug_from="title",
+        select_related=["section", "rubric"], children=[("Ishlar", "submissions", "assignment")],
+        note="«Muammoli vizual keyslar» sahifasidagi keyslar. Tasvir yuklang (namunalarda tayyor tasvir bor — "
+             "yangi rasm yuklansa, u ustun turadi). «Etalon yechim» ish yuborilgandan keyin ochiladi.",
+    ))
+    practice_modules = [Module.LAB, Module.TEACHER, Module.DIGITAL, Module.CREATIVE]
+    practice_kinds = {Module.LAB: Assignment.Kind.LAB4, Module.TEACHER: Assignment.Kind.CASE,
+                      Module.DIGITAL: Assignment.Kind.DIGITAL, Module.CREATIVE: Assignment.Kind.CREATIVE}
+    register(ModelConfig(
+        key="practice_tasks", site_url="assignments:module", model=Assignment, group="rivojlantirish", icon="microscope",
+        title="Virtual laboratoriya va amaliy topshiriqlar", singular_label="amaliy topshiriq",
+        base_filter={"module__in": practice_modules},
+        initial=lambda filters: {
+            "kind": practice_kinds.get(filters.get("module"), Assignment.Kind.LAB4),
+            "component": Component.ACT,
+        },
+        limit_choices={"module": practice_modules, "kind": list(practice_kinds.values()) + [Assignment.Kind.LESSON_PLAN]},
+        fields=["module", "kind", "title", "section", "body", "context_note", "image", "image_alt",
+                "reference_solution", "component", "bloom_level", "rubric", "estimated_minutes", "difficulty",
+                "allow_files", "is_active"],
+        columns=[("Topshiriq", "title"), ("Bo'lim", "get_module_display"), ("Turi", "get_kind_display"),
+                 ("Murak.", "difficulty"), ("Faol", "is_active")],
+        search=["title", "slug", "body"], filters=["module"], slug_from="title",
+        select_related=["rubric"], children=[("Ishlar", "submissions", "assignment")],
+        note="«Virtual laboratoriya va amaliy topshiriqlar» sahifasining to'rt yorlig'i: Laboratoriya "
+             "(4 bosqichli), Men — o'qituvchi (keys, dars loyihasi), Raqamli biologiya, Kreativ o'qituvchi.",
+    ))
+    register(ModelConfig(
+        key="simulations", site_url="development:simulations", model=Simulation, group="rivojlantirish", icon="box",
+        fields=["title", "section", "image", "image_alt", "summary", "body", "parts", "task", "is_active"],
+        columns=[("Simulyatsiya", "title"), ("Fan", "section"), ("Tasvir", "picture_url"),
+                 ("Tartib", "order"), ("Faol", "is_active")],
+        search=["title", "summary"], filters=["section"], slug_from="title", select_related=["section"],
+        note="3D simulyatsiya — modelning 3D tasviri (render yoki skrinshot), qismlari va kuzatish topshirig'i.",
+    ))
+    register(ModelConfig(
+        key="plot_resources", site_url="development:plot", model=PlotResource, group="rivojlantirish", icon="sprout",
+        fields=["title", "kind", "season", "grade", "duration", "summary", "body", "image", "file", "url",
+                "is_active"],
+        columns=[("Resurs", "title"), ("Turi", "get_kind_display"), ("Mavsum", "get_season_display"),
+                 ("Sinf", "grade"), ("Tartib", "order"), ("Faol", "is_active")],
+        search=["title", "summary", "body"], filters=["kind", "season"], slug_from="title",
     ))
 
     # -------------------------------------------------------- diagnostika

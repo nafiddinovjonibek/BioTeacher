@@ -16,6 +16,7 @@ urlpatterns = [
     path("maqsadlar/", include("goals.urls")),
     path("biobilim/", include("content.urls")),
     path("topshiriqlar/", include("assignments.urls")),
+    path("amaliyot/", include("development.urls")),
     path("refleksiya/", include("reflection.urls")),
     path("rivojlanish/", include("progress.urls")),
     path("yutuqlar/", include("gamification.urls")),

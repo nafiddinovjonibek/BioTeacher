@@ -21,6 +21,7 @@
         {% endif %}
       </form>
       <div class="flex items-center gap-2">
+        {% if site_url %}<a href="{{ site_url }}" class="btn btn-quiet btn-sm" title="Yozuvlar saytda qanday ko‘rinishini ochish">Saytda ko‘rish ↗</a>{% endif %}
         {% if config.soft_delete %}
           <a href="{% qs_without 'deleted' 'page' %}" class="btn btn-sm {% if not show_deleted %}btn-primary{% else %}btn-quiet{% endif %}">Faol</a>
           <a href="{% qs_set deleted='1' page='' %}" class="btn btn-sm {% if show_deleted %}btn-primary{% else %}btn-quiet{% endif %}">Arxiv ({{ deleted_count }})</a>

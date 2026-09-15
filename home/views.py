@@ -104,33 +104,13 @@ UPCOMING = {
         ],
         "related": [("content:index", None, "Mavzular"), ("reflection:journal", None, "Refleksiya kundaligi")],
     },
-    "3d-simulyatsiyalar": {
-        "title": "3D simulyatsiyalar",
-        "icon": "box",
-        "lead": "Hujayra, organlar tizimi va biologik jarayonlarning interaktiv 3D modellari: "
-                "aylantirib, qismlarga ajratib, jarayonni bosqichma-bosqich kuzatib o‘rganasiz.",
-        "points": [
-            "Modelni istalgan tomondan ko‘rish va qismlarini alohida ajratish.",
-            "Har bir simulyatsiyaga bog‘langan kuzatish topshirig‘i.",
-        ],
-        "related": [("content:index", None, "Mavzular"), ("assignments:module", "LAB", "Virtual laboratoriya")],
-    },
-    "tajriba-uchastkasi": {
-        "title": "Maktab o‘quv-tajriba uchastkasi resurslari",
-        "icon": "sprout",
-        "lead": "Maktab o‘quv-tajriba uchastkasida amaliy mashg‘ulot o‘tkazish uchun metodik materiallar: "
-                "tajriba rejalari, kuzatuv kundaliklari, fenologik taqvim va yo‘riqnomalar.",
-        "points": [
-            "Mavsum va sinf bo‘yicha saralangan tajriba rejalari.",
-            "Yuklab olinadigan kuzatuv kundaligi va yo‘riqnoma shablonlari.",
-        ],
-        "related": [("assignments:module", "LAB", "Virtual laboratoriya"), ("content:index", None, "Mavzular")],
-    },
 }
 
 # Tayyor bo'lgan bo'limlar: eski «tez orada» manzili yangi sahifaga olib boradi (saqlangan havolalar ishlasin).
 READY = {
     "vizual-keyslar": "assignments:cases",
+    "3d-simulyatsiyalar": "development:simulations",
+    "tajriba-uchastkasi": "development:plot",
 }
 
 

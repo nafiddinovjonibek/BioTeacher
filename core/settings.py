@@ -79,6 +79,7 @@ INSTALLED_APPS = [
     "goals",
     "content",
     "assignments",
+    "development",
     "reflection",
     "progress",
     "gamification",
