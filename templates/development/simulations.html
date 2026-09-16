@@ -52,6 +52,7 @@
               <p class="mt-1.5 text-[12px] leading-relaxed text-slateg-500 line-clamp-2">{{ sim.summary }}</p>
               <div class="mt-auto pt-3 flex flex-wrap items-center gap-1.5">
                 {% if sim.section %}<span class="pill pill-xs pill-info">{{ sim.section.title }}</span>{% endif %}
+                {% if sim.url %}<span class="pill pill-xs pill-mute">Interaktiv</span>{% endif %}
                 {% with parts=sim.part_rows|length tasks=sim.task_rows|length %}
                   {% if parts %}<span class="pill pill-xs pill-mute metric">{{ parts }} ta qism</span>{% endif %}
                   {% if tasks %}<span class="pill pill-xs pill-mute metric">{{ tasks }} ta topshiriq</span>{% endif %}

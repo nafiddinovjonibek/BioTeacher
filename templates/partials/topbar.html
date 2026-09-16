@@ -6,14 +6,15 @@
       <span class="w-5 h-5">{% include "partials/icon.html" with name="menu" %}</span>
     </button>
 
-    <form action="{% url 'content:index' %}" method="get" class="flex-1 max-w-2xl relative">
+    <form action="{% url 'home:search' %}" method="get" role="search" class="flex-1 max-w-2xl relative">
       <label for="site-search" class="sr-only">Qidirish</label>
       <span class="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-slateg-400 pointer-events-none">
         {% include "partials/icon.html" with name="search" %}
       </span>
       <input id="site-search" type="search" name="q" value="{{ request.GET.q|default:'' }}"
-             placeholder="Mavzu, test yoki fanni qidirish…"
+             placeholder="Mavzu, dars, topshiriq yoki fanni qidirish…"
              class="field pl-11 rounded-full bg-white">
+      <button class="sr-only">Qidirish</button>
     </form>
 
     <div class="flex items-center gap-2 ml-auto">

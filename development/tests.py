@@ -129,6 +129,27 @@ class AdminManageTests(TestCase):
             self.assertEqual(sim.part_rows(), [("Chap qorincha", "qonni aortaga haydaydi")])
             self.assertContains(self.client.get(reverse("development:simulations")), "Yurak modeli")
 
+    def test_simulation_link_field_is_editable_and_shown(self):
+        sim = Simulation.objects.get(slug="3d-hayvon-hujayrasi")
+        form_html = self.client.get(reverse("manage:crud_create", args=["simulations"])).content.decode()
+        self.assertIn('name="url"', form_html)
+        self.assertIn("Havola", form_html)
+
+        edit = reverse("manage:crud_edit", args=["simulations", sim.pk])
+        response = self.client.post(edit, {
+            "title": sim.title, "section": sim.section_id or "", "image_alt": sim.image_alt,
+            "url": "https://sketchfab.com/3d-models/animal-cell", "summary": sim.summary,
+            "body": sim.body, "parts": sim.parts, "task": sim.task, "is_active": "on",
+        })
+        self.assertEqual(response.status_code, 302)
+        sim.refresh_from_db()
+        self.assertEqual(sim.url, "https://sketchfab.com/3d-models/animal-cell")
+
+        page = self.client.get(reverse("development:simulation", args=[sim.slug]))
+        self.assertContains(page, sim.url)
+        self.assertContains(page, "Interaktiv 3D modelni ochish")
+        self.assertContains(self.client.get(reverse("development:simulations")), "Interaktiv")
+
     def test_edit_and_delete_plot_resource(self):
         resource = PlotResource.objects.first()
         page = reverse("development:plot")

@@ -133,7 +133,7 @@ class SeededPagesTests(TestCase):
             reverse("reflection:detail", args=[self.reflection.pk]),
             reverse("progress:monitoring"),
             reverse("progress:observation"),
-            reverse("home:upcoming", args=["ai-sokratik"]),
+            reverse("socratic:chat"),
             reverse("assignments:cases"),
             reverse("development:simulations"),
             reverse("development:plot"),
@@ -143,6 +143,42 @@ class SeededPagesTests(TestCase):
         ]:
             with self.subTest(url=url):
                 self.assert_ok(url)
+
+    def test_site_search_finds_content_across_sections(self):
+        """Yuqori paneldagi qidiruv — bitta so'rov bo'yicha barcha bo'lim natijalari."""
+        self.client.force_login(self.student)
+        search_url = reverse("home:search")
+
+        # Bo'sh so'rov: sahifa ochiladi, natija talab qilinmaydi.
+        self.assertContains(self.assert_ok(search_url), "Qayerdan qidirilaydi")
+
+        # Bitta harf bo'yicha qidirilmaydi.
+        self.assertContains(self.client.get(search_url, {"q": "a"}), "So‘rov juda qisqa")
+
+        response = self.client.get(search_url, {"q": self.lesson.title[:12]})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.lesson.title)
+        self.assertContains(response, reverse("content:lesson", args=[
+            self.lesson.topic.section.slug, self.lesson.topic.slug, self.lesson.slug]))
+
+        # 3D simulyatsiya ham qidiruvga tushadi.
+        response = self.client.get(search_url, {"q": "xloroplast"})
+        self.assertContains(response, reverse("development:simulation", args=["3d-xloroplast"]))
+
+        # Tutuq belgisining istalgan varianti bir xil natija beradi.
+        straight = self.client.get(search_url, {"q": "o'simlik"}).context["total"]
+        curly = self.client.get(search_url, {"q": "o‘simlik"}).context["total"]
+        self.assertTrue(straight)
+        self.assertEqual(straight, curly)
+
+        # Topilmaganda — bo'sh holat.
+        self.assertContains(self.client.get(search_url, {"q": "zzzqwerty"}), "hech narsa topilmadi")
+
+    def test_search_requires_login(self):
+        self.client.logout()
+        response = self.client.get(reverse("home:search"), {"q": "hujayra"})
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(reverse("accounts:login"), response["Location"])
 
     def test_student_can_start_and_take_diagnostic(self):
         self.client.force_login(self.student)

@@ -80,6 +80,7 @@ INSTALLED_APPS = [
     "content",
     "assignments",
     "development",
+    "socratic",
     "reflection",
     "progress",
     "gamification",

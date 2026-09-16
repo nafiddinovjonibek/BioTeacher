@@ -8,6 +8,7 @@ urlpatterns = [
     path("", views.landing, name="landing"),
     path("loyiha-haqida/", views.about, name="about"),
     path("dashboard/", views.dashboard, name="dashboard"),
+    path("qidiruv/", views.search, name="search"),
     path("kabinet/", views.cabinet, name="cabinet"),
     path("bolim/<slug:slug>/", views.upcoming, name="upcoming"),
 ]

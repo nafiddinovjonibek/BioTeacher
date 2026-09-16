@@ -214,11 +214,12 @@ def _build():
     ))
     register(ModelConfig(
         key="simulations", site_url="development:simulations", model=Simulation, group="rivojlantirish", icon="box",
-        fields=["title", "section", "image", "image_alt", "summary", "body", "parts", "task", "is_active"],
+        fields=["title", "section", "image", "image_alt", "url", "summary", "body", "parts", "task", "is_active"],
         columns=[("Simulyatsiya", "title"), ("Fan", "section"), ("Tasvir", "picture_url"),
                  ("Tartib", "order"), ("Faol", "is_active")],
         search=["title", "summary"], filters=["section"], slug_from="title", select_related=["section"],
-        note="3D simulyatsiya — modelning 3D tasviri (render yoki skrinshot), qismlari va kuzatish topshirig'i.",
+        note="3D simulyatsiya — modelning 3D tasviri (render yoki skrinshot), qismlari va kuzatish topshirig'i. "
+             "Havola berilsa, sahifada «Interaktiv 3D modelni ochish» tugmasi paydo bo'ladi.",
     ))
     register(ModelConfig(
         key="plot_resources", site_url="development:plot", model=PlotResource, group="rivojlantirish", icon="sprout",

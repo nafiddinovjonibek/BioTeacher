@@ -38,29 +38,50 @@ def _lines(text):
 class Simulation(SoftDeleteModel):
     """3D simulyatsiya: interaktiv model o'rniga — 3D tasvir va unga bog'langan tahlil."""
 
-    title = models.CharField("nomi", max_length=200)
+    title = models.CharField(
+        "nomi", max_length=200,
+        help_text="Aniq, qisqa va o'quv dasturidagi mavzu nomiga mos. Masalan: «Yurakning 3D modeli».",
+    )
     slug = models.SlugField(max_length=120, unique=True)
     section = models.ForeignKey(
         "content.Section", on_delete=models.SET_NULL, null=True, blank=True,
         related_name="simulations", verbose_name="fan",
+        help_text="Model qaysi fan (bo'lim) dasturiga tegishli — sahifada shu bo'yicha saralanadi.",
     )
-    summary = models.CharField("qisqa tavsif", max_length=300, help_text="Kartada ko'rinadigan 1-2 gap.")
+    summary = models.CharField(
+        "qisqa tavsif", max_length=300,
+        help_text="Kartada ko'rinadigan 1-2 gap: model nimani va qanday ko'rinishda ko'rsatadi.",
+    )
     image = models.ImageField(
         "3D tasvir", upload_to="simulations/%Y/%m/", blank=True,
-        help_text="JPG, PNG, WEBP yoki GIF — modelning 3D ko'rinishi (render, skrinshot).",
+        help_text="JPG, PNG, WEBP yoki GIF — modelning 3D ko'rinishi (render, skrinshot). "
+                  "Real anatomik tuzilishni to'g'ri aks ettirishi shart.",
     )
     visual = models.CharField("tayyor tasvir", max_length=200, blank=True, help_text="static/ ichidagi yo'l.")
     image_alt = models.CharField(
         "tasvir tavsifi", max_length=300, blank=True,
-        help_text="Tasvirni ko'ra olmaydigan foydalanuvchi uchun qisqa tavsif.",
+        help_text="Rasm ostidagi qisqa tavsif: tasvirda nima va qaysi rakursda ko'rinadi. "
+                  "Tasvirni ko'ra olmaydigan foydalanuvchi uchun ham shu matn o'qiladi.",
     )
-    body = models.TextField("batafsil tavsif", blank=True)
+    url = models.URLField(
+        "havola", blank=True,
+        help_text="Aylantirib ko'rish mumkin bo'lgan 3D model yoki video havolasi "
+                  "(Sketchfab, BioDigital, YouTube va h.k.). Ixtiyoriy.",
+    )
+    body = models.TextField(
+        "batafsil tavsif", blank=True,
+        help_text="Mavzuning mohiyati: model nimani ko'rsatadi, tekis rasmdan farqi nimada. "
+                  "Bo'sh qator — yangi xatboshi.",
+    )
     parts = models.TextField(
         "asosiy qismlar", blank=True,
-        help_text="Har qatorda bitta: «Nomi — vazifasi». Masalan: Yadro — irsiy axborotni saqlaydi",
+        help_text="Har qatorda bitta: «Nomi — vazifasi», qisqa va lo'nda. "
+                  "Masalan: Yadro — irsiy axborotni saqlaydi",
     )
     task = models.TextField(
-        "kuzatish topshirig'i", blank=True, help_text="Har qatorda bitta savol yoki topshiriq.",
+        "kuzatish topshirig'i", blank=True,
+        help_text="Har qatorda bitta savol. Yodlashga emas — modelni aylantirib ko'rish, qismlarni "
+                  "taqqoslash va sabab izlashga undasin.",
     )
     order = models.PositiveSmallIntegerField(default=0)
     is_active = models.BooleanField("faol", default=True)

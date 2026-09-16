@@ -24,10 +24,20 @@
         <img src="{{ sim.picture_url }}" alt="{{ sim.image_alt|default:sim.title }}">
         <span class="absolute left-3 bottom-3 rounded-md bg-forest-900 px-2 py-0.5 text-[11px] font-extrabold tracking-wide text-white">3D</span>
       </a>
-      <figcaption class="mt-2 flex flex-wrap items-center justify-between gap-2 px-1 text-[12px] text-slateg-500">
+      {# Matn `alt` orqali allaqachon o'qiladi — ekran o'qiguvchida ikki marta takrorlanmasin. #}
+      {% if sim.image_alt %}
+        <figcaption class="mt-2 px-1 text-[12.5px] leading-relaxed text-slateg-600" aria-hidden="true">{{ sim.image_alt }}</figcaption>
+      {% endif %}
+      <div class="mt-2 flex flex-wrap items-center justify-between gap-2 px-1 text-[12px] text-slateg-500">
         <span>Modelni diqqat bilan kuzating: qismlar qanday chuqurlikda joylashgan?</span>
         <a href="{{ sim.picture_url }}" target="_blank" rel="noopener" class="font-medium text-brand-700 hover:underline">To‘liq o‘lchamda ↗</a>
-      </figcaption>
+      </div>
+      {% if sim.url %}
+        <a href="{{ sim.url }}" target="_blank" rel="noopener" class="btn btn-primary btn-sm mt-3 w-full justify-center">
+          <span class="w-4 h-4">{% include "partials/icon.html" with name="box" %}</span>
+          Interaktiv 3D modelni ochish ↗
+        </a>
+      {% endif %}
     </figure>
 
     <div class="min-w-0 space-y-5">

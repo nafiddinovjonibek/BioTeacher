@@ -50,7 +50,7 @@ PAGES = {
     "goals": {"url": "goals:list", "label": "Maqsadlarim", "icon": "target"},
     SECTIONS_PAGE: {"label": "Fanlar", "icon": "library"},
     "topics": {"url": "content:index", "label": "Mavzular", "icon": "book"},
-    "socratic": {"url": "home:upcoming", "arg": "ai-sokratik", "label": "AI-sokratik", "icon": "bot"},
+    "socratic": {"url": "socratic:chat", "label": "AI-sokratik", "icon": "bot"},
     "cases": {"url": "assignments:cases", "label": "Muammoli vizual keyslar", "icon": "image",
               "hint": "mustaqil tahlil qilish"},
     "sim3d": {"url": "development:simulations", "label": "3D simulyatsiyalar", "icon": "box"},

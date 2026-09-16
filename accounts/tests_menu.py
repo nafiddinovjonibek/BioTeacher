@@ -119,7 +119,7 @@ class TeacherRailStructureTests(TestCase):
             (reverse("progress:monitoring"), "Statistika"),
             # Boshqa amaliy modullar ham shu band ostida.
             (reverse("assignments:module", args=[Module.CREATIVE]), "Virtual laboratoriya va amaliy topshiriqlar"),
-            (reverse("home:upcoming", args=["ai-sokratik"]), "AI-sokratik"),
+            (reverse("socratic:chat"), "AI-sokratik"),
         ]
         for url, label in cases:
             with self.subTest(url=url):

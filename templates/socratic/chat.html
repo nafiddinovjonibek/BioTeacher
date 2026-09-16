@@ -1,0 +1,298 @@
+{% extends "base.html" %}
+{% block title %}AI-sokratik — BioTeacher{% endblock %}
+
+{% block content_wrap_class %}w-full{% endblock %}
+
+{% block content %}
+<div class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_19rem]">
+
+  {# =================== Suhbat =================== #}
+  <section class="chat-shell" aria-label="AI-sokratik suhbati">
+    <header class="flex flex-wrap items-center gap-3 border-b border-slateg-200 px-4 py-3 sm:px-5">
+      <span class="bot-avatar bot-avatar-lg">{% include "partials/icon.html" with name="bot" %}</span>
+      <div class="min-w-0 flex-1">
+        <h1 class="flex items-center gap-2 text-[1.05rem] font-extrabold leading-tight text-slateg-900">
+          AI-sokratik <span class="rounded-full bg-brand-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand-700">beta</span>
+        </h1>
+        <p class="flex items-center gap-1.5 text-[12px] text-slateg-500">
+          <span class="online-dot" aria-hidden="true"></span>
+          <span id="chat-subtitle">{% if progress.title %}{{ progress.title }}{% else %}Yoshga oid fiziologiya va gigiyena{% endif %}</span>
+        </p>
+      </div>
+      <div id="chat-progress" class="w-40 shrink-0 {% if not progress.total %}invisible{% endif %}">
+        <p class="text-right text-[11px] font-semibold text-slateg-500">
+          <span id="progress-label">{% if progress.phase == 'done' %}Yakunlandi{% elif progress.phase == 'conclude' %}Xulosa{% else %}Savol {{ progress.step|add:1 }} / {{ progress.total }}{% endif %}</span>
+        </p>
+        <div class="bar bar-thin mt-1"><span id="progress-bar" style="width: {% if progress.total %}{% widthratio progress.step progress.total 100 %}{% else %}0{% endif %}%"></span></div>
+      </div>
+      <form method="post" action="{% url 'socratic:start' %}" id="reset-form">{% csrf_token %}
+        <button class="btn btn-quiet btn-sm" title="Yangi suhbat boshlash">
+          <span class="w-4 h-4">{% include "partials/icon.html" with name="plus" %}</span><span class="hidden sm:inline">Yangi suhbat</span>
+        </button>
+      </form>
+    </header>
+
+    <div id="chat-log" class="chat-log" role="log" aria-live="polite">
+      {% for turn in turns %}
+        {% if turn.role == 'bot' %}
+          <div class="msg msg-bot"><span class="bot-avatar">{% include "partials/icon.html" with name="bot" %}</span><div class="bubble">{{ turn.text }}</div></div>
+        {% else %}
+          <div class="msg msg-user"><div class="bubble">{{ turn.text }}</div></div>
+        {% endif %}
+      {% endfor %}
+      <div id="topic-picker" class="topic-picker {% if progress.phase != 'choose' %}hidden{% endif %}">
+        {% for t in topics %}
+          <button type="button" class="topic-chip" data-topic="{{ t.key }}">
+            <span class="w-4 h-4 text-brand-600">{% include "partials/icon.html" with name=t.icon %}</span>{{ t.title }}
+          </button>
+        {% endfor %}
+      </div>
+    </div>
+
+    <footer class="border-t border-slateg-200 px-3 py-3 sm:px-4">
+      <div id="save-box" class="mb-3 {% if not can_save %}hidden{% endif %}">
+        <form method="post" action="{% url 'socratic:save' %}" class="flex flex-wrap items-center gap-2 rounded-xl border border-brand-200 bg-brand-50 px-3 py-2.5">{% csrf_token %}
+          <span class="w-4 h-4 text-brand-700">{% include "partials/icon.html" with name="pen" %}</span>
+          <span class="mr-auto text-[13px] font-semibold text-brand-900">Suhbat yakunlandi. Xulosangizni saqlab qo‘ying.</span>
+          <button class="btn btn-primary btn-sm">Refleksiya kundaligiga saqlash</button>
+        </form>
+      </div>
+      <div id="quick" class="mb-2 flex flex-wrap gap-1.5 {% if progress.phase != 'dialog' %}hidden{% endif %}">
+        <button type="button" class="quick-chip" data-say="Bilmayman, ishora bering"><span class="w-3.5 h-3.5 text-amberx-600">{% include "partials/icon.html" with name="spark" %}</span>Ishora bering</button>
+        <button type="button" class="quick-chip" data-say="Suhbatni yakunlash"><span class="w-3.5 h-3.5 text-brand-600">{% include "partials/icon.html" with name="check" %}</span>Xulosaga o‘tish</button>
+      </div>
+      <form id="chat-form" method="post" action="{% url 'socratic:message' %}" class="flex items-end gap-2">{% csrf_token %}
+        <label for="chat-input" class="sr-only">Xabar</label>
+        <textarea id="chat-input" name="message" rows="1" maxlength="2000" required
+                  placeholder="{% if progress.phase == 'choose' %}Masalan: nega kuzda barglar sarg‘ayadi?{% else %}Fikringizni yozing…{% endif %}"
+                  class="field chat-input"></textarea>
+        <button id="chat-send" class="btn btn-primary h-11 w-11 shrink-0 !p-0" title="Yuborish (Enter)">
+          <span class="sr-only">Yuborish</span><span class="w-5 h-5">{% include "partials/icon.html" with name="send" %}</span>
+        </button>
+      </form>
+      <p class="mt-1.5 px-1 text-[11px] text-slateg-400">Enter — yuborish, Shift+Enter — yangi qator</p>
+    </footer>
+  </section>
+
+  {# =================== Yon panel =================== #}
+  <aside class="space-y-4">
+    <section class="card card-p">
+      <h2 class="text-[14px] font-bold text-slateg-900">Mavzular</h2>
+      <p class="mt-0.5 text-[12px] text-slateg-500">Yoshga oid fiziologiya va gigiyena. Tanlang — suhbat shu mavzudan boshlanadi.</p>
+      <div class="mt-3 space-y-1.5">
+        {% for t in topics %}
+          <button type="button" data-topic="{{ t.key }}"
+                  class="topic-row{% if progress.topic == t.key %} is-on{% endif %}">
+            <span class="chip chip-sm shrink-0">{% include "partials/icon.html" with name=t.icon %}</span>
+            <span class="min-w-0 text-left">
+              <span class="block text-[13px] font-semibold text-slateg-900">{{ t.title }}</span>
+              <span class="block truncate text-[11px] text-slateg-500">{{ t.teaser }}</span>
+            </span>
+          </button>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="card card-p">
+      <h2 class="text-[14px] font-bold text-slateg-900">Qanday ishlaydi?</h2>
+      <ol class="mt-3 space-y-2.5">
+        <li class="flex gap-2.5"><span class="step-no">1</span><span class="text-[12px] leading-snug text-slateg-600"><b class="text-slateg-900">Savol.</b> Yordamchi muammoli vaziyat beradi.</span></li>
+        <li class="flex gap-2.5"><span class="step-no">2</span><span class="text-[12px] leading-snug text-slateg-600"><b class="text-slateg-900">Mulohaza.</b> Siz fikringizni asoslab yozasiz.</span></li>
+        <li class="flex gap-2.5"><span class="step-no">3</span><span class="text-[12px] leading-snug text-slateg-600"><b class="text-slateg-900">Ishora.</b> Qiynalsangiz — tayyor javob emas, yo‘naltiruvchi savol.</span></li>
+        <li class="flex gap-2.5"><span class="step-no">4</span><span class="text-[12px] leading-snug text-slateg-600"><b class="text-slateg-900">Xulosa.</b> Oxirida o‘z xulosangizni yozib, kundalikka saqlaysiz.</span></li>
+      </ol>
+    </section>
+  </aside>
+</div>
+
+{# JS uchun shablon: bot xabari #}
+<template id="tpl-bot"><div class="msg msg-bot"><span class="bot-avatar">{% include "partials/icon.html" with name="bot" %}</span><div class="bubble"></div></div></template>
+{% endblock %}
+
+{% block head %}
+<style>
+  .chat-shell {
+    display: flex; flex-direction: column; min-height: 32rem; height: calc(100vh - 7.5rem);
+    background: #fff; border: 1px solid #E1E9E4; border-radius: 18px; overflow: hidden;
+  }
+  @media (max-width: 1023px) { .chat-shell { height: calc(100vh - 6rem); } }
+  .chat-log {
+    flex: 1; overflow-y: auto; padding: 1.25rem 1rem; display: flex; flex-direction: column; gap: .9rem;
+    background: linear-gradient(180deg, #F7FAF8 0%, #FFFFFF 40%);
+  }
+  @media (min-width: 640px) { .chat-log { padding: 1.5rem 1.5rem; } }
+  .msg { display: flex; gap: .6rem; max-width: min(46rem, 92%); }
+  .msg-user { align-self: flex-end; }
+  .bubble {
+    white-space: pre-line; font-size: 14px; line-height: 1.6; padding: .7rem .95rem; border-radius: 16px;
+    overflow-wrap: anywhere;
+  }
+  .msg-bot .bubble { background: #fff; border: 1px solid #E1E9E4; color: #1F2D24; border-top-left-radius: 6px; box-shadow: 0 1px 2px rgba(11,43,24,.04); }
+  .msg-user .bubble { background: linear-gradient(180deg,#1E8F48,#136C35); color: #fff; border-top-right-radius: 6px; }
+  .bot-avatar {
+    display: grid; place-items: center; flex: none; width: 2rem; height: 2rem; border-radius: 10px;
+    background: linear-gradient(135deg, #0E5228, #22914F); color: #fff;
+  }
+  .bot-avatar svg { width: 1.05rem; height: 1.05rem; }
+  .bot-avatar-lg { width: 2.6rem; height: 2.6rem; border-radius: 13px; }
+  .bot-avatar-lg svg { width: 1.35rem; height: 1.35rem; }
+  .online-dot { width: .45rem; height: .45rem; border-radius: 50%; background: #22914F; box-shadow: 0 0 0 3px #D3ECDC; }
+
+  .typing { display: inline-flex; gap: .3rem; padding: .95rem 1rem; }
+  .typing i { width: .42rem; height: .42rem; border-radius: 50%; background: #9AAAA0; animation: blink 1.2s infinite ease-in-out; }
+  .typing i:nth-child(2) { animation-delay: .15s; } .typing i:nth-child(3) { animation-delay: .3s; }
+  @keyframes blink { 0%, 80%, 100% { opacity: .25; transform: translateY(0); } 40% { opacity: 1; transform: translateY(-3px); } }
+  .caret::after { content: "▍"; color: #22914F; margin-left: 1px; animation: caret 1s steps(1) infinite; }
+  @keyframes caret { 50% { opacity: 0; } }
+
+  .topic-picker { display: flex; flex-wrap: wrap; gap: .45rem; padding-left: 2.6rem; }
+  .topic-chip, .quick-chip {
+    display: inline-flex; align-items: center; gap: .4rem; border-radius: 999px; border: 1px solid #D7E2DA;
+    background: #fff; padding: .38rem .8rem; font-size: 13px; font-weight: 600; color: #2A3B31;
+    transition: border-color .15s, background .15s, color .15s;
+  }
+  .quick-chip { padding: .25rem .7rem; font-size: 12px; }
+  .topic-chip:hover, .quick-chip:hover { border-color: #A9DBBB; background: #F7FBF8; color: #116A33; }
+  .topic-chip svg { width: 1rem; height: 1rem; }
+  .quick-chip svg { width: .85rem; height: .85rem; }
+
+  .topic-row {
+    display: flex; width: 100%; align-items: center; gap: .65rem; border-radius: 12px; border: 1px solid transparent;
+    padding: .45rem .5rem; transition: background .15s, border-color .15s;
+  }
+  .topic-row:hover { background: #F5F8F6; }
+  .topic-row.is-on { background: #EAF6EE; border-color: #A9DBBB; }
+  .step-no {
+    display: grid; place-items: center; flex: none; width: 1.35rem; height: 1.35rem; border-radius: 50%;
+    background: #EAF6EE; color: #116A33; font-size: 11px; font-weight: 800;
+  }
+  .chat-input { resize: none; min-height: 2.75rem; max-height: 9rem; line-height: 1.45; overflow-y: hidden; }
+  @media (prefers-reduced-motion: reduce) { .typing i, .caret::after { animation: none; } }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  const log = document.getElementById('chat-log');
+  const form = document.getElementById('chat-form');
+  const input = document.getElementById('chat-input');
+  const send = document.getElementById('chat-send');
+  const picker = document.getElementById('topic-picker');
+  const quick = document.getElementById('quick');
+  const saveBox = document.getElementById('save-box');
+  const csrf = form.querySelector('[name=csrfmiddlewaretoken]').value;
+  const tplBot = document.getElementById('tpl-bot');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  let busy = false;
+
+  const scrollDown = () => { log.scrollTop = log.scrollHeight; };
+  scrollDown();
+
+  function addUser(text) {
+    const el = document.createElement('div');
+    el.className = 'msg msg-user';
+    el.innerHTML = '<div class="bubble"></div>';
+    el.firstChild.textContent = text;
+    log.insertBefore(el, picker);
+    scrollDown();
+  }
+
+  function addBot() {
+    const el = tplBot.content.firstElementChild.cloneNode(true);
+    log.insertBefore(el, picker);
+    return el.querySelector('.bubble');
+  }
+
+  async function typeInto(bubble, text) {
+    bubble.classList.add('caret');
+    if (reduce) { bubble.textContent = text; }
+    else {
+      // So'zma-so'z «yozish» — til modeli javob berayotgandek.
+      const parts = text.split(/(\s+)/);
+      let shown = '';
+      for (const part of parts) {
+        shown += part;
+        bubble.textContent = shown;
+        if (part.trim()) { scrollDown(); await sleep(18 + Math.random() * 38); }
+      }
+    }
+    bubble.classList.remove('caret');
+    scrollDown();
+  }
+
+  function setProgress(p, canSave) {
+    const box = document.getElementById('chat-progress');
+    box.classList.toggle('invisible', !p.total);
+    document.getElementById('progress-label').textContent =
+      p.phase === 'done' ? 'Yakunlandi' : p.phase === 'conclude' ? 'Xulosa' : `Savol ${p.step + 1} / ${p.total}`;
+    document.getElementById('progress-bar').style.width = (p.total ? Math.round(p.step / p.total * 100) : 0) + '%';
+    document.getElementById('chat-subtitle').textContent = p.title || 'Savollar orqali fikrlashga yordam beraman';
+    picker.classList.toggle('hidden', p.phase !== 'choose');
+    quick.classList.toggle('hidden', p.phase !== 'dialog');
+    saveBox.classList.toggle('hidden', !canSave);
+    input.placeholder = p.phase === 'choose' ? 'Masalan: nega kuzda barglar sarg‘ayadi?' : p.phase === 'done' ? 'Suhbat yakunlandi' : 'Fikringizni yozing…';
+    document.querySelectorAll('.topic-row').forEach(b => b.classList.toggle('is-on', b.dataset.topic === p.topic));
+  }
+
+  async function post(url, body, thinkingFor) {
+    busy = true; send.disabled = true;
+    const bubble = addBot();
+    bubble.innerHTML = '<span class="typing" aria-label="Yozmoqda"><i></i><i></i><i></i></span>';
+    bubble.style.padding = '0';
+    scrollDown();
+    const started = Date.now();
+    try {
+      const res = await fetch(url, {
+        method: 'POST', credentials: 'same-origin',
+        headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrf},
+        body: JSON.stringify(body)
+      });
+      const data = await res.json();
+      // «O'ylash» vaqti: xabar qanchalik uzun bo'lsa, shunchalik uzoqroq.
+      const think = Math.min(2600, 900 + (thinkingFor || '').length * 12 + Math.random() * 500);
+      await sleep(Math.max(0, think - (Date.now() - started)));
+      bubble.style.padding = '';
+      await typeInto(bubble, data.reply || '');
+      setProgress(data.progress, data.can_save);
+    } catch (e) {
+      bubble.style.padding = '';
+      bubble.textContent = 'Aloqa uzildi. Sahifani yangilab, qayta urinib ko‘ring.';
+    } finally {
+      busy = false; send.disabled = false; input.focus();
+    }
+  }
+
+  async function sendMessage(text) {
+    text = text.trim();
+    if (!text || busy) return;
+    addUser(text);
+    input.value = ''; autosize();
+    await post("{% url 'socratic:message' %}", {message: text}, text);
+  }
+
+  async function startTopic(key) {
+    if (busy) return;
+    log.querySelectorAll('.msg').forEach(m => m.remove());
+    picker.classList.add('hidden');
+    await post("{% url 'socratic:start' %}", {topic: key}, 'x'.repeat(40));
+  }
+
+  function autosize() {
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight, 144) + 'px';
+    input.style.overflowY = input.scrollHeight > 144 ? 'auto' : 'hidden';
+  }
+
+  form.addEventListener('submit', e => { e.preventDefault(); sendMessage(input.value); });
+  input.addEventListener('input', autosize);
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(input.value); }
+  });
+  document.querySelectorAll('[data-topic]').forEach(b => b.addEventListener('click', () => startTopic(b.dataset.topic)));
+  document.querySelectorAll('[data-say]').forEach(b => b.addEventListener('click', () => sendMessage(b.dataset.say)));
+  document.getElementById('reset-form').addEventListener('submit', e => { e.preventDefault(); startTopic(''); });
+})();
+</script>
+{% endblock %}

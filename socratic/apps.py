@@ -1,0 +1,7 @@
+from django.apps import AppConfig
+
+
+class SocraticConfig(AppConfig):
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "socratic"
+    verbose_name = "AI-sokratik"

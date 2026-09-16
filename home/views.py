@@ -91,24 +91,12 @@ def dashboard(request):
 # Menyuda bor, lekin hali tayyorlanayotgan bo'limlar. Bo'lim tayyor bo'lganda
 # `accounts.menu.PAGES` dagi URL'i almashtiriladi va shu yerdan o'chiriladi.
 # related — (url nomi, argument, yorliq): hozir foydalanish mumkin bo'lgan yaqin bo'limlar.
-UPCOMING = {
-    "ai-sokratik": {
-        "title": "AI-sokratik",
-        "icon": "bot",
-        "lead": "Sokratik suhbat usulidagi sun’iy intellekt yordamchisi. U tayyor javob bermaydi — "
-                "yo‘naltiruvchi savollar orqali mavzuni o‘zingiz tahlil qilib, xulosaga kelishingizga yordam beradi.",
-        "points": [
-            "Mavzu yoki muammoni tanlaysiz — yordamchi savollar bilan fikringizni chuqurlashtiradi.",
-            "Mulohazangizdagi bo‘shliqlarni ko‘rsatadi, yechimni esa sizga qoldiradi.",
-            "Suhbat yakunidagi xulosani refleksiya kundaligiga saqlash mumkin bo‘ladi.",
-        ],
-        "related": [("content:index", None, "Mavzular"), ("reflection:journal", None, "Refleksiya kundaligi")],
-    },
-}
+UPCOMING = {}
 
 # Tayyor bo'lgan bo'limlar: eski «tez orada» manzili yangi sahifaga olib boradi (saqlangan havolalar ishlasin).
 READY = {
     "vizual-keyslar": "assignments:cases",
+    "ai-sokratik": "socratic:chat",
     "3d-simulyatsiyalar": "development:simulations",
     "tajriba-uchastkasi": "development:plot",
 }
@@ -130,6 +118,26 @@ def upcoming(request, slug):
         for name, arg, label in page["related"]
     ]
     return render(request, "home/upcoming.html", {"page": page, "related": related})
+
+
+@login_required
+def search(request):
+    """Yuqori paneldagi qidiruv: platformaning barcha bo'limlari bo'yicha bitta natijalar sahifasi."""
+    from .search import MIN_LENGTH, search as run_search
+
+    query = (request.GET.get("q") or "").strip()
+    groups = run_search(query)
+    return render(
+        request,
+        "home/search.html",
+        {
+            "query": query,
+            "groups": groups,
+            "total": sum(group["total"] for group in groups),
+            "too_short": bool(query) and len(query) < MIN_LENGTH,
+            "min_length": MIN_LENGTH,
+        },
+    )
 
 
 @login_required

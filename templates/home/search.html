@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}{% if query %}«{{ query }}» — qidiruv{% else %}Qidiruv{% endif %} — BioTeacher{% endblock %}
+
+{% block content %}
+<div class="space-y-5">
+
+  <div class="flex items-start gap-3">
+    <span class="chip chip-lg shrink-0">{% include "partials/icon.html" with name="search" %}</span>
+    <div class="min-w-0">
+      <h1 class="text-[1.35rem] font-extrabold leading-tight text-slateg-900">Qidiruv</h1>
+      {% if query %}
+        <p class="mt-1 text-[13px] text-slateg-600">
+          «<b class="text-slateg-900">{{ query }}</b>» bo‘yicha
+          {% if total %}<span class="metric">{{ total }}</span> ta natija topildi{% else %}natija topilmadi{% endif %}.
+        </p>
+      {% else %}
+        <p class="mt-1 text-[13px] text-slateg-600">Yuqoridagi maydonga so‘z yozing — fanlar, mavzular, darslar,
+          topshiriqlar, 3D simulyatsiyalar va diagnostika bo‘yicha qidiriladi.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if too_short %}
+    <section class="card card-p text-center py-8">
+      <p class="font-semibold text-slateg-900">So‘rov juda qisqa</p>
+      <p class="mt-1 text-sm text-slateg-600">Kamida {{ min_length }} ta harf yozing.</p>
+    </section>
+
+  {% elif groups %}
+    {% for group in groups %}
+      <section class="card card-p">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="chip chip-sm shrink-0">{% include "partials/icon.html" with name=group.icon %}</span>
+          <h2 class="text-[15px] font-bold text-slateg-900">{{ group.label }}</h2>
+          <span class="pill pill-xs pill-mute metric">{{ group.total }}</span>
+          {% if group.total > group.items|length %}
+            <a href="{{ group.url }}" class="ml-auto text-[12px] font-semibold text-brand-700 hover:underline">Bo‘limga o‘tish →</a>
+          {% endif %}
+        </div>
+        <ul class="mt-3 divide-y divide-slateg-100">
+          {% for item in group.items %}
+            <li>
+              <a href="{{ item.url }}" class="block rounded-lg px-2 py-2.5 -mx-2 hover:bg-slateg-50">
+                <span class="flex flex-wrap items-center gap-2">
+                  <span class="text-[13.5px] font-semibold text-slateg-900">{{ item.title }}</span>
+                  {% if item.meta %}<span class="pill pill-xs pill-info">{{ item.meta }}</span>{% endif %}
+                </span>
+                {% if item.text %}
+                  <span class="mt-0.5 block text-[12px] leading-relaxed text-slateg-500">{{ item.text }}</span>
+                {% endif %}
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </section>
+    {% endfor %}
+
+  {% elif query %}
+    <section class="card card-p text-center py-10">
+      <span class="chip chip-lg mx-auto">{% include "partials/icon.html" with name="search" %}</span>
+      <p class="mt-3 font-semibold text-slateg-900">«{{ query }}» bo‘yicha hech narsa topilmadi</p>
+      <p class="mt-1 text-sm text-slateg-600">So‘zni qisqaroq yozib ko‘ring yoki bo‘limlardan birini oching.</p>
+      <div class="mt-4 flex flex-wrap justify-center gap-2">
+        <a href="{% url 'content:index' %}" class="btn btn-quiet btn-sm">Mavzular</a>
+        <a href="{% url 'assignments:cases' %}" class="btn btn-quiet btn-sm">Muammoli vizual keyslar</a>
+        <a href="{% url 'development:simulations' %}" class="btn btn-quiet btn-sm">3D simulyatsiyalar</a>
+        <a href="{% url 'socratic:chat' %}" class="btn btn-quiet btn-sm">AI-sokratik</a>
+      </div>
+    </section>
+
+  {% else %}
+    <section class="card card-p">
+      <h2 class="text-[14px] font-bold text-slateg-900">Qayerdan qidirilaydi</h2>
+      <ul class="mt-3 grid gap-2 sm:grid-cols-2">
+        <li class="text-[13px] text-slateg-600">• Fanlar, mavzular va darslar (BioBilim)</li>
+        <li class="text-[13px] text-slateg-600">• Topshiriqlar va muammoli vizual keyslar</li>
+        <li class="text-[13px] text-slateg-600">• 3D simulyatsiyalar va ularning qismlari</li>
+        <li class="text-[13px] text-slateg-600">• Tajriba uchastkasi resurslari va diagnostika</li>
+      </ul>
+    </section>
+  {% endif %}
+</div>
+{% endblock %}
