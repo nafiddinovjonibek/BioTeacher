@@ -219,8 +219,8 @@ __marimo__/
 
 # BioTeacher
 logs/
-staticfiles/
-media/
+# staticfiles/
+# media/
 .coverage
 htmlcov/
 !.env.example
